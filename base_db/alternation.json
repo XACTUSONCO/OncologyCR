@@ -1,0 +1,107 @@
+[
+    {
+        "model": "research.Alternation",
+        "pk": 1,
+        "fields": {
+            "value": "na"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 2,
+        "fields": {
+            "value": "EGFR"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 3,
+        "fields": {
+            "value": "HER2"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 4,
+        "fields": {
+            "value": "ALK"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 5,
+        "fields": {
+            "value": "MET"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 6,
+        "fields": {
+            "value": "NTRK"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 7,
+        "fields": {
+            "value": "KRAS/NRAS"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 8,
+        "fields": {
+            "value": "BRAF/PR"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 9,
+        "fields": {
+            "value": "MSI"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 10,
+        "fields": {
+            "value": "HRD(BRCA/ATM/etc)"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 11,
+        "fields": {
+            "value": "ER/PR"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 12,
+        "fields": {
+            "value": "PIK3CA"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 13,
+        "fields": {
+            "value": "FGFR"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 14,
+        "fields": {
+            "value": "etc"
+        }
+    },
+    {
+        "model": "research.Alternation",
+        "pk": 15,
+        "fields": {
+            "value": "TMB"
+        }
+    }
+]

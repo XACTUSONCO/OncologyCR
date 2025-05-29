@@ -1,0 +1,44 @@
+[
+    {
+        "model": "research.Route_of_Administration",
+        "pk": 1,
+        "fields": {
+            "value": "intravenous"
+        }
+    },
+    {
+        "model": "research.Route_of_Administration",
+        "pk": 2,
+        "fields": {
+            "value": "intramuscular"
+        }
+    },
+    {
+        "model": "research.Route_of_Administration",
+        "pk": 3,
+        "fields": {
+            "value": "subcutaneous"
+        }
+    },
+    {
+        "model": "research.Route_of_Administration",
+        "pk": 4,
+        "fields": {
+            "value": "oral"
+        }
+    },
+    {
+        "model": "research.Route_of_Administration",
+        "pk": 5,
+        "fields": {
+            "value": "sublingual"
+        }
+    },
+    {
+        "model": "research.Route_of_Administration",
+        "pk": 6,
+        "fields": {
+            "value": "intradermal"
+        }
+    }
+]

@@ -1,0 +1,86 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load subtract from research_tag %}
+{% load cal_career from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="card maindata-card shadow mb-5">
+							<div class="card-body">
+								<div class="default-forms">
+                                  <form method="POST">
+                                      {% csrf_token %}
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">Title</label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="text" class="form-control" name="title" value="{{ event.title|default_if_none:"" }}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">From Date</label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input class="form-control datepicker" name="from_date" value="{{ request.GET.from_date }}" required>
+                                          </div>
+                                      </div>
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">End Date</label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input class="form-control datepicker" name="end_date" value="{{ event.end_date|date:'Y-m-d'|default_if_none:"" }}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">Memo</label>
+                                          <div class="col-lg-10 col-form-data">
+											  <input class="form-control" name="memo" value="{{ event.memo|default_if_none:"" }}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">User</label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="text" class="form-control" name="user" value="{{ request.user.id }}" disabled="disabled">
+                                          </div>
+                                      </div>
+
+                                      <div class="py-4 px-3 text-end">
+                                          <button type="submit" class="btn btn-success edit-btn px-4">
+                                              <i class="bi bi-pencil"></i> <span>Save</span>
+                                          </button>
+                                          <button type="button" id="event-remove-button" event-id="{{ event.id }}" class="btn btn-outline-secondary">
+                                              <i class="bi bi-trash"></i> <span>Remove</span>
+                                          </button>
+                                      </div>
+                                  </form>
+								</div>
+							</div>
+						</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<link href="{% static 'css/fullcalendar/fullcalendar_3.4.0.css' %}" rel="stylesheet" >
+<script>
+        $(function () {
+            $('#event-remove-button').click(function (e) {
+                let eventID = $(this).attr('event-id');
+                let deleteEvent = confirm("정말 삭제하시겠습니까?");
+                if (deleteEvent) {
+                    window.location.href = '/leave/patient/delete/' + eventID + '/';
+                }
+            });
+
+            $( ".datepicker" ).datepicker({
+                todayHighlight : true,
+                format: "yyyy-mm-dd"
+            });
+        });
+</script>
+{% endblock %}

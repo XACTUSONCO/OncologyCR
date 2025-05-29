@@ -1,0 +1,166 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>환자정보 : <a href="/research/{{ assignment.research.id }}">{{ assignment.research.research_name }}</a> - {{ assignment.name }} {% if assignment.is_deleted %}(삭제됨){% endif %}</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="">Studies</a></li>
+									<li class="breadcrumb-item"><a href="">임상연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="green-box card shadow">
+							<div class="text-danger f_ss mb-3 px-3">
+								※ ICF date는 환자별 한 번만 입력해 주시면 됩니다. (ICF 재취득 제외) <br>
+								※ C1D1 데이터 추가/수정 시 (cycle:1, day:1), ongoing으로 자동 변경됩니다. <br>
+								※ EOT 데이터 추가/수정 시 (cycle: EOT), off로 자동 변경됩니다.
+							</div>
+
+							<!-- 환자정보 -->
+							<div class="info-card">
+								<!-- Card Body -->
+								<div class="card-body">
+									<div class="table-responsive">
+										<table class="table mb-0">
+											<thead>
+											  <tr>
+												<th>Status</th>
+												<th>Target<br>(part/cohort/multi-arm)</th>
+												<th>Subject No.</th>
+												<th>Patient No.</th>
+												<th>ECOG</th>
+												<th>Name</th>
+												<th>Sex</th>
+												<th>Age</th>
+												<th>Cancer</th>
+												<th>Previous Tx.</th>
+												<th>Doctor</th>
+												<th>CRC</th>
+												<th>관리</th>
+											  </tr>
+											</thead>
+											<tbody class="tr-hover table-link feedback" feedback-id="{{ feedback.id }}">
+												<tr>
+													<td>{{ assignment.get_status_display }}</td>
+													<td>
+														{% if assignment.research.onco_cr_count_set.all|length == 1 %}
+														  -
+														{% else %}
+														  {{ assignment.phase }}
+														{% endif %}
+													</td>
+													<td>{{ assignment.no }}</td>
+													<td>{{ assignment.register_number }}</td>
+													<td>{{ assignment.ECOG|default_if_none:"" }}</td>
+													<td>{{ assignment.name }}</td>
+													<td>{{ assignment.get_sex_display|default_if_none:"" }}</td>
+													<td>{{ assignment.age|default_if_none:"" }}</td>
+													<td>{{ assignment.get_dx_display|default_if_none:"" }}</td>
+													<td style="white-space: pre-line">{{ assignment.previous_tx }}</td>
+													<td>{{ assignment.PI }}</td>
+													<td>{{ assignment.curr_crc }}</td>
+													<td>
+														<button type="button" class="btn btn-outline-danger" id="assignment-remove-button" assignment-id="{{ assignment.id }}">
+															<i class="bi bi-trash3"></i> <span class="visually-hidden">Remove</span>
+														</button>
+														<button type="button" class="btn btn-outline-success" onclick="location.href='/assignment/{{ assignment.id }}/edit'">
+															<i class="bi bi-pencil"></i> <span class="visually-hidden">Edit</span>
+														</button>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div><!-- //table-responsive -->
+								</div>
+							</div><!-- //maindata-card -->
+						</div>
+						{% include "pages/assignment/feedback_list.html" %}
+
+						<!-- Modal -->
+						<!-- 피드백 수정 -->
+						{% for feedback in feedbacks %}
+						<div id="edit_feedback_{{ feedback.id }}" class="modal fade" role="dialog">
+							<div class="modal-dialog modal-dialog-centered modal-lg">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">피드백 수정</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<form method="post" id="feedback-edit-form-{{ feedback.id }}" class="forms-sample" enctype="multipart/form-data">
+										<div class="modal-body">
+											{% csrf_token %}
+											{% include 'pages/feedback/feedback_add_edit_form.html' %}
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+												<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+											</button>
+											<button type="button" class="btn btn-success edit-btn px-4 feedback-edit-button" assignment-id="{{ assignment.id }}" feedback-id="{{ feedback.id }}">
+												<i class="bi bi-pencil"></i> <span>Save changes</span>
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div><!-- //feedbackEdit -->
+						{% endfor %}
+
+						<!-- 피드백 등록 -->
+						<div id="feedbackNew" class="modal fade" role="dialog" tabindex="-1">
+							<div class="modal-dialog modal-dialog-centered modal-lg">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">피드백 추가</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<form class="forms-sample" id="feedback-add-form" method="post" enctype="multipart/form-data">
+										<div class="modal-body">
+											{% csrf_token %}
+											{% include 'pages/feedback/feedback_add_edit_form.html' %}
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="bi bi-arrow-left-square"></i> <span>Cancel</span></button>
+											<button type="button" class="btn btn-success edit-btn px-4" id="add-feedback-button" assignment-research-id="{{ assignment.research.id }}" assignment-id="{{ assignment.id }}">
+												<i class="bi bi-pencil"></i> <span>Add</span>
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<script>
+    function btn(sample){
+       alert(sample);
+    }
+ </script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/studies_view.js' %}"></script>
+<script src="{% static 'js/CRUD/assignment_detail.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>연구 등록</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="/research/search/">Studies</a></li>
+									<li class="breadcrumb-item"><a href="#!">임상연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+
+						<!-- 연구 상세 -->
+						<div class="card maindata-card shadow mb-5">
+							<!-- Card Header - Dropdown -->
+							<!-- Card Body -->
+							<div class="card-body">
+								<div class="default-forms">
+							      <form class="forms-sample" id="ResearchAddEditForm" method="post" action="/research/add/" enctype="multipart/form-data">
+								    {% csrf_token %}
+								    {% include 'pages/research/reserch_add_edit_form.html' %}
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">프로토콜 파일 (국문)</label>
+										<div class="col-lg-4 col-form-data file_cons">
+											<div class="filebox bs3-primary">
+												<input type="file" name="file[]" id="file" class="upload-hidden" multiple>
+												<input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택">
+												<label for="file" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+												<div class="file-list pl-2 pt-2 mb-3"></div>
+											</div>
+										</div>
+										<label class="col-lg-1 col-form-label">프로토콜 파일 (영문)</label>
+										<div class="col-lg-5 col-form-data file_cons">
+											<div class="filebox bs3-primary">
+												<input type="file" name="eng_file[]" id="engfile" class="upload-hidden" multiple>
+												<input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택">
+												<label for="engfile" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+												<div class="file-list pl-2 pt-2 mb-3"></div>
+											</div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">선정기준 이미지</label>
+										<div class="col-lg-4 col-form-data file_cons">
+											<div class="filebox bs3-primary">
+												<input type="file" name="inclusion" id="inclusion" class="upload-hidden">
+												<input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택">
+												<label for="inclusion" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+												<div class="file-list pl-2 pt-2 mb-3"></div>
+											</div>
+										</div>
+										<label class="col-lg-1 col-form-label">제외기준 이미지</label>
+										<div class="col-lg-5 col-form-data file_cons">
+											<div class="filebox bs3-primary">
+												<input type="file" name="exclusion" id="exclusion" class="upload-hidden">
+												<input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택">
+												<label for="exclusion" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+												<div class="file-list pl-2 pt-2 mb-3"></div>
+											</div>
+										</div>
+									</div>
+									<div class="form-group row"> <!-- Reference -->
+										<label class="col-lg-2 col-form-label">Reference 이미지</label>
+										<div class="col-lg-10 col-form-data file_cons">
+											<div class="filebox bs3-primary">
+												<input type="file" name="reference" id="reference" class="upload-hidden">
+												<input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택">
+												<label for="reference" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+												<div class="file-list pl-2 pt-2 mb-3"></div>
+											</div>
+										</div>
+									</div>
+									<div class="py-4 px-3 text-end">
+										<button type="button" class="btn btn-outline-secondary" onclick="history.back()"><i class="bi bi-arrow-left-square"></i> <span>Cancel</span></button>
+										<button type="submit" id="uploadButton" class="btn btn-success edit-btn px-4" onclick="location.href='/research/{{ research.id }}/'"><i class="bi bi-pencil"></i> <span>Save changes</span></button>
+									</div>
+							      </form>
+								</div><!-- //default-forms -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/CRUD/research_add.js' %}"></script>
+<script src="{% static 'js/CRUD/file-upload.js' %}"></script>
+<script>
+        $(function () {
+            $(".storagedate, .endbrief, .resultbrief").datepicker({
+                todayHighlight: true,
+            });
+
+            $(function () {
+                $(".storagedate, .endbrief, .resultbrief").datepicker({
+                    todayHighlight: true,
+                });
+
+                $("#addArmInput1").on("change", setArmInput)
+                $("#addArmInput2").on("change", setArmInput)
+                $("#addArmInput3").on("change", setArmInput)
+                $("#addArmInput4").on("change", setArmInput)
+                $("#addArmInput5").on("change", setArmInput)
+
+                $("#addArmInputBtn").on("click", function () {
+                    let change = false;
+                    $(".armInputs").each((i, el) => {
+                        if (!change && el.style.display === "none") {
+                            change = true;
+                            $(el).show();
+                            if(i === 4) {
+                                $("#addArmInputBtn").hide()
+                            }
+                        }
+                    })
+                })
+
+				let inputCount = 1; // Track the number of input fields
+				function updateTargetInput() {
+					let targetValues = $(".targetInputs")
+						.map(function() {
+							return $(this).val();
+						})
+						.get();
+
+					if (targetValues.length > 0) {
+						$("#target").val(targetValues.join(","));
+					} else {
+						$("#target").val("-"); // Set default value to "-" if no values are entered
+					}
+				}
+
+                $("#addTargetInputBtn").on("click", function () {
+					if (inputCount <= 15) {
+						// Create a new input field
+						let newInput = $("<input>")
+							.attr("type", "text")
+							.addClass("form-control targetInputs")
+							.attr("placeholder", "Add TARGET" + inputCount)
+							.on("change", updateTargetInput);
+
+						// Append the new input field to the dynamicInputs div
+						$("#dynamicInputs").append(newInput);
+
+						inputCount++;
+
+						// Update the "ADD" button visibility
+						if (inputCount > 15) {
+							$("#addTargetInputBtn").hide();
+						}
+					}
+				});
+            });
+
+            function setArmInput() {
+                $("#arm_name").val([
+                    $("#addArmInput1").val(),
+                    $("#addArmInput2").val(),
+                    $("#addArmInput3").val(),
+                    $("#addArmInput4").val(),
+                    $("#addArmInput5").val()
+                ].filter(i => i).join(","))
+            }
+
+            function setTargetInput() {
+				let targetValues = $(".targetInputs")
+					.map(function() {
+						return $(this).val();
+					})
+					.get();
+
+				$("#target").val(targetValues.join(","));
+			}
+
+			// Attach the change event handler to all input fields (including the initial one)
+    		$(".targetInputs").on("change", setTargetInput);
+        });
+
+
+        var SetTypeValue = $('input[type=radio][id=required]:checked').val();
+        if (SetTypeValue == undefined){ // 처음에는 CRO 필드를 disabled 상태로 설정
+          $('input[name=CRO]').prop('disabled', true);
+          $('input[name=CRA_name]').prop('disabled', true);
+          $('input[name=CRA_phoneNumber]').prop('disabled', true);
+        }
+
+        $('input[type=radio][name=type]').on('click',function () { // 연구 등록 페이지에서 "IIT/SIT" 항목 클릭 시, 이벤트 발생
+          var chkTypeValue = $('input[type=radio][id=required]:checked').val();
+
+          if(chkTypeValue == 'SIT'){ // SIT 클릭 시
+            $('input[name=CRO]').prop('disabled', false); // disabled 해제
+            $('input[name=CRA_name]').prop('disabled', false);
+            $('input[name=CRA_phoneNumber]').prop('disabled', false);
+          }
+          else {
+            $('input[name=CRO]').prop('disabled', true);
+            $('input[name=CRA_name]').prop('disabled', true);
+            $('input[name=CRA_phoneNumber]').prop('disabled', true);
+          }
+        });
+
+
+        var SetStatusValue = $('input[type=radio][name=status]:checked').val();
+        if (SetStatusValue == undefined){ // 처음에는 종료보고일/결과보고일/장기보관날짜/장기보관문서/바인더위치(이미지) 필드를 disabled 상태로 설정
+          $('input[name=end_brief]').prop('disabled', true);
+          $('input[name=result_brief]').prop('disabled', true);
+          $('input[name=storage_date]').prop('disabled', true);
+          $('input[type=file][id=research_archive]').prop('disabled', true);
+          $('input[type=file][id=image]').prop('disabled', true);
+        }
+
+        $('input[type=radio][name=status]').on('change',function () { // 연구 등록 페이지에서 "Status" 항목 클릭 시, 이벤트 발생
+          var chkStatusValue = $(this).val();
+
+          if (chkStatusValue === '종료보고완료') {
+            $('input[name=end_brief]').prop('disabled', false);
+            $('input[name=result_brief]').prop('disabled', true);
+            $('input[name=storage_date]').prop('disabled', true);
+            $('input[id=research_archive]').prop('disabled', true);
+            $('input[id=image]').prop('disabled', true);
+          } else if (chkStatusValue === '결과보고완료') {
+            $('input[name=end_brief]').prop('disabled', false);
+            $('input[name=result_brief]').prop('disabled', false);
+            $('input[name=storage_date]').prop('disabled', true);
+            $('input[id=research_archive]').prop('disabled', true);
+            $('input[id=image]').prop('disabled', true);
+          } else if (chkStatusValue === '장기보관완료') {
+            $('input[name=end_brief]').prop('disabled', false);
+            $('input[name=result_brief]').prop('disabled', false);
+            $('input[name=storage_date]').prop('disabled', false);
+            $('input[id=research_archive]').prop('disabled', false);
+            $('input[id=image]').prop('disabled', false);
+          }
+        });
+
+        $(document).ready(function () {
+			$("#uploadButton").on("click", function () {
+				var fileInputs = [$("input[name='file[]']")[0], $("input[name='eng_file[]']")[0]];
+				var exceededFileInputs = [];
+
+				for (var i = 0; i < fileInputs.length; i++) {
+					var input = fileInputs[i];
+					var inputLabel = $(input).closest('div[class^="col-lg"]').prev('label').text().trim();  // 라벨 텍스트 가져오기
+					var fileSize = 0;
+
+					if (input.files.length > 0) {
+						for (var j = 0; j < input.files.length; j++) {
+							fileSize += input.files[j].size;
+						}
+
+						var maxSizeInBytes = 20 * 1024 * 1024; // 20 MB
+
+						if (fileSize > maxSizeInBytes) {
+							exceededFileInputs.push(inputLabel);
+						}
+					}
+				}
+
+				if (exceededFileInputs.length > 0) {
+					var alertMessage = "다음 항목에서 파일 업로드 최대 크기(20MB, 20,480KB)를 초과하는 파일이 포함되어 있습니다. 파일 크기를 확인한 후 다시 시도해 주십시오.\n" + exceededFileInputs.join(", ");
+					alert(alertMessage);
+				} else {
+					$("#ResearchAddEditForm").submit();
+				}
+			});
+		});
+</script>
+{% endblock %}

@@ -1,0 +1,215 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>사용자 정보</h2>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+									<li class="breadcrumb-item"><a href="/administration/user/">사용자 정보</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<ul id="submenu-tab">
+								<li><a href="/administration/user/"><i></i> User</a></li>
+								<li><a href="/administration/user/group/"><i></i> Group</a></li>
+                                <li><a href="/administration/user/team/"><i></i> Team</a></li>
+								<li><a href="/administration/user/location/"><i></i> Location</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 admin-tables">
+
+					<div class="row row-cols-auto select-action">
+						<div class="col ms-auto">
+							<button id="row-delete-button" type="button" class="btn btn-danger edit-btn px-4" onClick="handleClickDeleteSelection()" style="display: none">
+								<i class="bi bi-trash"></i> <span>DELETE</span>
+							</button>
+							<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAdd()">
+								<i class="bi bi-plus-square"></i> <span>Add</span>
+							</button>
+						</div>
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-bordered custom-table" id="group-table">
+							<thead>
+                                <tr>
+                                    <th scope="col">삭제</th>
+                                    <th scope="col" style="display: none;">#</th>
+                                    <th scope="col">name</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for group in groups %}
+                                <tr>
+                                    <td style="cursor: pointer"></td>
+                                    <th scope="row" style="display: none;">{{ group.id }}</th>
+                                    <td>{{ group.name }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-outline-secondary"
+                                                onClick="handleClickEdit('{{ group.name }}', '{{ group.id }}')">
+                                            수정
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+						</table>
+					</div>
+				</div>
+
+                {# 추가/수정 모달 #}
+                <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="addModalLabel">그룹 추가</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+							</div>
+                            <form method="post" action="/administration/user/group/" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input id="group-id" type="hidden" name="group_id"/>
+                                <input id="is-update" type="hidden" name="is_update"/>
+                                <input id="is-deleted" type="hidden" name="is_deleted"/>
+
+                                <div class="modal-body">
+                                    <div class="mb-3 row">
+                                        <label for="name" class="col-sm-2 col-form-label">그룹명</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="name" name="name" maxlength="100" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+										<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+									</button>
+                                    <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+										<i class="bi bi-pencil"></i> <span>Save</span>
+									</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<link href="{% static 'css/jquery-ui-1.13.2.css' %}" rel="stylesheet" type="text/css" />
+
+<script src="{% static 'js/dataTables.min.js' %}"></script>
+<script src="{% static 'js/jquery-ui-1.13.2.js' %}"></script>
+<script>
+        $(document).ready(function () {
+            const table = $('#group-table').DataTable({
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    },
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+                select: {
+                    style: 'multiple',
+                    selector: 'td:first-child'
+                },
+                "order": [[1, "desc"]],
+            })
+
+            $('#group-table').data('selectedIds', []);
+
+            table.on('select', function (e, dt, type, indexes) {
+                const groupId = table.rows(indexes).data().toArray()[0][1];
+                $('#group-table').data('selectedIds', [...$('#group-table').data('selectedIds'), groupId]);
+                if ($('#group-table').data('selectedIds').length === 1) {
+                    $('#row-delete-button').show();
+                }
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                const groupId = table.rows(indexes).data().toArray()[0][1];
+                const tmp = $('#group-table').data('selectedIds').filter(a => a !== groupId)
+                $('#group-table').data('selectedIds', tmp);
+                if (tmp.length === 0) {
+                    $('#row-delete-button').hide();
+                }
+            });
+
+            $('.dataTables_length').addClass('bs-select');
+
+            $("#group-table_wrapper").css("width", "100%")
+
+            $('#addModal').on('hide.bs.modal', () => {
+                $('#is-update').val('');
+                $('#is-deleted').val('');
+                $('#group-id').val('');
+                $('#name').val('');
+            })
+        });
+
+        function handleClickAdd() {
+            $('#addModalLabel').text('그룹 추가');
+            $('#is-update').val(false);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(name, groupId) {
+            $('#addModalLabel').text('그룹 수정');
+            $('#name').val(name);
+            $('#is-update').val('true');
+            $('#group-id').val(groupId);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteSelection() {
+            const targetList = $('#group-table').data('selectedIds');
+            if (confirm(`${targetList.length}개의 데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/administration/user/group/delete/',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "group_ids": targetList.join(","),
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/admin.js' %}"></script>
+{% endblock %}

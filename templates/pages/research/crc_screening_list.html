@@ -1,0 +1,95 @@
+{% extends "bases/base_generic.html" %}
+{% load is_numberic from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Screening Subject List [{{crc_name}} CRC]</h2>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- 다중선택되는 select박스로 검색하기 -->
+				<div class="row row-cols-auto select-action">
+					<div class="col">
+						<select id="table-filter" class="form-select">
+							<option value="" selected="">Study Name</option>
+						</select>
+					</div>
+				</div>
+              
+                <!-- start contents-area -->
+                <div class="table-responsive default-table">
+                  <table class="table table-bordered" id="crc_screening_list">
+                    <thead>
+                      <tr>
+                        {% if crc_id in observe_and_PMS %}
+                        <th>유형</th>
+                        {% endif %}
+                        <th>Study Name</th>
+                        <th>Subject No.</th>
+                        <th>Patient No.</th>
+                        <th>Name</th>
+                        <th>Sex</th>
+                        <th>Age</th>
+                        <th>Doctor</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for crc_screening in crc_screening %}
+                      <tr class="table-link" data-link="/assignment/{{ crc_screening.id }}/">
+                        {% if crc_id in observe_and_PMS %}
+                        <td>
+                          {% with count=crc_screening.research.type.count %}
+							  {% for inst in crc_screening.research.type.all %}
+								  {{ inst }}{% if forloop.counter < count %},{% endif %}
+							  {% endfor %}
+                          {% endwith %}
+                        </td>
+                        {% endif %}
+                        <td>{{ crc_screening.research.research_name }}</td>
+                        <td>{{ crc_screening.no }}</td>
+                        <td>{{ crc_screening.register_number }}</td>
+                        <td>{{ crc_screening.name }}</td>
+                        <td>{{ crc_screening.sex }}</td>
+                        <td>{{ crc_screening.age }}</td>
+                        <td>{{ crc_screening.PI }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<!-- CRC 페이지용 js -->
+<script src="{% static 'assets/js/pages/crc.js' %}"></script>
+<script>
+	// CRC탭 - Screening Subject List
+    var crc_screening_list = $('#crc_screening_list').DataTable( {
+        "ordering": false,
+        'rowsGroup': [0],
+    } );
+    // Study Name
+    var crc_screening_list_column0 = crc_screening_list.column(0).data();
+    var uniqueValues = crc_screening_list_column0.toArray().filter(function (value, index, self) {
+        return self.indexOf(value) === index;
+    }).sort();
+    uniqueValues.forEach(function (val) {
+        $('#table-filter').append('<option value="' + val + '">' + val + '</option>');
+    });
+    $('#table-filter').on('change', function () {
+        crc_screening_list.column(0).search(this.value).draw();
+    });
+</script>
+{% endblock %}

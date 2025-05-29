@@ -1,0 +1,547 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+{% load chunks from research_tag %}
+<!-- Study Name -->
+<div class="form-group row {% if 'is_recruiting' in errors %} card-inverse-danger {% endif %}">
+  <label for="research_name" class="col-lg-2 col-form-label">Study Name
+    {% autoescape off %}
+      {% if 'research_name' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.research_name }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="research_name"
+             value="{% if research.research_name %}{{ research.research_name }}{% elif pre_initiation.pre_research_name %}{{ pre_initiation.pre_research_name }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+  </div>
+
+  <label for="team" class="col-lg-1 col-form-label">Team
+    {% autoescape off %}
+      {% if 'team' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.team }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-5 col-form-data">
+    <div class="row row-cols-auto">
+      {% for team in teams %}
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="team" value="{{ team.name }}"
+                   {% if team.name == research.team %} checked {% elif team.name == pre_initiation.team %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">{{ team.name }}</span>
+          </label>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'is_pre_screening' in errors %} card-inverse-danger {% endif %}">
+  <label for="is_pre_screening" class="col-lg-2 col-form-label">Pre-Screening
+    {% autoescape off %}
+      {% if 'is_pre_screening' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.is_pre_screening }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_pre_screening" value="Y" {% if 'Y' == research.is_pre_screening %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">Yes</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_pre_screening" value="N" {% if 'N' == research.is_pre_screening %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">No</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <label for="is_recruiting" class="col-lg-1 col-form-label">Recruitment
+    {% autoescape off %}
+      {% if 'is_recruiting' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.is_recruiting }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-5 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_recruiting"
+                   value="Not yet recruiting" {% if 'Not yet recruiting' == research.is_recruiting %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">Not yet Recruiting</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_recruiting"
+                   value="Recruiting" {% if 'Recruiting' == research.is_recruiting %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">Recruiting</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_recruiting"
+                   value="Holding" {% if 'Holding' == research.is_recruiting %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">Holding</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_recruiting"
+                   value="Completed" {% if 'Completed' == research.is_recruiting %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">Completed</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Study Code -->
+<div class="form-group row {% if 'type' in errors %} card-inverse-danger {% endif %}">
+  <label for="study_code" class="col-lg-2 col-form-label">Project No.
+    {% autoescape off %}
+      {% if 'study_code' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.study_code }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="study_code"
+             value="{% if research.study_code %}{{ research.study_code }}{% elif pre_initiation.study_code %}{{ pre_initiation.study_code }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+  </div>
+  {% include 'pages/research/research_add_edit_form/_type.html' %}
+</div>
+
+<!-- IRB, CRIS No. -->
+<div class="form-group row {% if 'irb_number' in errors %} card-inverse-danger {% endif %}">
+  <label for="irb_number" class="col-lg-2 col-form-label">IRB No.
+    {% autoescape off %}
+      {% if 'irb_number' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.irb_number }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="irb_number"
+             value="{% if research.irb_number %}{{ research.irb_number }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+  </div>
+
+  <label for="cris_number" class="col-lg-1 col-form-label">CRIS No.
+    {% autoescape off %}
+      {% if 'cris_number' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.cris_number }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-5 col-form-data">
+      <input type="text" class="form-control" name="cris_number"
+             value="{% if research.cris_number %}{{ research.cris_number }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+    </div>
+</div>
+
+<!-- SIT의 경우, CRA 정보 -->
+<div class="form-group row {% if 'CRO' in errors %} card-inverse-danger {% endif %}">
+  <label for="CRO" class="col-lg-2 col-form-label">CRO
+    {% autoescape off %}
+      {% if 'CRO' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.CRO }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-3 col-form-data">
+      <label class="text-black">소속:&nbsp;</label>
+      <div class="col-form-data">
+          <select class="form-select" id="CRO" name="CRO">
+              <option value="">-------</option>
+                {% for company in companies %}
+                <option value="{{company.id}}" {% if company.id == research.CRO.id %} selected {% endif %}>{{company.name_kor}} | {{company.name_eng}}</option>
+                {% endfor %}
+          </select>
+      </div>
+  </div>
+  <div class="col-lg-3 col-form-data">
+      <label class="text-black">CRA 성함:&nbsp;</label>
+      <input type="text" class="form-control" name="CRA_name"
+             value="{% if research.CRA_name %}{{ research.CRA_name }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+  </div>
+  <div class="col-lg-3 col-form-data">
+      <label class="text-black">CRA 전화번호:&nbsp;</label>
+      <input type="text" class="form-control" name="CRA_phoneNumber"
+             value="{% if research.CRA_phoneNumber %}{{ research.CRA_phoneNumber }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+    </div>
+</div>
+
+<!-- Research Explanation -->
+<div class="form-group row {% if 'research_explanation' in errors %} card-inverse-danger {% endif %}">
+  <label for="research_explanation" class="col-lg-2 col-form-label">Protocol Title
+    {% autoescape off %}
+      {% if 'research_explanation' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.research_explanation }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+      <input type="text" class="form-control" name="research_explanation"
+             value="{% if research.research_explanation %}{{ research.research_explanation }}{% elif pre_initiation.study_explanation %}{{ pre_initiation.study_explanation }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+    </div>
+</div>
+
+<!-- IP -->
+<div class="form-group row {% if 'medicine_name' in errors or 'PI' in errors %} card-inverse-danger {% endif %}">
+  <label for="medicine_name" class="col-lg-2 col-form-label">IP
+    {% autoescape off %}
+      {% if 'medicine_name' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.medicine_name }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <textarea class="form-control" name="medicine_name" rows="3"
+             {% if not editable %} disabled {% endif %}>{% if research.medicine_name %}{{ research.medicine_name }}{% elif pre_initiation.tx %}{{ pre_initiation.tx }}{% endif %}</textarea>
+  </div>
+  <label for="PI" class="col-lg-1 col-form-label">PI
+    {% autoescape off %}
+      {% if 'PI' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.PI }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-5 col-form-data">
+    <input type="text" class="form-control" name="PI"
+             value="{% if research.PI %}{{ research.PI }}{% elif pre_initiation.PI %}{{ pre_initiation.PI }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+  </div>
+</div>
+
+<!-- Route of Administration -->
+<div class="form-group row {% if 'route_of_administration' in errors %} card-inverse-danger {% endif %}">
+  <label for="route_of_administration" class="col-lg-2 col-form-label">Route of Administration
+    {% autoescape off %}
+      {% if 'route_of_administration' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.route_of_administration }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data multi-form-check">
+    <div class="row">
+      {% for value, text in field_choice.route_of_administration %}
+        <div class="col-lg-3 col-md-3 col-sm-6">
+             <div class="form-check form-check-success">
+                 <label class="form-check-label">
+                   <input type="checkbox" class="form-check-input" name="route_of_administration" value="{{ value }}"
+                         {% if value in research.route_of_administration.all|get_m2m_values %}
+                          checked {% endif %}
+                         {% if not editable %} disabled {% endif %}>
+                   <i class="input-helper"></i><span class="form-check-sign">{{ text }}</span>
+                 </label>
+             </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ARM -->
+<div class="form-group row {% if 'arm_name' in errors in errors %} card-inverse-danger {% endif %}">
+  <label for="arm_name" class="col-lg-2 col-form-label">ARM</label>
+  <div class="col-lg-10 col-form-data row">
+      <input id="arm_name" class="form-control position-relative" name="arm_name" type="text" value="{{ research.arm_name|default_if_none:"" }}" readonly></input>
+      <input id="addArmInput1" type="text" class="form-control armInputs" placeholder="Add ARM1">
+      <input id="addArmInput2" type="text" class="form-control armInputs" placeholder="Add ARM2" style="display: none">
+      <input id="addArmInput3" type="text" class="form-control armInputs" placeholder="Add ARM3" style="display: none">
+      <input id="addArmInput4" type="text" class="form-control armInputs" placeholder="Add ARM4" style="display: none">
+      <input id="addArmInput5" type="text" class="form-control armInputs" placeholder="Add ARM5" style="display: none">
+      <button id="addArmInputBtn" class="btn btn-outline-secondary mb-2" type="button">ADD</button>
+  </div>
+</div>
+
+<!-- Target -->
+<div class="form-group row {% if 'target' in errors in errors %} card-inverse-danger {% endif %}">
+  <label for="target" class="col-lg-2 col-form-label">Target</label>
+  <div class="col-lg-10 col-form-data row">
+      <input id="target" class="form-control position-relative" name="target" type="text" readonly value="-">
+      <div id="dynamicInputs">
+          <!-- Dynamic input fields will be added here -->
+      </div>
+      <button id="addTargetInputBtn" class="btn btn-outline-secondary mb-2" type="button">ADD</button>
+  </div>
+</div>
+
+<!-- CRC -->
+<div class="form-group row {% if 'crc' in errors %} card-inverse-danger {% endif %}">
+    {% include 'pages/research/research_add_edit_form/_crc.html' %}
+</div>
+
+<div class="form-group row {% if 'contact' in errors %} card-inverse-danger {% endif %}">
+  <label for="contact" class="col-lg-2 col-form-label">Contact Number
+    {% autoescape off %}
+      {% if 'contact' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.contact }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="contact"
+             value="{% if research.contact %}{{ research.contact }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+    </div>
+</div>
+
+<!-- Cancer -->
+<div class="form-group row {% if 'cancer' in errors %} card-inverse-danger {% endif %}">
+  {% include 'pages/research/research_add_edit_form/_cancer.html' %}
+</div>
+
+<div class="form-group row {% if 'phase' in errors %} card-inverse-danger {% endif %}">
+  <!-- Phase -->
+  {% include 'pages/research/research_add_edit_form/_phase.html' %}
+  <!-- Chemotherapy -->
+  {# {% include 'pages/research/research_add_edit_form/_type_of_therapy.html' %} #}
+  <!-- PDL1 -->
+  {# {% include 'pages/research/research_add_edit_form/_pdl1.html' %} #}
+  <!-- IO Naive -->
+  {# {% include 'pages/research/research_add_edit_form/_io_naive.html' %} #}
+</div>
+
+<!-- <div class="form-group row {% if 'chemotherapy' in errors %} card-inverse-danger {% endif %}"> -->
+  <!-- Line -->
+  {# {% include 'pages/research/research_add_edit_form/_line.html' %} #}
+  <!-- Alternation -->
+  {# {% include 'pages/research/research_add_edit_form/_alternation.html' %} #}
+<!-- </div> -->
+
+<!-- <div class="form-group row {% if 'lesion' in errors %} card-inverse-danger {% endif %}"> -->
+  <!-- Lesion -->
+  {# {% include 'pages/research/research_add_edit_form/_lesion.html' %} #}
+  <!-- Brain METS 가능여부 -->
+  {# {% include 'pages/research/research_add_edit_form/_brain_mets.html' %} #}
+  <!-- Biopsy 가능여부 -->
+  {# {% include 'pages/research/research_add_edit_form/_biopsy.html' %} #}
+<!-- </div> -->
+
+<div class="form-group row">
+  <label for="remark" class="col-lg-2 col-form-label">Comment</label>
+  <div class="col-lg-10 col-form-data">
+      <textarea class="form-control" name="remark" id="remark" rows="8"
+                {% if not editable %} disabled {% endif %}>{% if research.remark %}{{ research.remark }}{% endif %}</textarea>
+    </div>
+</div>
+
+
+<div class="form-group row {% if 'first_backup' in errors %} card-inverse-danger {% endif %}">
+  <label for="first_backup" class="col-lg-2 col-form-label">Backup1
+    {% autoescape off %}
+      {% if 'first_backup' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.first_backup }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <select class="form-select" id="first_backup" name="first_backup">
+          <option value="">-------</option>
+            {% for backup in backup %}
+            <option value="{{backup.id}}" {% if backup.id == research.first_backup.id %} selected {% endif %}>{{backup}}</option>
+            {% endfor %}
+      </select>
+  </div>
+
+  <label for="second_backup" class="col-lg-1 col-form-label">Backup2
+    {% autoescape off %}
+      {% if 'second_backup' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.second_backup }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-5 col-form-data">
+      <select class="form-select" id="second_backup" name="second_backup">
+          <option value="">-------</option>
+            {% for backup in backup %}
+            <option value="{{backup.id}}" {% if backup.id == research.second_backup.id %} selected {% endif %}>{{backup}}</option>
+            {% endfor %}
+      </select>
+  </div>
+</div>
+
+<!-- Status -->
+<div class="form-group row {% if 'status' in errors %} card-inverse-danger {% endif %}">
+  <label for="status" class="col-lg-2 col-form-label">Status
+    {% autoescape off %}
+      {% if 'status' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.status }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="status" value="종료보고완료" {% if '종료보고완료' == research.status %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">종료 보고 완료</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="status" value="결과보고완료" {% if '결과보고완료' == research.status %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">결과 보고 완료</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="status" value="장기보관완료" {% if '장기보관완료' == research.status %} checked {% endif %}><i class="input-helper"></i>
+            <span class="form-check-sign">장기 보관 완료</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row">
+  <label for="end_brief" class="col-lg-2 col-form-label">종료보고일
+    {% autoescape off %}
+      {% if 'end_brief' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.end_brief }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+        <input class="form-control endbrief" data-provide="datepicker" name="end_brief" autocomplete="off"
+               value="{{ research.end_brief|date:"m/d/Y" }}"
+               >
+  </div>
+
+  <label for="result_brief" class="col-lg-1 col-form-label">결과보고일
+    {% autoescape off %}
+      {% if 'result_brief' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.result_brief }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-5 col-form-data">
+        <input class="form-control resultbrief" data-provide="datepicker" name="result_brief" autocomplete="off"
+               value="{{ research.result_brief|date:"m/d/Y" }}"
+               >
+  </div>
+</div>
+
+<div class="form-group row">
+  <label for="storage_date" class="col-lg-2 col-form-label">장기 보관 날짜
+    {% autoescape off %}
+      {% if 'storage_date' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.storage_date }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+        <input class="form-control storagedate" data-provide="datepicker" name="storage_date" autocomplete="off"
+               value="{{ research.storage_date|date:"m/d/Y" }}"
+               >
+  </div>
+  <label class="col-lg-1 col-form-label">장기 보관 문서</label>
+  <div class="col-lg-5 col-form-data file_cons">
+      <div class="filebox bs3-primary">
+        <input type="file" name="research_archive[]" id="research_archive" class="upload-hidden" multiple>
+        <input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택" >
+        <label for="research_archive" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+        <p class="text-danger">* 장기 보관 문서 파일 업로드 시, 바인더 위치 이미지는 삭제됩니다.</p>
+        <div class="file-list pl-2 pt-2 mb-3">
+        {% if not research_archives %}
+        {% else %}
+          <ul>
+            {% for archive in research_archives %}
+              <li><a href="{{ archive.file.url }}" target="_blank" download>{{ archive.filename }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'binder_location' in errors %} card-inverse-danger {% endif %}">
+  <label for="binder_location" class="col-lg-2 col-form-label">Binder Location
+    {% autoescape off %}
+      {% if 'binder_location' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.binder_location }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="binder_location"
+             value="{% if research.binder_location %}{{ research.binder_location }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+  </div>
+
+  <label for="study_coordinator" class="col-lg-1 col-form-label">Study Coordinator
+    {% autoescape off %}
+      {% if 'study_coordinator' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.study_coordinator }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-5 col-form-data">
+      <input type="text" class="form-control" name="study_coordinator"
+             value="{% if research.study_coordinator %}{{ research.study_coordinator }}{% endif %}"
+             {% if not editable %} disabled {% endif %}>
+  </div>
+</div>
+
+<div class="form-group row {% if 'binder_image' in errors %} card-inverse-danger {% endif %}">
+  <label for="binder_image" class="col-lg-2 col-form-label">Image of Binder Location
+    {% autoescape off %}
+      {% if 'binder_image' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.binder_image }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data file_cons">
+      <div class="filebox bs3-primary">
+        <input type="file" name="image[]" id="image" class="upload-hidden" multiple>
+        <input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택" >
+        <label for="image" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+        <div class="file-list pl-2 pt-2 mb-3">
+        {% if not upload_images %}
+        {% else %}
+          <ul>
+            {% for image in upload_images %}
+              <li><a href="{{ image.image.url }}" target="_blank" download>{{ image.imagename }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        </div>
+      </div>
+  </div>
+</div>

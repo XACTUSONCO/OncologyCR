@@ -1,0 +1,273 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Notice</h2>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+									<li class="breadcrumb-item"><a href="/administration/notice/">Notice</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+                
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 admin-tables">
+						
+						<div class="row row-cols-auto select-action">
+							<div class="col ms-auto">
+								<button id="row-delete-button" type="button" class="btn btn-danger edit-btn px-4" onClick="handleClickDeleteSelection()" style="display: none">
+									<i class="bi bi-trash"></i> <span>DELETE</span>
+								</button>
+								<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAdd()">
+									<i class="bi bi-plus-square"></i> <span>Add</span>
+								</button>
+							</div>
+						</div>
+
+						<div class="table-responsive">
+							<table class="table table-bordered custom-table" id="notice-table">
+								<thead>
+									<tr>
+                                        <th scope="col">삭제</th>
+                                        <th scope="col" style="display:none;">#</th>
+                                        <th scope="col">제목</th>
+                                        <th scope="col">내용</th>
+                                        <th scope="col">공지 대상</th>
+                                        <th scope="col">공지 기간</th>
+                                        <th scope="col">작성자</th>
+                                        <th scope="col">작성일자</th>
+                                        <th scope="col"></th>
+									</tr>
+								</thead>
+								<tbody>
+                                {% for notice in notices %}
+                                    <tr>
+                                        <td style="cursor: pointer"></td>
+                                        <th scope="row" style="display:none;">{{ notice.id }}</th>
+                                        <td>{{ notice.title }}</td>
+                                        <td>{{ notice.contents }}</td>
+                                        <td>{{ notice.target }}</td>
+                                        <td>{{ notice.start_date|date:"Y-m-d H:i" }} ~ {{ notice.end_date|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ notice.user }}</td>
+                                        <td>{{ notice.create_date|date:"Y-m-d H:i" }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                    onClick="handleClickEdit('{{ notice.title }}', `{{ notice.contents }}`, '{{ notice.target }}', '{{ notice.start_date|date:"Y-m-d H:i" }}', '{{ notice.end_date|date:"Y-m-d H:i" }}', '{{ notice.user.username }}', '{{ notice.create_date|date:"Y-m-d H:i" }}', '{{ notice.id }}')">
+                                                수정
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+							</table>
+						</div><!-- //table-responsive -->
+                        
+                        {# 추가/수정 모달 #}
+                        <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form method="post"
+                                          action="/administration/notice/"
+                                          enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="notice-id" type="hidden" name="notice_id"/>
+                                        <input id="is-update" type="hidden" name="is_update"/>
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addModalLabel">공지사항 추가</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3 row" id="author" style="display: none">
+                                                <label for="user" class="col-sm-2 col-form-label">작성자</label>
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control" id="user"
+                                                           readonly>
+                                                </div>
+                                                <label for="create_date" class="col-sm-2 col-form-label">작성일자</label>
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control" id="create_date"
+                                                           readonly>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="title" class="col-sm-2 col-form-label">제목</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="title" name="title" maxlength="100"
+                                                           required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="contents" class="col-sm-2 col-form-label">내용</label>
+                                                <div class="col-sm-10">
+                                                    <textarea rows="4" class="form-control" id="contents" name="contents" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="target" class="col-sm-2 col-form-label">공지 대상</label>
+                                                <div class="col-sm-10">
+                                                    <select class="form-control" id="target" name="target" required>
+                                                        <option value="All" selected>All</option>
+                                                        {% for group in groups %}
+                                                            <option value="{{ group.name }}">{{ group.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="period" class="col-sm-2 col-form-label">게시 일자</label>
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control" id="start_date" name="start_date"
+                                                           maxlength="100" required autocomplete="off">
+                                                </div>
+                                                <div class="col-sm-2"
+                                                     style="height: 46px; display: flex; justify-content: center; align-items: center;">
+                                                    ~
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control" id="end_date" name="end_date"
+                                                           maxlength="100" required autocomplete="off">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+												<i class="bi bi-pencil"></i> <span>Save</span>
+											</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<script>
+        $(document).ready(function () {
+            const table = $('#notice-table').DataTable({
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    },
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+                select: {
+                    style: 'multiple',
+                    selector: 'td:first-child'
+                },
+                "order": [[1, "desc"]],
+            })
+
+            $('#notice-table').data('selectedIds', []);
+
+            table.on('select', function (e, dt, type, indexes) {
+                const noticeId = table.rows(indexes).data().toArray()[0][1];
+                $('#notice-table').data('selectedIds', [...$('#notice-table').data('selectedIds'), noticeId]);
+                if ($('#notice-table').data('selectedIds').length === 1) {
+                    $('#row-delete-button').show();
+                }
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                const noticeId = table.rows(indexes).data().toArray()[0][1];
+                const tmp = $('#notice-table').data('selectedIds').filter(a => a !== noticeId)
+                $('#notice-table').data('selectedIds', tmp);
+                if (tmp.length === 0) {
+                    $('#row-delete-button').hide();
+                }
+            });
+
+            $('.dataTables_length').addClass('bs-select');
+
+            $("#notice-table_wrapper").css("width", "100%")
+
+            $('#addModal').on('hide.bs.modal', () => {
+                $('#addModalLabel').text('공지사항 추가');
+                $('#title').val('');
+                $('#contents').val('');
+                $('#target').val('All');
+                $('#start_date').val('');
+                $('#end_date').val('');
+                $('#user').val('');
+                $('#create_date').val('');
+                $('#is-update').val('');
+                $('#notice-id').val('');
+                $('#author').hide();
+            })
+
+            $("#start_date").datetimepicker({todayHighlight: true, format: 'Y-m-d H:i'})
+            $("#end_date").datetimepicker({todayHighlight: true, format: 'Y-m-d H:i'})
+        });
+
+        function handleClickAdd() {
+            $('#addModalLabel').text('공지사항 추가');
+            $('#is-update').val(false);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(title, contents, target, start_date, end_date, user_name, create_date, noticeId) {
+            $('#addModalLabel').text('공지사항 수정');
+            $('#title').val(title);
+            $('#contents').val(contents);
+            $('#target').val(target);
+            $('#start_date').val(start_date);
+            $('#end_date').val(end_date);
+            $('#user').val(user_name);
+            $('#create_date').val(create_date);
+            $('#is-update').val('true');
+            $('#notice-id').val(noticeId);
+            $('#addModal').modal('show');
+            $('#author').show();
+        }
+
+        function handleClickDeleteSelection() {
+            const targetList = $('#notice-table').data('selectedIds');
+            if (confirm(`${targetList.length}개의 데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/administration/notice/delete/',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "notice_ids": targetList.join(","),
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+
+        function getDateFormat(dateStr) {
+            if (!dateStr) return ""
+            const date = new Date(dateStr);
+            return date.toLocaleDateString("en-US", {year: "numeric", month: "2-digit", day: "2-digit"});
+        }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,369 @@
+{% extends "bases/base_generic.html" %}
+{% load get_value from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>데이터 미입력</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">STAT</li>
+									<li class="breadcrumb-item"><a href="#!">데이터 미입력</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="row">
+						<div class="col-6 mb-4">
+							<div class="info-box3" id="status02_01">
+								<h3 class="tables-title">데이터 미입력 명단 (최근 일주일)</h3>
+								<div class="sattable-cons p-3">
+									<div class="table-responsive default-table">
+									  <table id="no-data-entry-in-the-last-week" class="table table-bordered">
+										<thead>
+										  <tr>
+											<th>Name</th>
+										  </tr>
+										</thead>
+										<tbody>
+										  {% for no_data_entry in no_data_entry_in_the_last_week %}
+										  <tr>
+											<td>{{ no_data_entry }}</td>
+										  </tr>
+										  {% endfor %}
+										</tbody>
+									  </table>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 mb-4">
+							<div class="info-box3" id="status02_02">
+								<h3 class="tables-title">데이터 미입력 명단 (장기간)</h3>
+								<div class="sattable-cons p-3">
+									<div class="f_ss2">※ CRC별 마지막 입력일 + 담당 연구의 평균 방문 일수 < {{ today|date:'Y-m-d' }}</div>
+									<div class="table-responsive default-table">
+									  <table id="data-entry-list" class="table table-bordered">
+										<thead>
+										  <tr>
+											<th>CRC</th>
+											<th>마지막 입력일</th>
+											<th>평균 방문 일수 (일)</th>
+										  </tr>
+										</thead>
+										<tbody>
+										  {% for non_entry in long_term_non_entry %}
+										    <tr>
+											  <td>{{ non_entry.uploader__first_name}}</td>
+											  <td>{{ non_entry.latest_cycle }}</td>
+										      <td>{{ non_entry.dosing_date|floatformat }}</td>
+										    </tr>
+										  {% endfor %}
+										</tbody>
+									  </table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 mb-4">
+							<div class="info-box3" id="status02_03">
+								<h3 class="tables-title">장기간 EOT 미입력 명단</h3>
+								<div class="sattable-cons p-3">
+									<div class="f_ss2 mb-2">※ 연구명 (첫 투약일부터 EOT까지 평균 기간)</div>
+									<div class="table-responsive default-table">
+										<table class="table table-bordered" style="width:100%;" id="EOT-data-entry-list">
+											<thead>
+											  <tr>
+												<th>CRC</th>
+												<th>연구명</th>
+												<th>Name</th>
+												<th>첫 투약일</th>
+											  </tr>
+											</thead>
+
+											{% for crc in predict_EOT_date %}
+											<tbody>
+											  <tr>
+												  <td class="flip" colspan="4" style="position: relative;">{{ crc }}<span class="arrow"></span></td>
+											  </tr>
+											</tbody>
+											<tbody class="section" style="display: none;">
+											  {% for predict_EOT in predict_EOT_date|get_value:crc %}
+											  <tr>
+												  <td></td>
+												  <td>{{ predict_EOT.assignment__research__research_name }} ({{ predict_EOT.C1D1_EOT_by_research|floatformat:"0" }}일 )</td>
+												  <td><a href="/assignment/{{ predict_EOT.assignment__id }}/">{{ predict_EOT.assignment__name }}</a></td>
+												  <td>{{ predict_EOT.C1D1_date }}</td>
+											  </tr>
+											  {% endfor %}
+											</tbody>
+											{% endfor %}
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="info-box3" id="status02_04">
+								<h3 class="tables-title">한 달간 등록되지 않은 연구</h3>
+								<div class="sattable-cons px-3 pb-3">
+									<div class="table-responsive default-table">
+										<table class="table table-bordered" style="width:100%;" id="stop-enroll-table">
+											<thead>
+											  <tr>
+												<th>PI</th>
+												<th>연구명</th>
+												<th>최신 등록일 (연구 생성일)</th>
+											  </tr>
+											</thead>
+
+											{% for PI in stop_enroll %}
+											<tbody>
+											  <tr class="bg-gradient-light">
+												<td class="flip" colspan="3" style="position: relative;">{{ PI }}<span class="arrow"></span></td>
+											  </tr>
+											</tbody>
+											<tbody class="section" style="display: none;">
+											  {% for stop in stop_enroll|get_value:PI %}
+											  <tr data-link="/research/{{ stop.id }}/">
+												<td></td>
+												<td>{{ stop.research_name }}</td>
+												<td>{% if stop.assignments == 0 %} 등록환자 없음 ({{ stop.create_date|date:'Y-m-d' }}) {% else %}{{ stop.latest_enroll|date:'Y-m-d' }}{% endif %}</td>
+											  </tr>
+											  {% endfor %}
+											</tbody>
+											{% endfor %}
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<script>
+	 $(document).ready(function() {
+        $('#no-data-entry-in-the-last-week').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: 'excel',
+                title: '데이터 미입력 명단 (최근 일주일)',
+            }],
+            'paging': true,
+            'ordering': false
+        } );
+        $('#data-entry-list').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: 'excel',
+                title: '장기간 데이터 미입력 명단 (장기간)',
+            }],
+            'paging': true,
+            'ordering': false
+        } );
+    } );
+
+    $('button.dt-button.buttons-excel').on('click', function() {
+    	var ariaControls = $(this).attr("aria-controls");
+
+    	if (ariaControls == 'no-data-entry-in-the-last-week') {
+			$.ajax({
+				url: '/research/statistic/download/',
+				method: 'POST',
+				data: {
+					csrfmiddlewaretoken: '{{ csrf_token }}',
+					content: '데이터 미입력 명단 (최근 일주일)',
+				},
+				success:function (data){
+					console.log('다운로드 이력 저장 완료');
+				},
+				error : function(xhr,errmsg,err) {
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+			});
+		} else if (ariaControls == 'data-entry-list') {
+			$.ajax({
+				url: '/research/statistic/download/',
+				method: 'POST',
+				data: {
+					csrfmiddlewaretoken: '{{ csrf_token }}',
+					content: '데이터 미입력 명단 (장기간)',
+				},
+			});
+		}
+	});
+</script>
+
+<!-- stat 페이지용 js -->
+<script src="{% static 'assets/js/pages/stat.js' %}"></script>
+<style>
+  .line {
+      position: absolute;
+      height: 40px;
+      top: 40px;
+      bottom: 0;
+      margin: auto;
+      left: -5px;
+      width: 100%;
+      border-top: 1px solid #000;
+      -webkit-transform: rotate(14deg);
+      -ms-transform: rotate(14deg);
+      transform: rotate(14deg);
+    }
+    .diagonal {
+      width: 150px;
+      height: 40px;
+    }
+    .diagonal span.crc {
+      position: absolute;
+      bottom: 2px;
+      left: 6px;
+    }
+    .diagonal span.lab_technician {
+      position: absolute;
+      bottom: 2px;
+      left: 6px;
+    }
+    .diagonal span.month {
+      position: absolute;
+      top: 2px;
+      right: 6px;
+    }
+    .month-team-enroll td {
+      border: 1px solid #000;
+    }
+    .month-team-enroll th {
+      border: 1px solid #000;
+    }
+    #month-enroll-technician td {
+      border: 1px solid #000;
+    }
+    #month-enroll-technician th {
+      border: 1px solid #000;
+    }
+    .performance td {
+      border: 1px solid #000;
+    }
+    .performance th {
+      border: 1px solid #000;
+    }
+    #performance-2 td {
+      border: 1px solid #000;
+    }
+    #performance-2 th {
+      border: 1px solid #000;
+    }
+    #performance-3 td {
+      border: 1px solid #000;
+    }
+    #performance-3 th {
+      border: 1px solid #000;
+    }
+    .month-crc-visit td {
+      border: 1px solid #000;
+    }
+    .month-crc-visit th {
+      border: 1px solid #000;
+    }
+
+
+    .content {
+      margin: 0;
+      padding: 0;
+    }
+    .content::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    .content ul.menu {
+      display: inline-flex;
+      flex-flow: row wrap;
+      width: 300px;
+    }
+    .content .menu li {
+      width: 300px;
+      height: 50px;
+      text-align: center;
+      line-height: 50px;
+      border: 1px solid #000;
+      box-sizing: border-box;
+      margin-bottom: 1px;
+      cursor: pointer;
+    }
+    .content .menu li:last-child {
+      margin: 0;
+    }
+    .content .menu li.active {
+      color: #fff;
+      background: #000;
+    }
+    .content div.tab {
+      width: 1300px;
+      height: 100%;
+      float: right;
+      margin: 0px 10px;
+    }
+    .content>div>div {
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+    .content>div>div.active {
+      display: block;
+    }
+
+    .arrow {
+      position: absolute;
+      left: 70px;
+    }
+
+    .arrow::before,
+    .arrow::after {
+      position: relative;
+      content: '';
+      display: block;
+      width: 10px;
+      height: 1px;
+      background: black;
+      transition: 0.3s ease-in-out;
+    }
+
+    .arrow::before {
+      transform: rotate(45deg);
+    }
+    .arrow::after {
+      left: 6px;
+      top: -1px;
+      transform: rotate(-45deg);
+    }
+
+    .flip.active .arrow::before {
+      transform: rotate(-45deg);
+    }
+    .flip.active .arrow::after {
+      transform: rotate(45deg);
+    }
+</style>
+{% endblock %}

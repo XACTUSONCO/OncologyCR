@@ -1,0 +1,23 @@
+[
+    {
+        "model": "research.Preperation",
+        "pk": 1,
+        "fields": {
+            "value": "plan"
+        }
+    },
+    {
+        "model": "research.Preperation",
+        "pk": 2,
+        "fields": {
+            "value": "research_team"
+        }
+    },
+    {
+        "model": "research.Preperation",
+        "pk": 3,
+        "fields": {
+            "value": "research_funds"
+        }
+    }
+]

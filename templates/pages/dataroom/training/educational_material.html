@@ -1,0 +1,301 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load cal_career from research_tag %}
+{% load get_o2m_values from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>교육자료</h2>
+
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="">Staff</a></li>
+									<li class="breadcrumb-item"><a href="/dataroom/educational_material/">교육자료</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<ul id="submenu-tab">
+								<li><a href="/dataroom/crc/check_list/"><i></i> 교육일정</a></li>
+								<li><a href="/dataroom/educational_material/"><i></i> 교육자료</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 education-datas">
+
+						<div class="education-databtns">
+							<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAddBtn()">
+								<i class="bi bi-plus-square"></i> <span>Add</span>
+							</button>
+						</div>
+
+						<div class="table-responsive">
+							<table class="table custom-table" id="educational_material-table">
+								<thead>
+									<tr>
+										<th>구분</th>
+										<th>Version</th>
+										<th>Title</th>
+										<th>Register</th>
+										<th>Update date</th>
+										<th>File</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+								  {% for material in materials %}
+									<tr class="material-tr material-tr-{{ material.category }}">
+										<td>{{ material.category }}</td>
+										<td>{{ material.version }}</td>
+										<td>{{ material.name }}</td>
+										<td>{{ material.uploader }}</td>
+										<td>{{ material.update_date|date:"Y-m-d H:i" }}</td>
+										<td>
+											<button type="button" class="btn btn-sm"
+													onClick="handleClickFileIcon('{{ material.materials }}', '{{ material.id }}')">
+												<i class="fa fa-paperclip"></i><span class="sr-only">파일 다운로드</span>
+											</button>
+										</td>
+										<td>
+											<button type="button" class="btn btn-outline-secondary"
+													onClick="handleClickEdit('{{ material.category }}', '{{ material.name }}', '{{ material.version }}', '{{ material.id }}', '{{ material.materials_name }}')">
+												수정
+											</button>
+											<button type="button" class="btn btn-outline-danger" style="margin-left: 10px"
+													onClick="handleClickDelete('{{ material.id }}')">
+												삭제
+											</button>
+										</td>
+									</tr>
+								  {% endfor %}
+								</tbody>
+							</table>
+						</div><!-- //table-responsive -->
+
+						<!-- 교육자료 추가 -->
+						<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-centered">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title" id="addModalLabel">교육자료 추가</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<form id="certi-add-form" method="post" action="/dataroom/educational_material/create" enctype="multipart/form-data">
+										{% csrf_token %}
+										<input id="target-id" type="hidden" name="target_id"/>
+										<input id="is-update" type="hidden" name="is_update"/>
+										<div class="modal-body">
+											<div class="mb-3 row">
+												<label for="category" class="col-sm-2 col-form-label">구분</label>
+												<div class="col-sm-10">
+													<select name="category" class="form-select">
+														<option value="Training">Training</option>
+													</select>
+												</div>
+											</div>
+											<div class="mb-3 row">
+												<label for="version" class="col-sm-2 col-form-label">Version</label>
+												<div class="col-sm-10">
+													<input type="text" class="form-control" id="version" name="version" maxlength="50">
+												</div>
+											</div>
+											<div class="mb-3 row">
+												<label for="name" class="col-sm-2 col-form-label">Title</label>
+												<div class="col-lg-10">
+													<input type="text" class="form-control" id="name" name="name" maxlength="500" required>
+												</div>
+											</div>
+											<div class="mb-3 row" id="form-attached-file" style="display: none">
+												<label for="name" class="col-sm-2 col-form-label">파일첨부</label>
+												<div class="col-sm-8">
+													<input type="text" class="form-control" id="filename" name="filename" readonly>
+												</div>
+												<div class="col-sm-2">
+													<button id="filename-delete" class="form-control btn btn-sm btn-outline-danger"
+															type="button" onClick="handleClickDeleteFile()">삭제
+													</button>
+												</div>
+											</div>
+											<div class="mb-3 row" id="form-add-file">
+												<label for="file" class="col-sm-2 col-form-label">파일첨부</label>
+												<div class="col-sm-10">
+													<input type="file" class="form-control" name="file" id="file" required>
+												</div>
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+												<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+											</button>
+											<button type="submit" class="btn btn-success edit-btn px-4">
+												<i class="bi bi-pencil"></i> <span>Save</span>
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+{% include 'bases/partials/_modals.html' %}
+<!-- <script src="{% static 'assets/js/pages/staff.js' %}"></script> -->
+<script>
+        $(document).ready(function () {
+            $('#downloadModal').on('hide.bs.modal', () => {
+                $('#downloadCheck').prop('checked', false);
+                $('#download-btn').prop('disabled', true);
+            })
+
+            $('#downloadCheck').on('change', (e) => {
+                console.log(e.currentTarget.checked, $('#save-btn'))
+                if (e.currentTarget.checked) {
+                    $('#download-btn').attr('disabled', false);
+                } else {
+                    $('#download-btn').attr('disabled', true);
+                }
+            })
+
+            $('#educational_material-table').DataTable({
+                "order": [[4, "desc"]],
+                {#"stateSave": true,#}
+            });
+            $('.dataTables_length').addClass('bs-select');
+            $("#educational_material-table_wrapper").css("width", "100%")
+
+            $('.list-group').on('click', '.list-group-item', function (event) {
+                event.preventDefault();
+                const targetCategory = $(this)[0].innerText;
+                if (targetCategory === "All") {
+                    $('#educational_material-table').DataTable().column(1).search("").draw();
+                } else {
+                    $('#educational_material-table').DataTable().column(1).search(targetCategory).draw();
+                }
+                $(this).addClass('active').siblings().removeClass('active');
+            });
+
+            $('#folderSearchInput').on("keyup", function () {
+                const value = $(this).val().toLowerCase();
+                $("#folderList").children().each(function () {
+                    if (!$(this).text().toLowerCase().includes(value) && !$(this).text().includes("All") && !$(this).hasClass("active")) {
+                        $(this).removeClass('list-group-item d-flex justify-content-between align-items-center').hide()
+                    } else {
+                        $(this).addClass('list-group-item d-flex justify-content-between align-items-center').show();
+                    }
+                });
+            });
+
+            $('#addModal').on('hide.bs.modal', () => {
+                $('#addModalLabel').text('교육자료 추가');
+                $('#is-update').val('');
+                $('#category').val('');
+                $('#version').val('');
+                $('#name').val('');
+                $('#target-id').val('');
+                $('#form-add-file').show()
+                $('#form-attached-file').hide()
+            })
+        });
+
+        function handleClickFileIcon(filePath, materialId) {
+            $('#downloadModal').data('filePath', `/media/${filePath}`);
+            $('#downloadModal').data('materialId', materialId);
+            $('#downloadModal').modal('show');
+        }
+
+        function handleClickSaveBtn() {
+            const materialId = $('#downloadModal').data('materialId');
+            const url = $('#downloadModal').data('filePath');
+
+            $.ajax({
+                type: 'post',
+                url: '/dataroom/educational_material/download',
+                headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                data: {
+                    "materialId": materialId,
+                },
+                success: function (data) {
+                    const link = document.createElement('a');
+                    document.body.appendChild(link);
+                    link.href = url;
+                    link.click();
+                },
+                error: function (xhr, errmsg, err) {
+                    $('#downloadModal').modal('hide');
+                }
+            });
+            $('#downloadModal').modal('hide');
+        }
+
+        function handleClickAddBtn() {
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(category, name, version, id, filename) {
+            $('#addModalLabel').text('교육자료 수정');
+            $('#category').val(category);
+            $('#name').val(name);
+            $('#version').val(version);
+            $('#target-id').val(id);
+            if (filename) {
+                $('#filename').val(filename);
+                $('#form-add-file').hide()
+                $('#form-attached-file').show()
+                $('#file').prop('required', false);
+            } else {
+                $('#form-add-file').show()
+            }
+            $('#is-update').val('true');
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteFile() {
+            $('#form-add-file').show()
+            $('#form-attached-file').hide()
+            $('#file').val('')
+            $('#file').prop('required', true);
+        }
+
+        function handleClickDelete(materialId) {
+            if (confirm(`데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/dataroom/educational_material/delete',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "target_id": materialId,
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+</script>
+{% endblock %}

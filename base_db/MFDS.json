@@ -1,0 +1,23 @@
+[
+    {
+        "model": "research.MFDS",
+        "pk": 1,
+        "fields": {
+            "value": "new_reception"
+        }
+    },
+    {
+        "model": "research.MFDS",
+        "pk": 2,
+        "fields": {
+            "value": "qna"
+        }
+    },
+    {
+        "model": "research.MFDS",
+        "pk": 3,
+        "fields": {
+            "value": "amendment"
+        }
+    }
+]

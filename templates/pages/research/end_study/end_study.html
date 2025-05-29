@@ -1,0 +1,397 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load get_value from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>종료 보고 이후 연구</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Studies</li>
+									<li class="breadcrumb-item"><a href="/research/end_study/">종료 보고 이후 연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 preinitiation_area">
+
+						<div class="info-box mb-5">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="fulldetalil-search">
+                                      <form method="get" action="/research/end_study/search/" enctype="multipart/form-data">
+                                        <div class="form-group {% if 'research_name' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="research_name" class="form-label">연구 검색
+                                            {% autoescape off %}
+                                              {% if 'research_name' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.research_name }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="form-cons">
+                                              <input type="text" class="form-control" name="research_name"
+                                                     value="{% if query.research_name %}{{ query.research_name }}{% endif %}">
+                                              <button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 ms-1 search-btn">
+                                                <i class="bi bi-search"></i> <span class="sr-only-">검색</span>
+                                              </button>
+                                          </div>
+                                        </div>
+                                      </form>
+									</div>
+								</div>
+
+								<div class="col-md-6">
+									<ul>
+										<li><strong>X-OncoTrack 에 등록된 연구</strong> : 해당 연구 Detail 페이지에서 <button type="button" class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i> <span>Edit</span></button> 클릭 후, <span class="badge bg-secondary">status </span> 항목 중 한 가지 선택</li>
+										<li><strong class="text-success">X-OncoTrack 에 등록되지 않은 연구</strong>만 <button type="button" class="btn btn-success edit-btn btn-sm"><i class="bi bi-plus-square"></i> <span>추가</span></button> 클릭하여 추가</li>
+										<li><span>기존에 업로드한 이미지 삭제</span> 원하시는 경우, 관리자에게 파일명 전달 부탁드립니다.</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+
+						<!-- start sub-menu-tabs-->
+						<div class="row">
+							<div class="col-12">
+								<div class="sub-menu-tabs">
+									<ul id="submenu-tab">
+										<li><span class="filter active" data-filter="enroll"><i></i> 전체</span></li>
+										<li><span class="filter" data-filter="end"><i></i> 종료 보고 완료</span></li>
+										<li><span class="filter" data-filter="result"><i></i> 결과 보고 완료</span></li>
+										<li><span class="filter" data-filter="long"><i></i> 장기 보관 완료</span></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<!-- end sub-menu-tabs -->
+
+                        <div id="researchtable-list" class="filterdata-area">
+							<div class="researchtable enroll" data-cat="enroll">
+								<div class="table-cons">
+									<!-- 상단 ADD버튼 -->
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit">전체</span></h4>
+									</div>
+									<div class="table-responsive">
+										<table class="table table-bordered" id="enroll">
+											<thead>
+												<tr>
+													 <th>Status</th>
+                                                     <th>Study Name</th>
+                                                     <th>Project No.</th>
+                                                     <th>PI</th>
+                                                     <th>구분</th>
+												</tr>
+											</thead>
+                                            <tbody>
+                                              {% for search in search %}
+                                                <tr>
+                                                  <td>{{ search.status }}</td>
+                                                  <td>
+                                                    {% if search.model_type == 'end_study' %}<a href="/research/{{ search.id }}/">{% elif search.model_type == 'end_research' %}<a href="/research/end_study/{{ search.id }}/edit/">{% endif %}
+                                                    {{ search.research_name }}
+                                                    </a>
+                                                  </td>
+                                                  <td>{{ search.study_code }}</td>
+                                                  <td>{{ search.PI }}</td>
+                                                  <td>
+                                                    {% if search.storage_date %}
+                                                      {{ search.storage_date|date:'Y-m-d' }}
+                                                    {% elif search.result_brief %}
+                                                      {{ search.result_brief|date:'Y-m-d' }}
+                                                    {% elif search.end_brief %}
+                                                      {{ search.end_brief|date:'Y-m-d' }}
+                                                    {% else %}
+                                                    {% endif %}
+                                                  </td>
+                                                </tr>
+                                              {% endfor %}
+                                            </tbody>
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+							</div>
+
+							<div class="researchtable end" data-cat="end">
+								<div class="table-cons">
+									<!-- 상단 ADD버튼 -->
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit">종료 보고 완료</span></h4>
+										<div class="col ms-auto">  
+											<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/end_study/add/?status=종료보고완료'">
+                                              <i class="bi bi-plus-square"></i> <span>종료 보고 완료 추가</span>
+                                            </button>
+										</div>
+									</div>
+									<div class="table-responsive">
+										<table class="table table-bordered" id="end-reserach-list">
+											<thead>
+												<tr>
+													<th>PI</th>
+													<th>Set-up Type</th>
+                                                    <th>Study Name</th>
+                                                    <th>Project No.</th>
+                                                    <th>종료보고 심의일</th>
+													<th class="text-center">관리</th>
+												</tr>
+											</thead>
+                                            {% for PI in end %}
+                                              <tbody>
+                                                <tr class="bg-gradient-light">
+                                                  <td class="flip" colspan="6" style="position: relative;">{{ PI }}<span class="arrow"></span></td>
+                                                </tr>
+                                              </tbody>
+                                              <tbody class="section" style="display: none;">
+                                                {% for end in end|get_value:PI %}
+                                                  {% if end.status == '종료보고완료' %}
+                                                  <tr>
+													<td></td>
+                                                    <td>
+                                                      {% if end.model_type == 'end_study' %}system{% elif end.model_type == 'end_research' %}manual{% endif %}
+                                                    </td>
+                                                    <td>{{ end.research_name }}</td>
+                                                    <td>{{ end.study_code }}</td>
+                                                    <td>{{ end.end_brief|date:'Y-m-d' }}</td>
+                                                    <td class="text-center">
+                                                      {% if end.model_type == 'end_study' %}
+														  <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" onclick="location.href='/research/{{ end.id }}/'">
+															<i class="bi bi-card-text"></i> <span class="sr-only">Click</span>
+														  </button>
+													  {% elif end.model_type == 'end_research' %}
+														  <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" onclick="location.href='/research/end_study/{{ end.id }}/edit/'">
+															<i class="bi bi-card-text"></i> <span class="sr-only">Click</span>
+														  </button>
+													  {% endif %}
+                                                    </td>
+                                                  </tr>
+                                                  {% endif %}
+                                                {% endfor %}
+                                              </tbody>
+                                            {% endfor %}
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+							</div>
+
+							<div class="researchtable result" data-cat="result">
+								<div class="table-cons">
+									<!-- 상단 ADD버튼 -->
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit">결과 보고 완료</span></h4>
+										<div class="col ms-auto">
+											<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/end_study/add/?status=결과보고완료'">
+                                              <i class="bi bi-plus-square"></i> <span>결과 보고 완료 추가</span>
+                                            </button>
+										</div>
+									</div>
+									<div class="table-responsive">
+										<table class="table table-bordered" id="result-reserach-list" >
+											<thead>
+												<tr>
+													<th>PI</th>
+													<th>Set-up Type</th>
+                                                    <th>Study Name</th>
+                                                    <th>Project No.</th>
+                                                    <th>결과보고일</th>
+													<th class="text-center">관리</th>
+												</tr>
+											</thead>
+
+                                            {% for PI in end %}
+                                            <tbody>
+                                              <tr>
+                                                <td class="flip" colspan="6" style="position: relative;">{{ PI }}<span class="arrow"></span></td>
+                                              </tr>
+                                            </tbody>
+                                            <tbody class="section" style="display: none;">
+                                              {% for end in end|get_value:PI %}
+                                                {% if end.status == '결과보고완료' %}
+                                                <tr>
+												  <td></td>
+                                                  <td>
+                                                    {% if end.model_type == 'end_study' %}system{% elif end.model_type == 'end_research' %}manual{% endif %}
+                                                  </td>
+                                                  <td>{{ end.research_name }}</td>
+                                                  <td>{{ end.study_code }}</td>
+                                                  <td>{{ end.end_brief|date:'Y-m-d' }}</td>
+                                                  <td class="text-center">
+                                                      {% if end.model_type == 'end_study' %}
+														  <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" onclick="location.href='/research/{{ end.id }}/'">
+															<i class="bi bi-card-text"></i> <span class="sr-only">Click</span>
+														  </button>
+													  {% elif end.model_type == 'end_research' %}
+														  <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" onclick="location.href='/research/end_study/{{ end.id }}/edit/'">
+															<i class="bi bi-card-text"></i> <span class="sr-only">Click</span>
+														  </button>
+													  {% endif %}
+                                                  </td>
+                                                </tr>
+                                                {% endif %}
+                                              {% endfor %}
+                                            </tbody>
+                                          {% endfor %}
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+							</div>
+
+							<div class="researchtable long" data-cat="long">
+								<div class="table-cons">
+									<!-- 상단 ADD버튼 -->
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit">장기 보관 완료</span></h4>
+										<div class="col ms-auto">
+											<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/end_study/add/?status=장기보관완료'">
+                                              <i class="bi bi-plus-square"></i> <span>장기 보관 완료 추가</span>
+                                            </button>
+										</div>
+									</div>
+									<div class="table-responsive">
+										<table class="table table-bordered" id="long-reserach-list" >
+											<thead>
+												<tr>
+												  <th>PI</th>
+                                                  <th>Set-up Type</th>
+                                                  <th>Study Name</th>
+                                                  <th>Project No.</th>
+                                                  <th>장기보관일</th>
+                                                  <th>관리</th>
+                                                </tr>
+                                            </thead>
+
+                                            {% for PI in end %}
+                                              <tbody>
+                                                <tr>
+                                                  <td class="flip" colspan="6" style="position: relative;">{{ PI }}<span class="arrow"></span></td>
+                                                </tr>
+                                              </tbody>
+                                              <tbody class="section" style="display: none;">
+                                                {% for end in end|get_value:PI %}
+                                                  {% if end.status == '장기보관완료'%}
+                                                  <tr>
+													<td></td>
+                                                    <td>
+                                                      {% if end.model_type == 'end_study' %}system{% elif end.model_type == 'end_research' %}manual{% endif %}
+                                                    </td>
+                                                    <td>{{ end.research_name }}</td>
+                                                    <td>{{ end.study_code }}</td>
+                                                    <td>{{ end.end_brief|date:'Y-m-d' }}</td>
+                                                    <td class="text-center">
+													  {% if end.model_type == 'end_study' %}
+														  <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" onclick="location.href='/research/{{ end.id }}/'">
+															<i class="bi bi-card-text"></i> <span class="sr-only">Click</span>
+														  </button>
+													  {% elif end.model_type == 'end_research' %}
+														  <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" onclick="location.href='/research/end_study/{{ end.id }}/edit/'">
+															<i class="bi bi-card-text"></i> <span class="sr-only">Click</span>
+														  </button>
+													  {% endif %}
+                                                    </td>
+                                                  </tr>
+                                                  {% endif %}
+                                                {% endfor %}
+                                              </tbody>
+                                            {% endfor %}
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<!-- s<script src="{% static 'assets/js/pages/studies.js' %}"></script> -->
+<script src="{% static 'js/CRUD/research_detail.js' %}"></script>
+<script>
+    $(function() {
+        $( ".initiationdate" ).datepicker({
+            todayHighlight : true
+        });
+    });
+
+
+    $( document ).ready(function() {
+      $('.flip').click(function() {
+        $(this)
+          .closest('tbody')
+          .next('.section')
+          .toggle('fast')
+
+        $(this)
+          .toggleClass('active')
+      });
+    });
+
+    $(function () {
+	var filterList = {
+		init: function () {
+			// http://mixitup.io
+			$('#researchtable-list').mixitup({
+				targetSelector: '.researchtable',
+				filterSelector: '.filter',
+				layoutMode : 'list',
+				effects: ['fade'],
+				easing: 'snap',
+				// call the hover effect
+				//onMixEnd: filterList.hoverEffect()
+			});
+		}
+	};
+	// Run the show!
+	filterList.init();
+});
+</script>
+<style>
+    .arrow {
+      position: absolute;
+      left: 70px;
+    }
+
+    .arrow::before,
+    .arrow::after {
+      position: relative;
+      content: '';
+      display: block;
+      width: 10px;
+      height: 1px;
+      background: black;
+      transition: 0.3s ease-in-out;
+    }
+
+    .arrow::before {
+      transform: rotate(45deg);
+    }
+    .arrow::after {
+      left: 6px;
+      top: -1px;
+      transform: rotate(-45deg);
+    }
+
+    .flip.active .arrow::before {
+      transform: rotate(-45deg);
+    }
+    .flip.active .arrow::after {
+      transform: rotate(45deg);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends "bases/base_generic.html" %}
+{% load administration_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>출퇴근 관리</h2>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+									<li class="breadcrumb-item"><a href="/administration/commute/">출퇴근 관리</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 admin-tables">
+
+                        <div class="info-box mb-4">
+							<div class="row">
+								<div class="col-md-7">
+									<div class="fulldetalil-search">
+										<div class="form-group mb-1">
+											<div class="form-cons">
+												<div class="dash pe-1"><span>기간</span></div>
+												<div class="input-group">
+                                                    <input type="text" class="form-control input-sm" id="min" name="min" autocomplete="off">
+													<label for="start_date" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+												</div>
+												<div class="dash px-2"><span> ~ </span></div>
+												<div class="input-group">
+													<input type="text" class="form-control input-sm" id="max" name="max" autocomplete="off">
+													<label for="end_date" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-5">
+									<button type="button" class="btn btn-primary" onClick="handleClickExcel()">EXCEL</button>
+                                    <button type="button" class="btn btn-primary" onClick="handleClickPdf()">PDF</button>
+								</div>
+							</div>
+						</div><!-- //info-box -->
+
+						<div class="table-responsive">
+							<table class="table table-bordered custom-table" id="user-table">
+								<thead>
+                                    <tr>
+                                        <th>일자</th>
+                                        <th>요일</th>
+                                        <th>이름</th>
+                                        <th>Team</th>
+                                        <th>Role</th>
+                                        <th>출근 시각</th>
+                                        <th>퇴근 시각</th>
+                                        <th>상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for commute in commutes %}
+                                    <tr>
+                                        <td>{{ commute.date|get_date_format }}</td>
+                                        <td>{{ commute.date|get_week_day_from_datetime }}</td>
+                                        <td>{{ commute.user.first_name|default_if_none:"" }}</td>
+                                        <td>{{ commute.user.contact.team.name|default_if_none:"" }}</td>
+                                        <td>{{ commute.user.contact.group_str|default_if_none:"" }}</td>
+                                        <td>{{ commute.start_work|default_if_none:"" }}</td>
+                                        <td>{{ commute.end_work|default_if_none:"" }}</td>
+                                        <td>
+                                            {% if commute.start_work and commute.end_work %}
+                                                정상
+                                            {% else %}
+                                                미처리
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+							</table>
+						</div><!-- //table-responsive -->
+
+                        {# 추가/수정 모달 #}
+                        <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form method="post"
+                                          action="/administration/notice/"
+                                          enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="notice-id" type="hidden" name="notice_id"/>
+                                        <input id="is-update" type="hidden" name="is_update"/>
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addModalLabel">공지사항 추가</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3 row" id="author" style="display: none">
+                                                <label for="user" class="col-sm-2 col-form-label">작성자</label>
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control" id="user"
+                                                           readonly>
+                                                </div>
+                                                <label for="create_date" class="col-sm-2 col-form-label">작성일자</label>
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control" id="create_date"
+                                                           readonly>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="title" class="col-sm-2 col-form-label">제목</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="title" name="title" maxlength="100"
+                                                           required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="contents" class="col-sm-2 col-form-label">내용</label>
+                                                <div class="col-sm-10">
+                                                    <textarea rows="4" class="form-control" id="contents" name="contents" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="target" class="col-sm-2 col-form-label">공지 대상</label>
+                                                <div class="col-sm-10">
+                                                    <select class="form-control" id="target" name="target" required>
+                                                        <option value="All" selected>All</option>
+                                                        {% for group in groups %}
+                                                            <option value="{{ group.name }}">{{ group.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="period" class="col-sm-2 col-form-label">게시 일자</label>
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control" id="start_date" name="start_date"
+                                                           maxlength="100" required autocomplete="off">
+                                                </div>
+                                                <div class="col-sm-2"
+                                                     style="height: 46px; display: flex; justify-content: center; align-items: center;">
+                                                    ~
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control" id="end_date" name="end_date"
+                                                           maxlength="100" required autocomplete="off">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+												<i class="bi bi-pencil"></i> <span>Save</span>
+											</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<link rel="stylesheet" href="{% static 'css/dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/jquery-ui-1.13.2.css' %}">
+
+<script src="{% static 'js/dataTables.min.js' %}"></script>
+<script src="{% static 'js/jquery-ui-1.13.2.js' %}"></script>
+<script src="{% static 'js/moment_2.29.2.min.js' %}"></script>
+
+<script>
+        $(document).ready(function () {
+            let minDate, maxDate;
+
+            DataTable.ext.search.push(function (settings, data, dataIndex) {
+                let min = minDate.val();
+                let max = maxDate.val();
+                let date = new Date(data[0]);
+
+                if (
+                    (min === null && max === null) ||
+                    (min === null && date <= max) ||
+                    (min <= date && max === null) ||
+                    (min <= date && date <= max)
+                ) {
+                    return true;
+                }
+                return false;
+            });
+
+            minDate = new DateTime('#min', {
+                format: 'YYYY-MM-DD',
+            });
+            maxDate = new DateTime('#max', {
+                format: 'YYYY-MM-DD',
+            });
+            minDate.val(moment().format('YYYY-MM-DD'));
+            maxDate.val(moment().format('YYYY-MM-DD'));
+
+            const table = $('#user-table').DataTable({
+                columnDefs: [
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+                ],
+                "order": [[0, "desc"]],
+            });
+
+            $("#user-table_wrapper").css("width", "100%")
+
+
+            document.querySelectorAll('#min, #max').forEach((el) => {
+                el.addEventListener('change', () => table.draw());
+            });
+        });
+
+        function handleClickExcel() {
+            const link = document.createElement('a');
+            document.body.appendChild(link);
+            link.href = `/administration/commute/download/excel?min=${$("#min").val()}&max=${$("#max").val()}`;
+            link.click();
+        }
+
+        function handleClickPdf() {
+            const link = document.createElement('a');
+            document.body.appendChild(link);
+            link.href = `/administration/commute/download/pdf?min=${$("#min").val()}&max=${$("#max").val()}`;
+            link.click();
+        }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

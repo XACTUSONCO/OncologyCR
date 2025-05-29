@@ -1,0 +1,152 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+<head>
+  {% block custom_head %}
+    <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
+  {% endblock %}
+  {% block title %}
+    <title>X-OncoTrack</title>
+  {% endblock %}
+</head>
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12 mb-4 mb-xl-0">
+      <h4 class="font-weight-bold text-dark">환자 검색</h4>
+    </div>
+  </div>
+
+  <!-- Search Result Table -->
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Search Result</h4>
+          <p class="card-description">
+              Total: <b> {{ search_count }} result(s)</b>
+          </p>
+          <!-- List of result -->
+          <ul>
+
+            <table class="mb-4 table" id="search-patient-table">
+              <thead>
+                <tr>
+                  <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Study Name</th>
+                  <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Status</th>
+                  <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Subject No.</th>
+                  <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Patient No.</th>
+                  <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Name</th>
+                  <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Sex</th>
+                  <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Age</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for search in search %}
+                  <tr class="text-center">
+                    <td><a href="/research/{{ search.research__id }}/">{{ search.research__research_name }}</a></td>
+                    <td>{{ search.status }}</td> <!-- get_status_display 적용 안 됨. 확인 필요 -->
+                    <td>{{ search.no }}</td>
+                    <td>{{ search.register_number }}</td>
+                    <td><a href="/assignment/{{ search.id }}/">{{ search.name }}</a></td>
+                    <td>{{ search.sex }}</td>
+                    <td>{{ search.age }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+          </ul>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title pt-1" style="margin:0;">검색 조건</h4>
+        </div>
+        <div id="research-search-form-container">
+          <div class="card-body">
+            <form id="research-search-form" method="get" action="/feedback/search/" enctype="multipart/form-data">
+              <div class="form-group row {% if 'register_number' in errors or 'name' in errors %} card-inverse-danger {% endif %}">
+                <label for="register_number" class="col-sm-2 font-weight-bold col-form-label pl-3 striped text-black">Patient No.
+                  {% autoescape off %}
+                    {% if 'register_number' in errors %}
+                      <div class="text-danger small" style="line-height: 1rem;">{{ errors.register_number }}</div>
+                    {% endif %}
+                  {% endautoescape %}
+                </label>
+                <div class="col-sm-4 form-input-container">
+                  <div style="display: flex; justify-content: left; flex-wrap:wrap; position:relative; top:-3px;">
+                    <input type="text" class="form-control col-sm-12" name="register_number"
+                           value="{% if query.register_number %}{{ query.register_number }}{% endif %}"/>
+                  </div>
+                </div>
+
+                <label for="name" class="col-sm-2 font-weight-bold col-form-label pl-3 striped text-black">Name
+                  {% autoescape off %}
+                    {% if 'name' in errors %}
+                      <div class="text-danger small" style="line-height: 1rem;">{{ errors.name }}</div>
+                    {% endif %}
+                  {% endautoescape %}
+                </label>
+                <div class="col-sm-4 form-input-container">
+                  <div>
+                    <input type="text" class="form-control col-sm-12" name="name"
+                           value="{% if query.name %}{{ query.name }}{% endif %}"/>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-1" style="text-align:right;">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block custom_end %}
+{#  <script src="{% static 'js/CRUD/research_add.js' %}"></script>#}
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+
+    <script>
+      $(document).ready(function() {
+        $('#search-patient-table').DataTable( {
+            "ordering": false,
+            "searching": false,
+            'pageLength': 20,
+            'oSearch': '{{ job_title }}' == 'nurse' ? {'sSearch': '{{request.user.first_name}}'} : {},
+            initComplete: function () {
+                this.api().columns([0]).every( function () {
+                    var column = this;
+                    var colTitle = this.header().innerHTML;
+                    var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                        .appendTo( $(column.header()).empty() )
+                        .on( 'change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            column
+                                .search( val ? '^'+val+'$' : '', true, false )
+                                .draw();
+                        } );
+
+                    column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option>'+d+'</option>' )
+                    } );
+                } );
+            }
+        } );
+} );
+    </script>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% load get_m2m_values from research_tag %}
+
+<label for="alternation"
+       class="font-weight-bold col-sm-2 col-form-label pl-3 overflow-hidden striped word-keep-all" style="color:black;">
+  Alternation
+  {% autoescape off %}
+    {% if 'alternation' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.alternation }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-3 form-input-container checkbox-radio-input">
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category border-0">
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="EGFR"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'EGFR' in research.alternation.all|get_m2m_values or 'EGFR' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>EGFR</span></label>
+        </div>
+
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="HER2"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'HER2' in research.alternation.all|get_m2m_values or 'HER2' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>HER2</span></label>
+        </div>
+
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="ALK"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'ALK' in research.alternation.all|get_m2m_values or 'ALK' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>ALK</span></label>
+        </div>
+
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="MET"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'MET' in research.alternation.all|get_m2m_values or 'MET' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>MET</span></label>
+        </div>
+
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="NTRK"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'NTRK' in research.alternation.all|get_m2m_values or 'NTRK' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>NTRK</span></label>
+        </div>
+      </div>
+
+      <div class="cancer-type-category border-0">
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="KRAS/NRAS"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'KRAS/NRAS' in research.alternation.all|get_m2m_values or 'KRAS/NRAS' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>KRAS/NRAS</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="BRAF/PR"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'BRAF/PR' in research.alternation.all|get_m2m_values or 'BRAF/PR' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>BRAF/PR</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="MSI"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'MSI' in research.alternation.all|get_m2m_values or 'MSI' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>MSI</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="HRD(BRCA/ATM/etc)"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'HRD(BRCA/ATM/etc)' in research.alternation.all|get_m2m_values or 'HRD(BRCA/ATM/etc)' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>HRD(BRCA, ATM, etc)</span></label>
+        </div>
+      </div>
+
+      <div class="cancer-type-category border-0">
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="ER/PR"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'ER/PR' in research.alternation.all|get_m2m_values or 'ER/PR' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>ER/PR</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="PIK3CA"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'PIK3CA' in research.alternation.all|get_m2m_values or 'PIK3CA' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>PIK3CA</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="FGFR"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'FGFR' in research.alternation.all|get_m2m_values or 'FGFR' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>FGFR</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="TMB"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'TMB' in research.alternation.all|get_m2m_values or 'TMB' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>TMB</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="alternation" value="etc"
+                {% if 'na' in research.alternation.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'etc' in research.alternation.all|get_m2m_values or 'etc' in pre_initiation.alternation.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>기타</span></label>
+        </div>
+      </div>
+
+      <!-- Flex end -->
+    </div>
+</div>

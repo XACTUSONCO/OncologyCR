@@ -1,0 +1,30 @@
+[
+    {
+        "model": "feedback.EOS",
+        "pk": 1,
+        "fields": {
+            "value": "death"
+        }
+    },
+    {
+        "model": "feedback.EOS",
+        "pk": 2,
+        "fields": {
+            "value": "withdrawal"
+        }
+    },
+    {
+        "model": "feedback.EOS",
+        "pk": 3,
+        "fields": {
+            "value": "etc"
+        }
+    },
+    {
+        "model": "feedback.EOS",
+        "pk": 4,
+        "fields": {
+            "value": "completion"
+        }
+    }
+]

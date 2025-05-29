@@ -1,0 +1,204 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Target 관리</h2>
+
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+                                    <li class="breadcrumb-item"><a href="/research/{{ research.id }}/"> {{ research.research_name }} </a></li>
+                                    <li class="breadcrumb-item"><a href="/research/{{ research.id }}/update_target/"> Target 관리 </a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 education-datas">
+
+                        <div class="row row-cols-auto select-action">
+							<div class="col ms-auto">
+								<button id="row-delete-button" type="button" class="btn btn-danger edit-btn px-4" onClick="handleClickDeleteSelection()" style="display: none">
+									<i class="bi bi-trash"></i> <span>DELETE</span>
+								</button>
+								<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAdd()">
+									<i class="bi bi-plus-square"></i> <span>Add</span>
+								</button>
+							</div>
+						</div>
+
+                        <div class="table-responsive">
+							<table class="table table-bordered custom-table" id="update-target-table">
+								<thead>
+                                    <tr>
+										<th scope="col"></th>
+										<th scope="col" style="display: none;">#</th>
+                                        <th scope="col">Target</th>
+                                        <th scope="col"></th>
+                                    </tr>
+								</thead>
+								<tbody>
+								  {% for onco_cr_count in onco_cr_counts %}
+                                      <tr>
+										  <td style="cursor: pointer"></td>
+										  <td scope="row" style="display: none;">{{ onco_cr_count.id }}</td>
+                                          <th>{{ onco_cr_count.r_target }}</td>
+                                          <td>
+                                              <button type="button" class="btn btn-outline-secondary"
+                                                      onClick="handleClickEdit('{{ onco_cr_count.r_target }}', '{{ onco_cr_count.id }}')">
+                                                수정
+                                              </button>
+                                          </td>
+                                      </tr>
+                                  {% endfor %}
+								</tbody>
+							</table>
+						</div><!-- //table-responsive -->
+
+                        {# 추가/수정 모달 #}
+                        <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addModalLabel">Target 추가</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post" action="/research/{{ research.id }}/update_target/" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="onco-cr-count-id" type="hidden" name="onco_cr_count_id"/>
+                                        <input id="is-update" type="hidden" name="is_update"/>
+                                        <input id="is-deleted" type="hidden" name="is_deleted"/>
+										<input id="original-target" type="hidden" name="original_target"/>
+                                        <div class="modal-body">
+                                            <div class="form-group row">
+                                                <label for="research" class="col-sm-3 col-form-label">Research</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="research" name="research"
+                                                           value="{{ research.research_name }}" maxlength="100" required readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="r_target" class="col-sm-3 col-form-label">Target</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="r_target" name="r_target" maxlength="100" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                                <i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+                                            </button>
+                                            <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+                                                <i class="bi bi-pencil"></i> <span>Save</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<script>
+        $(document).ready(function () {
+            const table = $('#update-target-table').DataTable({
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    },
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+                select: {
+                    style: 'multiple',
+                    selector: 'td:first-child'
+                },
+            })
+
+            $('#update-target-table').data('selectedIds', []);
+
+            table.on('select', function (e, dt, type, indexes) {
+                const TargetId = table.rows(indexes).data().toArray()[0][1];
+                $('#update-target-table').data('selectedIds', [...$('#update-target-table').data('selectedIds'), TargetId]);
+                if ($('#update-target-table').data('selectedIds').length === 1) {
+                    $('#row-delete-button').show();
+                }
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                const TargetId = table.rows(indexes).data().toArray()[0][1];
+                const tmp = $('#update-target-table').data('selectedIds').filter(a => a !== TargetId)
+                $('#update-target-table').data('selectedIds', tmp);
+                if (tmp.length === 0) {
+                    $('#row-delete-button').hide();
+                }
+            });
+
+            $('.dataTables_length').addClass('bs-select');
+
+            $("#update-target-table_wrapper").css("width", "100%")
+
+            $('#addModal').on('hide.bs.modal', () => {
+                $('#is-update').val('');
+                $('#r_target').val('');
+            })
+        });
+
+        function handleClickAdd() {
+            $('#addModalLabel').text('Target 추가');
+            $('#is-update').val(false);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(r_target, targetID) {
+            $('#addModalLabel').text('Target 수정');
+            $('#r_target').val(r_target);
+            $('#is-update').val('true');
+            $('#onco-cr-count-id').val(targetID);
+            $('#original-target').val(r_target);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteSelection() {
+            const targetList = $('#update-target-table').data('selectedIds');
+            if (confirm(`${targetList.length}개의 데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/research/delete_target/',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "onco_cr_count_ids": targetList.join(","),
+                        "research_id": {{ research.id }},
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+</script>
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

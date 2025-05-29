@@ -1,0 +1,55 @@
+{% load get_m2m_values from research_tag %}
+
+<label for="chemotherapy"
+       class="font-weight-bold col-sm-2 col-form-label pl-3 striped word-keep-all text-black">
+  Type of Therapy
+  {% autoescape off %}
+    {% if 'chemotherapy' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.chemotherapy }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-2 form-input-container checkbox-radio-input">
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category border-0">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="chemotherapy" value="toxic_agent"
+                {% if 'toxic_agent' in query.chemotherapy %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>toxic agent</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="chemotherapy" value="target_agent"
+                {% if 'target_agent' in query.chemotherapy %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>target agent</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="chemotherapy" value="Immunotherapy"
+                {% if 'Immunotherapy' in query.chemotherapy %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Immunotherapy</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="chemotherapy" value="etc"
+                {% if 'etc' in query.chemotherapy %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>기타</span></label>
+        </div>
+      <!-- Flex end -->
+      </div>
+    </div>
+</div>

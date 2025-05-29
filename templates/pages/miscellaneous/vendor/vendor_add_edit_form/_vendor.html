@@ -1,0 +1,65 @@
+{% load get_m2m_values from research_tag %}
+<label for="vendor"
+       class="font-weight-bold col-sm-2 col-form-label pl-3 striped word-keep-all" style="color:black;">Vendor
+  {% autoescape off %}
+    {% if 'vendor' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.vendor }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-10 form-input-container checkbox-radio-input">
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="vendor-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="vendor" value="Inform"
+                {% if 'Inform' in research_management.vendor.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Inform</span></label>
+        </div>
+
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="vendor" value="BioClinica"
+                {% if 'BioClinica' in research_management.vendor.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>BioClinica</span></label>
+        </div>
+
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="vendor" value="PPD"
+                {% if 'PPD' in research_management.vendor.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>PPD</span></label>
+        </div>
+
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="vendor" value="Almac(call)"
+                {% if 'Almac(call)' in research_management.vendor.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Almac(call)</span></label>
+        </div>
+
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="vendor" value="TrialManager"
+                {% if 'TrialManager' in research_management.vendor.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>TrialManager</span></label>
+        </div>
+      </div>
+    </div>
+</div>

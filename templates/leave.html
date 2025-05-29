@@ -1,0 +1,297 @@
+{% load static %}
+{% load subtract from research_tag %}
+<!-- {% load cal_career from research_tag %} -->
+<!-- {% load after_december_available from research_tag %} -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include "bases/partials/_base_head.html" %}
+  {% block custom_head %}
+  <link rel="stylesheet" href="{% static 'css/fullcalendar/fullcalendar_3.4.0.css' %}">
+  <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.standalone.min.css' %}">
+  <!-- <link rel="stylesheet" href="{% static 'css/fullcalendar/toastr.min.css' %}"> -->
+  {% endblock %}
+  {% block title %}
+  <title>Oncology CR</title>
+  {%  endblock %}
+
+  <style type="text/css">
+        .fc-title{
+          color: black !important;
+        }
+        .fc-view{
+          font-size: 1rem;
+        }
+        .fc-event{
+          width: 80%;
+        }
+    </style>
+</head>
+
+<body class="sidebar-icon-only">
+  <div class="container-scroller">
+    {% with job_title=user.groups.all.0.name %}
+    <div class="container-fluid page-body-wrapper">
+      {% include "bases/partials/_sidebar.html" %}
+      <div class="main-panel" style="padding-left:190px;">
+        <div class="content-wrapper pt-4">
+          {% block content %}
+          <div class="modal fade" id="leave_manual" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">휴가 운영 가이드</h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="col-sm-12">
+                       <li class="mb-1"><a href="/media/protocol_ko/leave_manual.docx" style="color:red;">휴가운영원칙 파일 다운로드 (클릭)</a></li>
+		               <li class="mb-4">부재 신청 건은 부재 날짜까지 수정/삭제 가능 (단, 당일 기준 7일 이후 날짜로만 변경 가능)</li>
+                       <div class="font-weight-bold mb-2" style="text-align: center;"><1년 차 미만 연차/월차 개수></div>
+                       <table class="table">
+                           <tr>
+                             <th class="text-center"></th>
+                             <th class="text-center text-dark">월차</th>
+                             <th class="text-center text-dark">연차</th>
+                           </tr>
+                           <tr class="text-center">
+                             <td class="font-weight-bold text-dark" style="vertical-align: middle;">전년도 12월 1일 이전 입사자</td>
+                             <td style="vertical-align: middle;">한 달 만근 시 매달 1개 발생</td>
+                             <td rowspan="2" style="vertical-align: middle;">
+                               <div class="mb-1">분기별 1개 발생</div>
+                               <div class="mb-1"> - 1~2개월: +1</div>
+                               <div class="mb-1">- 3~5개월: +1</div>
+                               <div class="mb-1">- 6~8개월: +1</div>
+                               <div>- 9~11개월: +1</div>
+                             </td>
+                           </tr>
+                           <tr>
+                             <td class="font-weight-bold text-dark" style="vertical-align: middle;">전년도 12월 1일 이후 입사자 및 당해 연도 입사자</td>
+                             <td style="vertical-align: middle;">입사일 기준 1개월 만근 시 매달 1개 발생</td>
+                           </tr>
+                       </table>
+                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal fade" id="usage_detail_{{user.id}}" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">휴가 사용 현황</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                  </div>
+                  <div class="modal-body row">
+                     <div class="col-sm-12">
+                         {% include 'pages/leave/usage_detail.html' %}
+                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="font-weight-bold" style="font-size:0.8rem; color:red;">* 의무기록사, 임상병리사, 연구행정, 반차 제외 하루 최대 9명 등록 가능합니다.</div>
+            <div style="float:right;">
+              {% if request.user.is_staff == 1 %}
+                <a class="btn btn-warning" style="color:white;" href="/leave/total_usage/">전체 사용 현황</a>
+              {% endif %}
+                <a class="btn btn-warning" style="color:white;" data-toggle="modal" data-target="#leave_manual">매뉴얼</a>
+                <a class="btn btn-warning usage_detail" style="color:white;" data-toggle="modal" data-target="#usage_detail_{{ user.id}}">사용 현황</a>
+            </div>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;
+              <div class="square-box light-gray" style="display:inline-block;"></div>&nbsp;월차&nbsp;&nbsp;
+              <div class="square-box pastel-blue" style="display:inline-block;"></div>&nbsp;연차 (휴가, 병가 등)&nbsp;&nbsp;
+              <div class="square-box pastel-green" style="display:inline-block;"></div>&nbsp;반차&nbsp;&nbsp;
+              <div class="square-box orange" style="display:inline-block;"></div>&nbsp;공가 및 특별휴가&nbsp;
+
+          <br/>
+          <br/>
+          <div class="container mt-4">
+            <div id="leave_calendar" style="float:right;"></div>
+          </div>
+          {% endblock %}
+        </div>
+        {% include "bases/partials/_footer.html" %}
+      </div>
+    </div>
+  </div>
+  {% include 'bases/partials/_base_end.html' %}
+</body>
+
+{% block script %}
+    <script src="{% static 'js/fullcalendar/jquery.min_3.2.1.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.js-1.12.1.js' %}"></script>
+    <script src="{% static 'js/fullcalendar/moment.min_2.18.1.js' %}"></script>
+    <script src="{% static 'js/fullcalendar/fullcalendar.min_3.4.0.js' %}"></script>
+
+    <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'js/popper-1.17.4.js' %}"></script>
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+
+    <!-- <script src="{% static 'js/fullcalendar/toastr.min.js' %}"></script> #} -->
+
+    <script>
+        $('.modal-dialog').draggable({
+            "handle":".modal-header"
+        });
+        $('#usage_detail').draggable({
+            "handle":".modal-header"
+        });
+
+        $(document).ready(function () {
+            var calendar = $('#leave_calendar').fullCalendar({
+                eventRender: function(event, element) {
+                    if(event.kind == "Monthly") {
+                        element.css('background-color', '#bab1b1');
+                        element.css('border-color', '#bab1b1');
+                    }
+                    else if(event.kind == "Annual") {
+                        element.css('background-color', '#adc0f7');
+                        element.css('border-color', '#adc0f7');
+                    }
+                    else if(event.kind == "afternoon_Half" || event.kind == "morning_Half") {
+                        element.css('background-color', '#4bdb57');
+                        element.css('border-color', '#4bdb57');
+                    }
+                    else {
+                        element.css('background-color', '#f2b757');
+                        element.css('border-color', '#f2b757');
+                    }
+                },
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: ''
+                },
+                displayEventTime: false,
+                events: {
+                    url: '/leave/all_events'
+                },
+                selectable: true,
+                selectHelper: true,
+                editable: false,
+                eventLimit: true,
+		showNonCurrentDates: false,    
+		{% if job_title == 'doctor' or job_title == 'urological' or job_title == 'secretary' and fixed_annual == None %}
+                select: function (from_date, title, allDay) {
+                    var from_date_int = from_date
+                    var from_date = $.fullCalendar.formatDate(from_date, "Y-MM-DD");
+                    var today_date = new Date().setDate(new Date().getDate() + 6);
+                    if (today_date > from_date_int) {
+                        alert('해당 날짜에 추가할 수 없습니다.');
+                    }
+                    else {
+                        window.location.href = '/leave/add_event/?from_date=' + from_date
+                    }
+                },    
+                {% else %}
+                select: function (from_date, title, allDay) {
+                    var from_date_int = from_date
+                    var from_date = $.fullCalendar.formatDate(from_date, "Y-MM-DD");
+                    var today_date = new Date().setDate(new Date().getDate() + 6);
+		    var current_calendar = new Date($('#leave_calendar').fullCalendar('getDate'));
+                    var current_calendar_month = current_calendar.getMonth() + 1
+                    var current_calendar_year = current_calendar.getFullYear()
+		    var limit = {{ limit|safe }};	
+		    if (today_date > from_date_int) {
+                        alert('해당 날짜에 추가할 수 없습니다.');
+                    }
+                    else if ({{cal_career.0.0}} == 0 && {{cal_career.1}} == 0) {
+                        alert('1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 사용이 불가합니다.');
+                    }
+                    else if ({{cal_career.0.0}} == 0 && {{cal_career.1}} != 0 && {{this_month_count.0}} >= 4.0 && current_calendar_month == {{this_month}}) {
+                        alert('한달 내에 사용할 수 있는 휴가는 최대 4일입니다.\n{{this_month}}월 추가 등록은 불가합니다.');
+                    }
+                    else if ({{cal_career.0.0}} == 0 && {{cal_career.1}} != 0 && new Date('{{career_str}}') < new Date('{{december_str}}') && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+                        alert('사용 가능한 휴가 일수를 모두 사용하였습니다.\n1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 {{user.first_name}}님의 사용 가능한 휴가 일수는 총 {{fixed_annual_monthly_available.0}}일 (연차: {{fixed_annual}}일 포함) 입니다.');
+                    }
+                    else if ({{cal_career.0.0}} == 0 && {{cal_career.1}} != 0 && new Date('{{career_str}}') >= new Date('{{december_str}}') && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+                        alert('사용 가능한 휴가 일수를 모두 사용하였습니다.\n1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 {{user.first_name}}님의 사용 가능한 휴가 일수는 총 {{fixed_annual_monthly_available.0}}일 (연차: {{fixed_annual}}일 포함) 입니다.');
+                    }
+                    else if ({{cal_career.0.0}} != 0 && {{this_month_count.0}} >= 4.0 && current_calendar_month == {{this_month}}) {
+                        alert('한달 내에 사용할 수 있는 휴가는 최대 4일입니다.\n{{this_month}}월 추가 등록은 불가합니다.');
+                    }
+                    else if ((({{cal_career.0.0}} != 0 && {{cal_career.1}} == 0) | ({{cal_career.0.0}} != 0 && {{cal_career.1}} != 0)) && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+                        alert('사용 가능한 휴가 일수를 모두 사용하였습니다.');
+                    }
+                    else if ({{days_remaining.0}} == 0.5) {
+                        alert('사용 가능한 휴가 일수는 0.5일로, 오전/오후 반차만 사용 가능합니다.');
+		        window.location = '/leave/add_event/?from_date=' + from_date	    
+                    }
+                    else if ({{this_month_count.0}} == 3.5) {
+                        alert('한달 내에 사용할 수 있는 휴가는 최대 4일로, 사용 가능한 휴가 일수는 0.5일입니다. 오전/오후 반차만 사용 가능합니다.');
+                        window.location = '/leave/add_event/?from_date=' + from_date
+		    }
+		    else if (limit.includes(from_date)) {
+                        alert('최대 등록 가능 인원을 초과하여 등록이 불가합니다. 책임 교수님과 이윤정 선생님께 메일 부탁드립니다.\n*임상병리사/의무기록사/연구행정 및 반차 신청은 이윤정 선생님께 메일');
+                    }	
+                    else {
+                        window.location.href = '/leave/add_event/?from_date=' + from_date
+                    }
+                },
+                {% endif %}
+                eventClick: function (event, jsEvent, view) {
+                    var eventID = event.id;
+                    var kind = event.kind;
+                    var user_id = event.user_id;
+                    var curr_user_id = event.curr_user_id;
+                    var from_date = event.from_date;
+                    var today = new Date().getFullYear()+'-'+("0"+(new Date().getMonth()+1)).slice(-2)+'-'+("0"+new Date().getDate()).slice(-2);
+                    if (user_id == curr_user_id && from_date >= today && (kind == 'Annual' || kind == 'morning_Half' || kind == 'afternoon_Half' || kind == 'Monthly' || kind == 'official')) {
+                        window.location.href = '/leave/edit/' + eventID + '/?from_date=' + from_date;
+                    }
+                    else if (user_id != curr_user_id && (kind == 'Annual' || kind == 'morning_Half' || kind == 'afternoon_Half' || kind == 'Monthly' || kind == 'official')) {
+                        window.location.href = '/leave/detail/' + eventID + '/';
+                    }
+                    else if (from_date < today && user_id == curr_user_id && (kind == 'Annual' || kind == 'morning_Half' || kind == 'afternoon_Half' || kind == 'Monthly' || kind == 'official')) {
+                        window.location.href = '/leave/detail/' + eventID + '/';
+                    }
+                },
+            });
+
+            $('#usage-detail-table').DataTable( {
+            'info': false,
+            'bLengthChange': false,
+            'searching': false,
+            initComplete: function () {
+                this.api().columns([2]).every( function () {
+                    var column = this;
+                    var colTitle = this.header().innerHTML;
+                    var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                        .appendTo( $(column.header()).empty() )
+                        .on( 'change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            column
+                                .search( val ? '^'+val+'$' : '', true, false )
+                                .draw();
+                            });
+
+                    column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option>'+d+'</option>' )
+                        });
+                    });
+                }
+            });
+        });
+
+    /*------------------------------------------
+    Toastr Success Code
+
+    function displayMessage(message) {
+        toastr.success(message, 'Event');
+    }
+    --------------------------------------------*/
+    </script>
+{% endblock %}
+{% endwith %}
+</html>

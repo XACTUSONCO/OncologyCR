@@ -1,0 +1,120 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load cal_career from research_tag %}
+{% load subtract from research_tag %}
+{% load after_december_available from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>환자 일정</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="row row-cols-auto header-btns mb-4">
+							<div class="col">
+								<p class="text-danger">※ 캘린더에 환자 일정이 보이지 않을 경우 Ctrl + Shift + R 실행 부탁드립니다. (문의: 76597)</p>
+								<div class="cal-index-area">
+									<span class="index light-gray">next visit</span>
+									<span class="index pastel-yellow">cycle visit</span>
+									<span class="index pink">event</span>
+								</div>
+							</div>
+						</div>
+
+						<div id='calendar-container'>
+							<div id='calendar'></div>
+						</div><!-- //calendar-container -->
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/staff2.js' %}"></script>
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		var calendarEl = document.getElementById('calendar');
+		var calendar = new FullCalendar.Calendar(calendarEl, {
+			initialView: "dayGridMonth",
+			locale: 'ko',
+			height: 'auto',
+			expandRows: true,
+			events: {
+                    url: '/leave/patient/all_events'
+            },
+			eventClick: function (info) {
+						var eventID = info.event.id;
+						var kind = info.event.extendedProps.kind;
+						var from_date = info.event.extendedProps.from_date;
+						var assignmentID = info.event.extendedProps.assignment_id;  // 개발자 모드에서 확인하기
+						if (kind == 'event') {
+							window.location.href = '/leave/event/edit/' + eventID + '/?from_date=' + from_date;
+						}
+						else {
+							window.location.href = '/assignment/' + assignmentID + '/';
+						}
+			},
+			dateClick: function (info) {
+						var from_date_int = info.date;
+						var current_calendar_year = info.date.getFullYear();
+						var current_calendar_month = String(info.date.getMonth() + 1).padStart(2, '0');
+						var current_calendar = String(info.date.getDate()).padStart(2, '0');
+						var from_date = current_calendar_year + '-' + current_calendar_month + '-' + current_calendar;
+						window.location.href = '/leave/event/new/?from_date=' + from_date
+			},
+		  });
+		calendar.render();
+	});
+
+        $('.modal-dialog').draggable({
+            "handle":".modal-header"
+        });
+        $('#usage_detail').draggable({
+            "handle":".modal-header"
+        });
+
+        function convertDate(date) {
+            var date = new Date(date);       
+            alert(date.yyyymmdd());   
+        }
+
+        $("button.fc-prev-button").click(function() {    
+            var date = $("#calendar").fullCalendar("getDate");
+            convertDate(date);
+        });
+
+        $("button.fc-next-button").click(function() {  
+            var date = $("#calendar").fullCalendar("getDate");
+            convertDate(date);
+        });
+
+        Date.prototype.yyyymmdd = function() {
+            var yyyy = this.getFullYear().toString();       
+            var mm = (this.getMonth() + 1).toString();       
+            var dd = this.getDate().toString();       
+            return yyyy + "-" + (mm[1] ? mm : "0" + mm[0]) + "-" + (dd[1] ? dd : "0" + dd[0]);   
+        }
+</script>
+<style>
+	.fc-event-title {
+		font-size: 13px;
+		color: black;
+	}
+
+</style>
+{% endblock %}

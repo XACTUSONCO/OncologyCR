@@ -1,0 +1,196 @@
+{% extends "bases/base_generic.html" %}
+{% load curr_waiting_filter from research_tag %}
+{% load subtract from research_tag %}
+{% load page_filter from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2></h2>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Dataroom</li>
+									<li class="breadcrumb-item"><a href="/dataroom/data/?cancer={{ request.GET.cancer }}">{{ request.GET.cancer }}</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="searchdata-header">
+							<h2 class="tables-title">{{ request.GET.cancer }}</h2>
+							<div class="index-area ms-auto">
+								<span class="index green">Recruiting</span>
+								<span class="index gray">Completed</span>
+								<span class="index red">Not yet recruiting</span>
+								<span class="index yellow">Holding</span>
+							</div>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn ms-2">
+                                <i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span>
+                            </button>
+						</div>
+
+						<div class="dataroom-area">
+							<div class="{{ request.GET.cancer }}-wrapper">
+								{% for p in page %}
+										<div class="dataroom-box">
+											<img src="{{ p.slide.url }}" class="dataroom-page">
+
+									{% for image in images %}
+									        {% if image.slide_number == forloop.parentloop.counter and '타팀' in image.m_name %}
+											<input class="{{ image.cancer }}_{{ image.id }}_top1" value="{{ image.m_scr }}">
+											<input class="{{ image.cancer }}_{{ image.id }}_top2" value="0">
+											<input class="{{ image.cancer }}_{{ image.id }}_top3" value="{{ image.m_ongo }}">
+											<input class="{{ image.cancer }}_{{ image.id }}_top4" value="{{ image.m_enroll }}">
+											<input class="{{ image.cancer }}_{{ image.id }}_top5" value="{{ image.m_target }}">
+											<a href="{% url 'dataroom:DataDet' research_id=image.research__id %}">
+                    							<button class="{{ image.cancer }}_{{ image.id }}_det">Detail</button></a>
+										{% elif image.slide_number == forloop.parentloop.counter %}
+										        <input class="{{ image.cancer }}_{{ image.id }}_top1" value="{{ image.screening_filter }}{% if image.research__is_pre_screening == 'Y' %}{% if request.GET.cancer == 'Stomach' or 'Phase1' %}({% curr_waiting_filter image.research__id image.m_target %}){% else %}({{ image.pre_screening_filter }}){% endif %}{% endif %}">
+										        <input class="{{ image.cancer }}_{{ image.id }}_top2" value="{{ image.enroll_weekly_filter }}">
+											<input class="{{ image.cancer }}_{{ image.id }}_top3" value="{{ image.ongoing_filter }}">
+											<input class="{{ image.cancer }}_{{ image.id }}_top4" value="{{ image.enroll_filter }}">
+											<input class="{{ image.cancer }}_{{ image.id }}_top5" value="{{ image.m_target }}">
+											<a href="{% url 'dataroom:DataDet' research_id=image.research__id %}">
+												<button class="{{ image.cancer }}_{{ image.id }}_det">Detail</button></a>
+										{% endif %}
+									{% endfor %}
+											</div>
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/staff.js' %}"></script>
+<script>
+    function printthispage() {
+        window.print();
+    }
+    window.onbeforeprint = () => {
+      document.querySelectorAll(".no-print").forEach(el => {
+        el.style.display = "none";
+      });
+    };
+
+    window.onafterprint = () => {
+      document.querySelectorAll(".no-print").forEach(el => {
+        el.style.display = "inline-block";
+      });
+    };
+
+    $('ul.menu-sub a').each(function() {
+        var href = $(this).attr('href');
+        if(href == window.location.pathname + window.location.search) {
+          $(this).parent().addClass("active")
+        }
+    });
+</script>
+<style>
+{% for link in image_link %}
+    	{% for image in images %}
+    		{% if image.id == link.clinical_trial_id %}
+
+			input[class$="{{ image.cancer }}_{{ image.id }}_top1"] {
+				position: absolute;
+				width: 3%;
+				height: 2.5%;
+				top: {{ link.link_top }}%;
+				bottom: {{ link.link_bottom }}%;
+				right: 0%;
+				left: {% if link.link_right %}{{ 100|subtract:link.link_right }}{% else %}{{ link.link_left }}{% endif %}%;
+			}
+
+			input[class$="{{ image.cancer }}_{{ image.id }}_top2"] {
+				position: absolute;
+				width: 3%;
+				height: 2.5%;
+				top: {{ link.link_top }}%;
+				bottom: {{ link.link_bottom }}%;
+				right: 0%;
+				left: {% if link.link_right %}{{ 100|subtract:link.link_right|add:3 }}{% else %}{{ link.link_left|add:3 }}{% endif %}%;
+			}
+
+			input[class$="{{ image.cancer }}_{{ image.id }}_top3"] {
+				position: absolute;
+				width: 3%;
+				height: 2.5%;
+				top: {{ link.link_top }}%;
+				bottom: {{ link.link_bottom }}%;
+				right: 0%;
+				left: {% if link.link_right %}{{ 100|subtract:link.link_right|add:6 }}{% else %}{{ link.link_left|add:6 }}{% endif %}%;
+			}
+
+			input[class$="{{ image.cancer }}_{{ image.id }}_top4"] {
+				position: absolute;
+				width: 3%;
+				height: 2.5%;
+				top: {{ link.link_top }}%;
+				bottom: {{ link.link_bottom }}%;
+				right: 0%;
+				left: {% if link.link_right %}{{ 100|subtract:link.link_right|add:9 }}{% else %}{{ link.link_left|add:9 }}{% endif %}%;
+			}
+
+			input[class$="{{ image.cancer }}_{{ image.id }}_top5"] {
+				position: absolute;
+				width: 4%;
+				height: 2.5%;
+				top: {{ link.link_top }}%;
+				bottom: {{ link.link_bottom }}%;
+				right: 0%;
+				left: {% if link.link_right|add:12 %}{{ 100|subtract:link.link_right|add:12 }}{% else %}{{ link.link_left|add:12 }}{% endif %}%;
+			}
+
+			/* Detail button */
+			button[class$="{{ image.cancer }}_{{ image.id }}_det"] {
+				{% if image.research__is_recruiting == 'Recruiting' %}
+					background-color: #5BC236;
+				{% elif image.research__is_recruiting == 'Holding' %}
+					background-color: #F7FE2E;
+				{% elif image.research__is_recruiting == 'Not yet recruiting' %}
+					background-color: #ae163e;
+				{% elif image.research__is_recruiting == 'Completed' %}
+					background-color: #6c6e6b;
+				{% endif %}
+				color: white;
+				cursor: pointer;
+				border: none;
+				border-radius: 10%;
+
+				position: absolute;
+				width: 4%;
+				height: 2.5%;
+				top: {{ link.link_top }}%;
+				bottom: {{ link.link_bottom }}%;
+				right: 0%;
+				left: {% if link.link_right %}{{ 100|subtract:link.link_right|add:16 }}{% else %}{{ link.link_left|add:16 }}{% endif %}%;
+				display: flex;
+				align-items: center; /* 세로 가운데 정렬 */
+				justify-content: center; /* 가로 가운데 정렬 */
+				text-align: center; /* 텍스트 가운데 정렬 */
+				padding: 0; /* 패딩 없애기 */
+			}
+
+			{% endif %}
+		{% endfor%}
+	{% endfor %}
+</style>
+{% endblock %}
+

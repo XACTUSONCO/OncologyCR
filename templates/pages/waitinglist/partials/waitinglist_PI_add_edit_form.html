@@ -1,0 +1,208 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+{% load chunks from research_tag %}
+
+<div class="form-group row {% if 'cancer' in errors %} card-inverse-danger {% endif %}">
+<label for="cancer"
+       class="col-sm-3 font-weight-bold col-form-label pl-3 striped text-black">Cancer
+  {% autoescape off %}
+    {% if 'cancer' in errors %}
+      <div class="text-danger small" style="line-height: 1rem;">{{ errors.cancer }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+
+
+  <div class="col-sm-9 form-input-container checkbox-radio-input">
+    <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="phase"
+                 value="phase1"  {% if 'phase1' == research.phase %} checked {% endif %}
+          > Basket
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="colorectal"  {% if 'colorectal' == research.cancer %} checked {% endif %}
+          > 대장암
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="NSCLC"  {% if 'NSCLC' == research.is_recruiting %} checked {% endif %}
+          > 폐암
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="gastric"  {% if 'gastric' == research.is_recruiting %} checked {% endif %}
+          > 위암
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="melanoma"  {% if 'melanoma' == research.is_recruiting %} checked {% endif %}
+          > 흑색종
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="breast"  {% if 'breast' == research.is_recruiting %} checked {% endif %}
+          > 부인암
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="pancreatic"  {% if 'pancreatic' == research.is_recruiting %} checked {% endif %}
+          > 간담췌암
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="sarcoma"  {% if 'sarcoma' == research.is_recruiting %} checked {% endif %}
+          > 육종암
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="ureter"  {% if 'ureter' == research.is_recruiting %} checked {% endif %}
+          > 비뇨기암
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="cancer"
+                 value="etc"  {% if 'etc' == research.is_recruiting %} checked {% endif %}
+          > 기타
+        </label>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="form-group row {% if 'register_number' in errors %} card-inverse-danger {% endif %}">
+  <label for="register_number"
+         class="col-sm-3 font-weight-bold col-form-label pl-3 striped text-black">등록번호
+    {% autoescape off %}
+      {% if 'register_number' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.register_number }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 form-input-container pt-0">
+    <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+      <input type="number" class="form-control col-sm-12" name="register_number"
+             value="{% if waitinglist.register_number %}{{ waitinglist.register_number }}{% endif %}"
+             min="0">
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'name' in errors %} card-inverse-danger {% endif %}">
+  <label for="name"
+         class="col-sm-3 font-weight-bold col-form-label pl-3 striped text-black">이름
+    {% autoescape off %}
+      {% if 'name' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.name }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 form-input-container">
+    <div>
+      <input type="text" class="form-control col-sm-12" name="name"
+             value="{% if waitinglist.name %}{{ waitinglist.name }}{% endif %}">
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'doctor' in errors %} card-inverse-danger {% endif %}">
+  <label for="doctor"
+         class="col-sm-3 font-weight-bold col-form-label pl-3 striped text-black">주치의
+    {% autoescape off %}
+      {% if 'doctor' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.doctor }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 form-input-container pt-0">
+    <div>
+      <input type="text" class="form-control col-sm-12" name="doctor"
+             value={{ request.user.first_name }}>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'age' in errors %} card-inverse-danger {% endif %}">
+  <label for="age"
+         class="col-sm-3 font-weight-bold col-form-label pl-3 striped text-black">나이
+    {% autoescape off %}
+      {% if 'age' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.age }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 form-input-container pt-0">
+    <div>
+      <input type="number" class="form-control col-sm-12" name="age"
+             value="{% if waitinglist.age %}{{ waitinglist.age }}{% endif %}"
+             min="0">
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'sex' in errors %} card-inverse-danger {% endif %}">
+  <label for="sex"
+         class="col-sm-3 font-weight-bold col-form-label pl-3 striped text-black">성별
+    {% autoescape off %}
+      {% if 'sex' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.sex }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 form-input-container pt-0">
+    <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="sex"
+                 value="M"
+              {% if 'M' == waitinglist.sex %} checked {% endif %}> M
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="sex"
+                 value="F"
+              {% if 'F' == waitinglist.sex %} checked {% endif %}> F
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'curr_status' in errors %} card-inverse-danger {% endif %}">
+  <label for="curr_status"
+         class="col-sm-3 font-weight-bold col-form-label pl-3 striped text-black">현재 상태
+    {% autoescape off %}
+      {% if 'curr_status' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.curr_status }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+
+  <div class="col-sm-9 form-input-container">
+    <div>
+      <textarea type="text" class="form-control col-sm-12" rows="4" name="curr_status">{{ waitinglist.curr_status }}</textarea>
+    </div>
+  </div>
+</div>

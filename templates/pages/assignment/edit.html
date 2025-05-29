@@ -1,0 +1,88 @@
+{% extends "bases/base_generic.html" %}
+{% load get_m2m_values from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>환자 정보 수정</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="#!">Studies</a></li>
+									<li class="breadcrumb-item"><a href="#!">임상연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+
+						<!-- 연구 상세 -->
+						<div class="card maindata-card shadow mb-5">
+							<!-- Card Header - Dropdown -->
+							<!-- Card Body -->
+							<div class="card-body">
+								<div class="default-forms">
+								  <form method="post" action="/assignment/{{ assignment.id }}/edit/" enctype="multipart/form-data">
+									{% csrf_token %}
+									{% include 'pages/assignment/assignment_add_form.html' %}
+
+									<!-- RECIST File Upload -->
+									{% if 'IIT' in assignment.research.type.all|get_m2m_values %}
+                                    <div class="form-group row">
+									  <label class="col-lg-2 col-form-label">RECIST File upload</br>* PPT 파일만 업로드 가능</label>
+									  <div class="col-lg-10 col-form-data file_cons">
+                                        <div class="filebox bs3-primary">
+										  <input type="file" name="file[]" id="file" class="upload-hidden" multiple>
+										  <input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택" >
+										  <label for="file" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+                                          <div class="file-list pl-2 pt-2 mb-3">
+                                              {% if not upload_RECIST %}
+                                              {% else %}
+                                                <ul>
+                                                {% for file in upload_RECIST %}
+                                                  <li><a href="{{ file.file.url }}" target="_blank" download>{{ file.filename }}</a></li>
+                                                {% endfor %}
+                                                </ul>
+                                              {% endif %}
+                                          </div>
+                                        </div>
+									  </div>
+									</div>
+									{% endif %}
+									<div class="py-4 px-3 text-end">
+										<button type="button" class="btn btn-outline-secondary" onclick="history.back()"><i class="bi bi-arrow-left-square"></i> <span>Cancel</span></button>
+										<button type="submit" class="btn btn-success edit-btn px-4" onclick="location.href='/assignment/{{ assignment.id }}/'"><i class="bi bi-pencil"></i> <span>Submit</span></button>
+									</div>
+								  </form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+
+<!-- edit & add js//무조건 제일 하단에 위치해야함! -->
+<script src="{% static 'js/CRUD/research_add.js' %}"></script>
+<script src="{% static 'js/CRUD/file-upload.js' %}"></script>
+{% endblock %}

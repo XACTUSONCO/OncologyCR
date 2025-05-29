@@ -1,0 +1,465 @@
+{% extends "bases/base_generic.html" %}
+{% load change_korean from research_tag %}
+{% load get_value_from_dict from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<div class="info-box mb-4">
+							<div class="row">
+								<div class="col-md-7">
+									<div class="fulldetalil-search">
+									  	<form action="/miscellaneous/supporting" method="GET">
+											<div class="form-group">
+												<div class="form-cons">
+													<div class="form-check-area">
+														<div class="item ps-0">
+															<div class="form-check form-check-success">
+																<label class="form-check-label">
+																	<input type="radio" class="form-check-input" name="optionRadios" value="total" {% if option_radio != 'period' %} checked {% endif %}/>
+																	<i class="input-helper"></i><span class="form-check-sign">Next week</span>
+																</label>
+															</div>
+														</div>
+														<div class="item">
+															<div class="form-check form-check-success">
+																<label class="form-check-label">
+																	<input type="radio" class="form-check-input" name="optionRadios" value="period" {% if option_radio == 'period' %} checked {% endif %}/>
+																	<i class="input-helper"></i><span class="form-check-sign">기간</span>
+																</label>
+															</div>
+														</div>
+													</div>
+													<div class="input-group">
+														<input type="text" id="fromDate" name="from_date" class="form-control datepickerStyle" data-date-format="yyyy-mm-dd"
+															   autocomplete="off" value={{from_date|default_if_none:''}}>
+														<label for="fromDate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+													</div>
+													<div class="dash px-2"><span> ~ </span></div>
+													<div class="input-group">
+														<input type="text" id="toDate" name="to_date" class="form-control datepickerStyle" data-date-format="yyyy-mm-dd"
+															   autocomplete="off" value={{to_date|default_if_none:''}}>
+														<label for="toDate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+													</div>
+													<button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 ms-1 search-btn">
+														<i class="bi bi-search"></i> <span class="sr-only-">조회</span>
+													</button>
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5">
+									<ul>
+										<li class="f_ss1"><strong>진검 검제</strong> : 여아린선생님께서 진검에서 픽업해서 송희수 선생님께 전달 해야할 검제인 경우</li>
+										<li class="f_ss2"><strong>별도 채혈</strong> : 항암 주사실에서 진행 또는 진료 전/후로 채혈이 필요한 경우<br>
+										(※ 채혈 위치는 comment란에 별도 기입해주시면 됩니다.)</li>
+										<li class="f_ss2"><strong>동행 채혈</strong> : 임상 병리사 선생님이 채혈실 동행하여 채혈/분주를 진행하는 경우</li>
+										<li class="f_ss2"><strong>분주</strong> : CRC 선생님께서 채혈 진행 건 및 CTC 주사실 채혈에 해당하는 경우</li>
+									</ul>
+								</div>
+							</div>
+						</div><!-- //info-box -->
+
+						<!-- <div class="mb-3 text-end">
+							※ <button type="button" class="btn btn-success edit-btn btn-sm"><i class="bi bi-plus-square"></i> <span>Add</span></button> : <span class="text-danger">금요일 오후 1시 이후 등록 불가합니다.<span>
+						</div> -->
+						<!-- 다중선택되는 select박스로 검색하기 -->
+						<div class="row row-cols-auto select-action">
+							<div class="col ms-auto">
+								<button type="button" class="btn btn-outline-danger px-4 deletetechnician">
+									<i class="bi bi-trash3"></i> <span>Cancel</span>
+								</button>
+								<button type="button" class="btn btn-outline-success px-4 addtechnician">
+									<i class="bi bi-arrow-clockwise"></i> <span>Assign</span>
+								</button>
+							</div>
+						</div>
+
+
+                        <!-- 다음주 환자 명단 -->
+                        <div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">
+                                {% if option_radio != 'period' %}
+                                   다음주 환자 명단 ({{this_sun}} ~ {{next_sat}})
+                                {% else %}
+                                   기간: ({{from_date}} ~ {{to_date}})
+                                {% endif %}
+                            </span> <span class="flex-grow-1 border-top line"></span>
+                            </h4>
+
+							<div class="row row-cols-auto select-action">
+                                <div class="col text-danger">
+									※ 금요일 오후 1시 이후 등록 불가합니다. <br/>
+									※ 스크롤바 없이 확인하고 싶으신 경우, 화면 비율을 조정하여 주시기 바랍니다.
+								</div>
+								<div class="col ms-auto">
+                                  {% if job_title == 'technician' %}
+                                    <button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/miscellaneous/supporting/add/'">
+                                        <i class="bi bi-plus-square"></i> <span>Add</span>
+                                    </button>
+                                  {% else %}
+                                        {% if today.weekday == 4 and today.hour >= 13 or today.weekday == 4 and today.hour >= 14 or today.weekday >= 5 %}
+                                        <button type="button" class="btn btn-success edit-btn px-4" onclick="alert('금요일 오후 1시 이후 등록 불가합니다. Lab Technician 선생님(송희수 선생님)께 추가 메일 부탁드립니다.');" style="cursor:pointer">
+                                            <i class="bi bi-plus-square"></i> <span>Add</span>
+                                        </button>
+                                        {% else %}
+                                        <button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/miscellaneous/supporting/add/'">
+                                            <i class="bi bi-plus-square"></i> <span>Add</span>
+                                        </button>
+                                        {% endif %}
+                                  {% endif %}
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="next-week-list">
+									<thead>
+                                      <tr>
+                                        <th>요일</th>
+                                        <th>Date</th>
+                                        <th>Study Name</th>
+                                        <th>Patient No.</th>
+                                        <th>Name</th>
+                                        <th>Subject No.</th>
+                                        <th>Scheduled<br/>time</th>
+                                        <th>Category</th>
+                                        <th>CRC</th>
+                                        <th>Sample<br/>Collection</th>
+                                        <th>Comment</th>
+                                        <th>추가</th>
+                                        <th>Technician</th>
+                                        <th>Select</th>
+                                      </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {% if option_radio != 'period' %}
+                                      {% for supporting in next_supporting %}
+                                      {% if supporting.lab_date|time:"H:i" >= '18:00' or supporting.lab_date.weekday == 5 or supporting.lab_date.weekday == 6 %}
+                                      <tr class="text-danger tr-hover text-center">
+                                      {% else %}
+                                      <tr class="text-black tr-hover text-center">
+                                      {% endif %}
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|date:'Y-m-d'|change_korean }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|default_if_none:""|date:'Y-m-d' }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__research__research_name }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__register_number }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__name }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__no }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|time:"H:i" }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>
+                                            {{ supporting.kinds|default_if_none:"" }}
+                                            {% if supporting.kinds == 'PK-post' %}
+                                                {{ supporting.post_hour|default_if_none:'' }} hr
+                                            {% endif %}
+                                        </td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.crc }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.supporting_type|default_if_none:"" }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }} style="white-space: pre-line;">{{ supporting.comment }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-success edit-btn" onclick="location.href='/miscellaneous/supporting/add/{{ supporting.id }}/'">
+                                                <i class="bi bi-plus-square"></i> <span>Add</span>
+                                            </button>
+                                        </td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.technician }}</td>
+                                        <td>
+											<input type="checkbox" class="Checked" id="{{ supporting.id }}">
+										</td>
+                                      </tr>
+                                      {% endfor %}
+                                    {% elif option_radio == 'period' %}
+                                      {% for supporting in period_supporting %}
+                                      {% if supporting.lab_date|time:"H:i" >= '18:00' or supporting.lab_date.weekday == 5 or supporting.lab_date.weekday == 6 %}
+                                      <tr class="text-danger tr-hover text-center">
+                                      {% else %}
+                                      <tr class="text-black tr-hover text-center">
+                                      {% endif %}
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|date:'Y-m-d'|change_korean }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|default_if_none:""|date:'Y-m-d' }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__research__research_name }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__register_number }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__name }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__no }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|time:"H:i" }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>
+                                            {{ supporting.kinds|default_if_none:"" }}
+                                            {% if supporting.kinds == 'PK-post' %}
+                                                {{ supporting.post_hour|default_if_none:'' }} hr
+                                            {% endif %}
+                                        </td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.crc }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.supporting_type|default_if_none:"" }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }} style="white-space: pre-line;">{{ supporting.comment }}</td>
+                                        <td>
+											<button type="button" class="btn btn-success edit-btn" onclick="location.href='/miscellaneous/supporting/add/{{ supporting.id }}/'">
+                                                <i class="bi bi-plus-square"></i> <span>Add</span>
+                                            </button>
+										</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.technician }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}></td>
+                                      </tr>
+                                      {% endfor %}
+                                    {% endif %}
+                                    </tbody>
+								</table>
+							</div>
+						</div>
+
+                        <!-- 이번주 환자 명단 -->
+                        {% for technician in technician %}
+                        <div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">
+                                이번주 ({{prev_sun}} ~ {{this_sat}}) 환자 명단 - {{ technician.first_name }}
+                            </span> <span class="flex-grow-1 border-top line"></span>
+                            </h4>
+
+							<div class="row row-cols-auto select-action">
+								<div class="col ms-auto">
+                                    <button type="button" class="btn btn-success edit-btn px-4 deleteobjects">
+                                      <i class="bi bi-trash"></i> <span>Delete</span>
+                                    </button>
+                                    {% if job_title == 'technician' %}
+                                    <button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/miscellaneous/supporting/add/?month=this&technician={{ technician.first_name }}'">
+                                        <i class="bi bi-plus-square"></i> <span>Add</span>
+                                    </button>
+                                    {% endif %}
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered this-week-list">
+									<thead>
+                                      <tr>
+                                        <th>요일</th>
+                                        <th>Date</th>
+                                        <th>Study Name</th>
+                                        <th>Patient No.</th>
+                                        <th>Name</th>
+                                        <th>Subject No.</th>
+                                        <th>Scheduled<br/>time</th>
+                                        <th>Category</th>
+                                        <th>CRC</th>
+                                        <th>Sample<br/>Collection</th>
+                                        <th>Comment</th>
+                                        <th>추가</th>
+                                        <th>Technician</th>
+                                        <th>Select</th>
+                                      </tr>
+                                    </thead>
+
+                                    <tbody>
+                                      {% for supporting in this_supporting %}
+                                      {% if supporting.technician == technician.first_name %}
+                                      {% if supporting.lab_date|time:"H:i" >= '18:00' or supporting.lab_date.weekday == 5 or supporting.lab_date.weekday == 6 %}
+                                      <tr class="text-danger tr-hover text-center">
+                                      {% elif supporting.create_date|date:'Y-m-d' >= prev_sun_strp|date:'Y-m-d' and supporting.create_date|date:'Y-m-d' <= this_sat_strp|date:'Y-m-d' %}
+                                      <tr class="text-primary tr-hover text-center">
+                                      {% else %}
+                                      <tr class="text-black tr-hover text-center">
+                                      {% endif %}
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|date:'Y-m-d'|change_korean }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|default_if_none:""|date:'Y-m-d' }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__research__research_name }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__register_number }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__name}}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__no }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|time:"H:i" }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>
+                                            {{ supporting.kinds|default_if_none:"" }}
+                                            {% if supporting.kinds == 'PK-post' %}
+                                                {{ supporting.post_hour|default_if_none:'' }} hr
+                                            {% endif %}
+                                        </td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.crc }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.supporting_type|default_if_none:"" }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }} style="white-space: pre-line;">{{ supporting.comment }}</td>
+                                        <td>
+                                            {% if job_title == 'technician' %}
+                                            <button type="button" class="btn btn-success edit-btn" onclick="location.href='/miscellaneous/supporting/add/{{ supporting.id }}/'">
+                                                <i class="bi bi-plus-square"></i> <span>Add</span>
+                                            </button>
+                                            {% else %}
+                                             <button type="button" class="btn btn-success edit-btn" onclick="alert('이번주 명단 추가는 담당 임상병리사 선생님께 연락 부탁드립니다.');">
+                                                <i class="bi bi-plus-square"></i> <span>Add</span>
+                                            </button>
+                                            {% endif %} 
+					</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.technician }}</td>
+                                        <td><input type="checkbox" class="Checked" id="{{ supporting.id }}"></td>
+                                      </tr>
+                                      {% endif %} {% endfor %}
+                                    </tbody>
+								</table>
+							</div>
+						</div>
+                        {% endfor %}
+
+                        <!-- 다음주 환자 명단 (임상병리사별) -->
+                        {% if job_title == 'technician' or request.user.is_superuser == 1 %}
+                        {% for technician in technician %}
+                        <div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">
+                                다음주 ({{this_sun}} ~ {{next_sat}}) 환자 명단 - {{ technician.first_name }}
+                            </span> <span class="flex-grow-1 border-top line"></span>
+                            </h4>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered this-week-list">
+									<thead>
+                                      <tr>
+                                        <th>요일</th>
+                                        <th>Date</th>
+                                        <th>Study Name</th>
+                                        <th>Patient No.</th>
+                                        <th>Name</th>
+                                        <th>Subject No.</th>
+                                        <th>Scheduled<br/>time</th>
+                                        <th>Category</th>
+                                        <th>CRC</th>
+                                        <th>Sample<br/>Collection</th>
+                                        <th>Comment</th>
+                                        <th>Technician</th>
+                                      </tr>
+                                    </thead>
+
+                                    <tbody>
+                                      {% for supporting in next_supporting %}
+                                      {% if supporting.technician == technician.first_name %}
+                                      {% if supporting.lab_date|time:"H:i" >= '18:00' or supporting.lab_date.weekday == 5 or supporting.lab_date.weekday == 6 %}
+                                      <tr class="text-danger tr-hover text-center">
+                                      {% else %}
+                                      <tr class="text-black tr-hover text-center">
+                                      {% endif %}
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|date:'Y-m-d'|change_korean }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|default_if_none:""|date:'Y-m-d' }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__research__research_name }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__register_number }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__name}}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.assignment__no }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.lab_date|time:"H:i" }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>
+                                            {{ supporting.kinds|default_if_none:"" }}
+                                            {% if supporting.kinds == 'PK-post' %}
+                                                {{ supporting.post_hour|default_if_none:'' }} hr
+                                            {% endif %}
+                                        </td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.crc }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.supporting_type|default_if_none:"" }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }} style="white-space: pre-line;">{{ supporting.comment }}</td>
+                                        <td class="supporting" supporting-id={{ supporting.id }}>{{ supporting.technician }}</td>
+                                      </tr>
+                                      {% endif %} {% endfor %}
+                                    </tbody>
+								</table>
+							</div>
+						</div>
+                        {% endfor %}
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<!-- blood 페이지용 js -->
+<script src="{% static 'assets/js/pages/blood.js' %}"></script>
+<script src="{% static 'js/CRUD/supporting_detail.js' %}"></script>
+<script>
+      $(function() {
+        $( ".lab_date" ).datetimepicker({
+            todayHighlight : true,
+        });
+
+        $( ".datepicker" ).datepicker({
+            todayHighlight : true,
+        });
+      });
+
+      var cValue = $('input[type=radio][name=optionRadios]:checked').val();
+      if(cValue == 'total'){
+        $( '#fromDate' ).attr('disabled', 'disabled').val('');
+        $( '#toDate' ).attr('disabled', 'disabled').val('');
+      }
+
+      $('input[type=radio][name=optionRadios]').on('click',function () {
+        var chkValue = $('input[type=radio][name=optionRadios]:checked').val();
+
+        if(chkValue == 'total'){
+            $( '#fromDate' ).attr('disabled', 'disabled').val('');
+            $( '#toDate' ).attr('disabled', 'disabled').val('');
+
+        }
+        else {
+            $( '#fromDate' ).removeAttr('disabled');
+            $( '#toDate' ).removeAttr('disabled');
+        }
+      });
+
+      $(document).ready(function() {
+        $('#next-week-list').DataTable( {
+            "ordering": false,
+            "rowsGroup": [0,1,2,3,4,5,8],
+            "paging": false,
+            dom: 'Bfrtip',
+            buttons: [''],
+            initComplete: function () {
+                this.api().columns([0,1,2,4,8]).every( function () {
+                    var column = this;
+                    var colTitle = this.header().innerHTML;
+                    var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                        .appendTo( $(column.header()).empty() )
+                        .on( 'change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            column
+                                .search( val ? '^'+val+'$' : '', true, false )
+                                .draw();
+                        } );
+
+                    column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option>'+d+'</option>' )
+                    } );
+                } );
+            }
+        } );
+
+        $('.this-week-list').DataTable( {
+            "rowsGroup": [0,1,2,3,4,5,8,10],
+            "ordering": false,
+            "paging": false,
+            initComplete: function () {
+                this.api().columns([0,1,2,4,8]).every( function () {
+                    var column = this;
+                    var colTitle = this.header().innerHTML;
+                    var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                        .appendTo( $(column.header()).empty() )
+                        .on( 'change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            column
+                                .search( val ? '^'+val+'$' : '', true, false )
+                                .draw();
+                        } );
+
+                    column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option>'+d+'</option>' )
+                    } );
+                } );
+
+            }
+        } );
+    } );
+</script>
+{% endblock %}

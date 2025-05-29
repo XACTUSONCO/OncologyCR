@@ -1,0 +1,80 @@
+<!-- Status -->
+<div class="form-group row {% if 'PI' in errors %} card-inverse-danger {% endif %}">
+  <label for="PI" class="col-sm-2 font-weight-bold col-form-label pl-3 striped text-black">PI
+    {% autoescape off %}
+      {% if 'PI' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.PI }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-3 form-input-container">
+    <div style="display: flex; justify-content: left; flex-wrap:wrap; position:relative; top:-3px;">
+      <input type="text" class="form-control col-sm-12" name="PI"
+             value="{% if query.PI %}{{ query.PI }}{% endif %}">
+    </div>
+  </div>
+
+  <label for="status" class="col-sm-2 font-weight-bold col-form-label pl-3 striped" style="color:black;">Status
+    {% autoescape off %}
+      {% if 'status' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.status }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-4 form-input-container checkbox-radio-input">
+    <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="status"
+                 value="종료보고완료"  {% if '종료보고완료' == query.status %} checked {% endif %}
+          > 종료 보고 완료
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="status"
+                 value="결과보고완료"  {% if '결과보고완료' == query.status %} checked {% endif %}
+          > 결과 보고 완료
+        </label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input" name="status"
+                 value="장기보관완료"  {% if '장기보관완료' == query.status %} checked {% endif %}
+          > 장기 보관 완료
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Study Name -->
+<div class="form-group row {% if 'research_name' in errors %} card-inverse-danger {% endif %}">
+  <label for="research_name" class="col-sm-2 font-weight-bold col-form-label pl-3 striped text-black">Study Name
+    {% autoescape off %}
+      {% if 'research_name' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.research_name }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-3 form-input-container">
+    <div style="display: flex; justify-content: left; flex-wrap:wrap; position:relative; top:-3px;">
+      <input type="text" class="form-control col-sm-12" name="research_name"
+             value="{% if query.research_name %}{{ query.research_name }}{% endif %}">
+    </div>
+  </div>
+
+  <label for="study_code" class="col-sm-2 font-weight-bold col-form-label pl-3 striped text-black">Project No.
+    {% autoescape off %}
+      {% if 'study_code' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.study_code }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-3 form-input-container">
+    <div style="display: flex; justify-content: left; flex-wrap:wrap; position:relative; top:-3px;">
+      <input type="text" class="form-control col-sm-12" name="study_code"
+             value="{% if query.study_code %}{{ query.study_code }}{% endif %}">
+    </div>
+  </div>
+</div>

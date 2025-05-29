@@ -1,0 +1,23 @@
+[
+    {
+        "model": "research.IO_Naive",
+        "pk": 1,
+        "fields": {
+            "value": "na"
+        }
+    },
+    {
+        "model": "research.IO_Naive",
+        "pk": 2,
+        "fields": {
+            "value": "naive"
+        }
+    },
+    {
+        "model": "research.IO_Naive",
+        "pk": 3,
+        "fields": {
+            "value": "experienced"
+        }
+    }
+]

@@ -1,0 +1,445 @@
+#research-add-form div.form-group,
+#research-edit-form div.form-group,
+#research-detail-form div.row,
+#research-search-form div.row {
+  border-bottom: solid 1px #BEBEBE;
+}
+
+@media (max-width: 576px) {
+  #research-add-form div.form-group,
+  #research-edit-form div.form-group,
+  #research-detail-form div.row,
+  #research-search-form div.row,
+  #feedback-search-form div.row {
+    padding-bottom: 10px;
+    /*left: 23%;*/
+  }
+}
+
+.form-check .form-check-label input[type="checkbox"]:disabled:checked + .input-helper:before {
+  background: #e4e6f6;
+}
+
+.form-check .form-check-label input[type="checkbox"] + .input-helper:before {
+  width: 20px;
+  height: 20px;
+}
+
+.form-check .form-check-label input[type="checkbox"] + .input-helper:after {
+  margin-top: 2px;
+}
+
+textarea.form-control,
+.select2-container--default textarea.select2-selection--single,
+.select2-container--default .select2-selection--single textarea.select2-search__field,
+textarea.typeahead,
+textarea.tt-query,
+textarea.tt-hint {
+  line-height: 1.4rem;
+  padding: 0.1rem 0.5rem 0 0.5rem;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+#research-add-form .form-group,
+#research-edit-form .form-group,
+#research-search-form .form-group,
+#research-assign-patient .form-group,
+#feedback-search-form .form-group {
+  margin-bottom: 0;
+}
+
+#research-add-form .form-group label,
+#research-edit-form .form-group label,
+#research-search-form .form-group label,
+#research-detail-form label,
+#feedback-search-form .form-group label {
+  line-height: 1.0rem;
+  margin-bottom: 0;
+}
+
+#research-add-form .form-group > label,
+#research-edit-form .form-group > label,
+#research-search-form .form-group > label,
+#research-detail-form > label,
+#feedback-search-form .form-group > label {
+  padding-top: 17px;
+}
+
+
+#research-add-form .form-group .form-check,
+#research-edit-form .form-group .form-check,
+#research-search-form .form-group .form-check,
+#research-detail-form .form-check {
+  margin-top: 9px;
+  margin-bottom: 7px;
+}
+
+
+#research-add-form .form-group .form-check-label,
+#research-edit-form .form-group .form-check-label,
+#research-search-form .form-group .form-check-label,
+#research-detail-form .form-check-label {
+  min-height: 16px;
+  margin-top: 0.145rem;
+}
+
+@media (max-width: 576px) {
+  #research-add-form .form-group .form-check,
+  #research-edit-form .form-group .form-check,
+  #research-search-form .form-group .form-check,
+  #feedback-search-form .form-group .form-check,
+  #research-detail-form .form-check {
+    margin-left: 0.4rem;
+  }
+
+  #research-add-form .form-group input.form-control,
+  #research-edit-form .form-group input.form-control,
+  #research-search-form .form-group input.form-control,
+  #feedback-search-form .form-group input.form-control,
+  #research-detail-form input.form-control {
+    margin-left: 0.4rem;
+  }
+}
+
+
+#research-add-form .form-group input.form-control,
+#research-edit-form .form-group input.form-control,
+#research-search-form .form-group input.form-control,
+#feedback-search-form .form-group input.form-control,
+#research-detail-form input.form-control {
+  margin-top: 4px;
+  margin-bottom: 7px;
+  padding: 1px 0.5rem 0 0.5rem;
+  height: 2rem;
+}
+
+#research-add-form select.form-control {
+  height: 2rem;
+}
+
+tr.tr-hover {
+  cursor: pointer;
+}
+
+tr.tr-hover:hover {
+  background-color: #d1deea !important;
+}
+
+.form-input-container {
+  padding-top: 0.35rem;
+}
+
+.form-input-container.checkbox-radio-input {
+  padding-top: 6px;
+}
+
+.cancer-type-category {
+  min-width: 100px;
+  margin-bottom: 5px;
+  border-top: #e4e6f6 solid 1px;
+}
+
+.cancer-type-category .form-check-label span {
+  position: relative;
+  top: 2px;
+}
+
+div.show-whitespace {
+  white-space: pre-wrap;
+  line-height: 1.3rem;
+}
+
+.card-header .fa {
+  transition: .3s transform ease-in-out;
+}
+
+.card-header.collapsed .fa {
+  transform: rotate(90deg);
+}
+
+#search-result-table td {
+  white-space: nowrap;
+}
+
+.pagination .page-item {
+  min-width: 34px;
+  text-align: center;
+}
+
+.square-box {
+  margin: 0;
+  padding: 0;
+  width: 15px;
+  height: 15px;
+  border: 1px solid rgba(0, 0, 0, .2);
+}
+
+.green {
+  background: #5BC236;
+}
+
+.wine {
+  background: #ae163e;
+}
+
+.gray {
+  background: #6c6e6b;
+}
+
+.yellow {
+  background: #F7FE2E;
+}
+
+.pastel-yellow {
+  background: #f2f595;
+}
+
+.light-gray {
+  background: #bab1b1;
+}
+
+.pink {
+  background: #f77e82;
+}
+
+.pastel-blue {
+  background: #adc0f7;
+}
+
+.pastel-green {
+  background: #4bdb57;
+}
+
+.orange {
+  background: #f2b757;
+}
+
+.yellow-green {
+  background: #C6E0B4;
+}
+
+.table th, .table td {
+  padding: 0.45rem 0.9rem;
+}
+
+.assign-patient {
+  cursor: pointer;
+}
+
+.popover {
+  width: 450px;
+}
+
+@media (max-width: 576px) {
+  .popover {
+    width: 280px;
+  }
+}
+
+.popover-header {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-weight: bold;
+}
+
+.popover-body {
+  color: #666666;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.popover .card-body {
+  padding: 0.5rem;
+}
+
+#history-table td {
+  line-height: normal;
+}
+
+.striped {
+  background-color: rgb(244, 247, 250);
+}
+
+.max-width-100 {
+  max-width: 100% !important;
+}
+
+
+@media (min-width: 1300px) {
+  #research-add-form .form-group label,
+  #research-edit-form .form-group label,
+  #research-search-form .form-group label,
+  #research-detail-form label {
+    max-width: 220px;
+  }
+
+  .flex-container {
+    max-width: 250px;
+  }
+}
+
+nav#navbar {
+  background: #063294;
+  color: white;
+}
+
+nav#navbar .nav-link {
+  color: white;
+}
+
+#navbarText {
+  margin-left: 3rem;
+}
+
+@media (max-width: 991px) {
+  #navbarText {
+    margin-left: 0rem;
+  }
+}
+
+nav#navbar .nav-item {
+  margin-right: 0.5rem;
+}
+
+nav#navbar .nav-link-button {
+  color: white;
+  font-weight: bold;
+  padding-left: 0.5rem !important;
+  border: solid 1px #c0c0c0;
+}
+
+nav#navbar .nav-link-button i {
+  margin-right: 0.3rem;
+  margin-left: 0.3rem;
+}
+
+nav#navbar .nav-link-button:hover {
+  color: #fff;
+  background-color: #3794fc;
+  border-color: #3794fc;
+  border-radius: 4px;
+  transition-duration: 250ms;
+}
+
+#oncology_abc {
+  text-decoration: none;
+  color: white;
+}
+
+.word-keep-all {
+  word-break: keep-all !important;
+}
+
+div.dept-icon-container {
+  width: 176px;
+  float: left;
+  margin-right: 1rem;
+  margin-top: 1rem;
+}
+
+div.dept-icon {
+  width: 176px;
+  height: 176px;
+}
+
+div.dept-icon:hover {
+  box-shadow: inset 0px 0px 0px 3px #aab2bd;
+  border-radius: 9px;
+}
+
+div.dept-icon#dept-icon-phase1 {
+  background: url("/static/dept_icon/no.M291_23.6.27-phase1.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+div.dept-icon#dept-icon-stomach {
+  background: url("/static/dept_icon/no.M291_23.6.27-stomach.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+div.dept-icon#dept-icon-intestine {
+  background: url("/static/dept_icon/no.M291_23.6.27-intestine.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+div.dept-icon#dept-icon-breast {
+  background: url("/static/dept_icon/no.M291_23.6.27-breast.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+div.dept-icon#dept-icon-pancreas {
+  background: url("/static/dept_icon/no.M291_23.6.27-pancreas.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+div.dept-icon#dept-icon-sarcoma {
+  background: url("/static/dept_icon/no.M291_23.6.27-sarcoma.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+div.dept-icon#dept-icon-urological {
+  background: url("/static/dept_icon/no.M291_23.6.27-urological.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+div.dept-icon#dept-icon-melanoma {
+  background: url("/static/dept_icon/no.M291_23.6.27-melanoma.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+div.dept-icon#dept-icon-complete {
+  background: url("/static/dept_icon/no.M291_23.6.27-complete.jpg") no-repeat;
+  background-size: 176px 176px;
+}
+
+.table-compact {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-compact thead th,
+.table-compact td {
+  font-size: 0.75rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+  border-left: 1px solid #e4e6f6;
+}
+
+.table-compact tbody tr:first-child td,
+.table-compact tbody tr:first-child td {
+  border-top: none;
+}
+
+.table-compact thead th:first-child,
+.table-compact td:first-child {
+  border-left: none;
+}
+
+.table-compact thead th:last-child,
+.table-compact td:last-child {
+  border-right: none;
+}
+
+.assignment-info {
+  position: sticky;
+  top: 1.7rem;
+}
+
+div#feedback-list-table-container {
+  max-height: 75vh;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.pre-wrap {
+  white-space: pre-wrap;
+}
+
+.sticky-top-custom {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}

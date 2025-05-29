@@ -1,0 +1,579 @@
+{% extends "bases/base_generic.html" %}
+{% load get_value from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>기타</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">STAT</li>
+									<li class="breadcrumb-item"><a href="#!">기타</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<!-- Nav tabs -->
+							<ul id="submenu-tab" class="nav nav-tabs">
+								<li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#status01_01">Status 불일치 명단</a></li>
+								<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#status01_02">연구별 FU/EOS 수</a></li>
+								<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#status01_03">Total Visit Count - Normal Distribution</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<!-- Tab panes -->
+						<div class="tab-content">
+							<div class="tab-pane active" id="status01_01">
+								<h3 class="sr-only">Status 불일치 명단</h3>
+								<div class="sattable-cons">
+									<div class="table-responsive default-table">
+										<table id="status-discord-list" class="table table-bordered">
+											<thead>
+												<tr>
+													<th>연구명</th>
+													<th>Name</th>
+													<th>CRC</th>
+												</tr>
+											</thead>
+											<tbody>
+											  {% for status_discord in status_discord_list %}
+												  <tr class="tr-hover table-link" data-link="/assignment/{{ status_discord.assignment__id }}/">
+													<td>{{ status_discord.assignment__research__research_name }}</td>
+													<td>{{ status_discord.assignment__name }}</td>
+													<td>{{ status_discord.assignment__curr_crc__name }}</td>
+												  </tr>
+											  {% endfor %}
+											  {% for status_discord_2 in status_discord_2_list %}
+												  <tr class="tr-hover table-link" data-link="/assignment/{{ status_discord_2.assignment__id }}/">
+													<td>{{ status_discord_2.assignment__research__research_name }}</td>
+													<td>{{ status_discord_2.assignment__name }}</td>
+													<td>{{ status_discord_2.assignment__curr_crc__name }}</td>
+												  </tr>
+											  {% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane fade" id="status01_02">
+								<h3 class="sr-only">연구별 FU/EOS 수</h3>
+								<div class="sattable-cons">
+									<div class="f_ss2">※ EOS 환자 수가 많은 순으로 정렬됩니다</div>
+									<div class="table-responsive default-table">
+									  <table class="table table-bordered" style="width:100%;" id="withdrawal-list">
+										<thead>
+										  <tr>
+											<th rowspan="2">PI</th>
+											<th rowspan="2">Recruitment</th>
+											<th rowspan="2">연구명</th>
+											<th colspan="3">EOS</th>
+											<th colspan="2">FU</th>
+										  </tr>
+										  <tr>
+											<th class="brdL-no">사망</th>
+											<th>동의철회</th>
+											<th>기타</th>
+											<th>영상 f/u</th>
+											<th>생존 f/u</th>
+										  </tr>
+										</thead>
+
+										{% for PI in withdrawal %}
+										<tbody>
+										  <tr class="bg-gradient-light">
+											<td class="flip" colspan="7" style="position: relative;">{{ PI }}<span class="arrow"></span></td>
+										  </tr>
+										</tbody>
+										<tbody class="section" style="display: none;">
+										  {% for w in withdrawal|get_value:PI %}
+											  <tr>
+												<td></td>
+												<td>{{ w.is_recruiting }}</td>
+												<td><a href="/research/{{ w.id }}/">{{ w.research_name }}</a></td>
+												<td>{{ w.death }}</td>
+												<td>{{ w.withdrawal }}</td>
+												<td>{{ w.etc }}</td>
+												<td>{{ w.image_fu }}</td>
+												<td>{{ w.survival_fu }}</td>
+											  </tr>
+										  {% endfor %}
+										</tbody>
+										{% endfor %}
+									  </table>
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane fade" id="status01_03">
+								<h3 class="sr-only">Total Visit Count - Normal Distribution</h3>
+								<div class="info-box mb-5">
+									<div class="d-flex align-items-center mb-2">
+										<h3 class="tables-title mb-0">Total Visit Count (전체)	</h3>
+										<div class="ms-auto">
+											<ul>
+												<li>상반기 or 하반기 기준</li>
+												<li>{% if today|date:'n' <= 6 %} {{ today|date:'Y' }}-01-01 ~ {{ today|date:'Y-m-d' }} {% else %} {{ today|date:'Y' }}-07-01 ~ {{ today|date:'Y-m-d' }} {% endif %}</li>
+											</ul>
+										</div>
+									</div>
+									<div class="chart-box">
+										<div id="visit-count-normalization-dashboard"></div>
+									</div>
+								</div>
+
+								<div class="row">
+									{% for team in teams %}
+									<div class="col-6">
+										<div class="info-box3">
+											<h3 class="tables-title">{{ team.name }}</h3>
+											<div class="p-3">
+												<div class="chart-box">
+													<div id="visit-count-{{ team.name }}-normalization-dashboard"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<script>
+	// Total Visit Count - Normal Distribution (전체)
+    var options2 = {
+        series: [
+          {
+            name: "CRC 수",
+            data: {{ total_visit_count_normalization.TOTAL_visit_series_list|join:', ' }},
+          }
+        ],
+        chart: {
+          height: 350,
+          type: 'area',
+          toolbar: {
+            show: false
+          }
+        },
+        dataLabels: {
+          enabled: true,
+        },
+        stroke: {
+          curve: 'smooth'
+        },
+        grid: {
+          borderColor: '#e7e7e7',
+          row: {
+            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+            opacity: 0.5
+          },
+        },
+        markers: {
+          size: 1
+        },
+        xaxis: {
+          type: 'category',
+          categories: {{ total_visit_count_normalization.TOTAL_visit_xaxis_list|safe }},
+          title: {
+              text: 'Total Visit Count (CLUE/GSI/의무기록사)',
+          },
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+          y: [{
+            formatter: function (y) {
+            if(typeof y !== "undefined") {
+              return  y.toFixed(0) + " 명";
+            }
+              return y;
+            }
+          }]
+        },
+        yaxis: {
+          title: {
+            text: 'CRC 수 (명)'
+          },
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'right',
+          floating: true,
+          offsetY: -25,
+          offsetX: -5
+        }
+    };
+
+    var chart2 = new ApexCharts(
+        document.querySelector("#visit-count-normalization-dashboard"),
+            options2
+        );
+    chart2.render();
+
+    // Total Visit Count - Normal Distribution (CLUE 팀)
+    var options3 = {
+        series: [
+          {
+            name: "CRC 수 - CLUE",
+            data: {{ total_visit_count_normalization.CLUE_visit_series_list|join:', ' }},
+          }
+        ],
+        chart: {
+          height: 350,
+          type: 'area',
+          toolbar: {
+            show: false
+          },
+        },
+        dataLabels: {
+          enabled: true,
+        },
+        stroke: {
+          curve: 'smooth'
+        },
+        grid: {
+          borderColor: '#e7e7e7',
+          row: {
+            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+            opacity: 0.5
+          },
+        },
+        markers: {
+          size: 1
+        },
+        xaxis: {
+          type: 'category',
+          categories: {{ total_visit_count_normalization.CLUE_visit_xaxis_list|safe }},
+          title: {
+              text: 'CLUE',
+          },
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+           y: [{
+             formatter: function (y) {
+             if(typeof y !== "undefined") {
+               return  y.toFixed(0) + " 명";
+             }
+               return y;
+             }
+           }]
+        },
+        yaxis: {
+          title: {
+            text: 'CRC 수 (명) - CLUE'
+          },
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'right',
+          floating: true,
+          offsetY: -25,
+          offsetX: -5
+        }
+    };
+
+    var chart3 = new ApexCharts(
+        document.querySelector("#visit-count-CLUE-normalization-dashboard"),
+        options3
+    );
+    chart3.render();
+
+    // Total Visit Count - Normal Distribution (GSI 팀)
+    var options4 = {
+        series: [
+          {
+            name: "CRC 수 - GSI",
+            data: {{ total_visit_count_normalization.GSI_visit_series_list|join:',' }},
+          }
+        ],
+        chart: {
+          height: 350,
+          type: 'area',
+          toolbar: {
+            show: false
+          }
+        },
+        dataLabels: {
+          enabled: true,
+        },
+        stroke: {
+          curve: 'smooth'
+        },
+        grid: {
+          borderColor: '#e7e7e7',
+          row: {
+            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+            opacity: 0.5
+          },
+        },
+        markers: {
+          size: 1
+        },
+        xaxis: {
+          type: 'category',
+          categories: {{ total_visit_count_normalization.GSI_visit_xaxis_list|safe }},
+          title: {
+              text: 'GSI',
+          },
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+          y: [{
+            formatter: function (y) {
+            if(typeof y !== "undefined") {
+                return  y.toFixed(0) + " 명";
+            }
+                return y;
+            }
+          }]
+        },
+        yaxis: {
+          title: {
+            text: 'CRC 수 (명) - GSI'
+          },
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'right',
+          floating: true,
+          offsetY: -25,
+          offsetX: -5
+        }
+    };
+
+    var chart4 = new ApexCharts(
+        document.querySelector("#visit-count-GSI-normalization-dashboard"),
+        options4
+    );
+    chart4.render();
+
+
+	$('#status-discord-list').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [{
+            extend: 'excel',
+            title: 'Status 불일치 명단',
+        }],
+        'paging': true,
+        'ordering': false,
+        initComplete: function () {
+            this.api().columns([]).every( function () {
+                var column = this;
+                var colTitle = this.header().innerHTML;
+                var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                    .appendTo( $(column.header()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option>'+d+'</option>' )
+                } );
+            } );
+        }
+    } );
+
+    $('.dt-buttons').on('click', 'button.buttons-excel', function() {
+		$.ajax({
+			url: '/research/statistic/download/',
+			method: 'POST',
+			data: {
+				csrfmiddlewaretoken: '{{ csrf_token }}',
+				content: 'Status 불일치 명단',
+			},
+		});
+	});
+</script>
+
+<!-- stat 페이지용 js -->
+<script src="{% static 'assets/js/pages/stat.js' %}"></script>
+<script src="{% static 'js/datatable/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'js/datatable/jszip.min.js' %}"></script>
+<script src="{% static 'js/datatable/buttons.html5.min.js' %}"></script>
+
+<style>
+  .line {
+      position: absolute;
+      height: 40px;
+      top: 40px;
+      bottom: 0;
+      margin: auto;
+      left: -5px;
+      width: 100%;
+      border-top: 1px solid #000;
+      -webkit-transform: rotate(14deg);
+      -ms-transform: rotate(14deg);
+      transform: rotate(14deg);
+    }
+    .diagonal {
+      width: 150px;
+      height: 40px;
+    }
+    .diagonal span.crc {
+      position: absolute;
+      bottom: 2px;
+      left: 6px;
+    }
+    .diagonal span.lab_technician {
+      position: absolute;
+      bottom: 2px;
+      left: 6px;
+    }
+    .diagonal span.month {
+      position: absolute;
+      top: 2px;
+      right: 6px;
+    }
+    .month-team-enroll td {
+      border: 1px solid #000;
+    }
+    .month-team-enroll th {
+      border: 1px solid #000;
+    }
+    #month-enroll-technician td {
+      border: 1px solid #000;
+    }
+    #month-enroll-technician th {
+      border: 1px solid #000;
+    }
+    .performance td {
+      border: 1px solid #000;
+    }
+    .performance th {
+      border: 1px solid #000;
+    }
+    #performance-2 td {
+      border: 1px solid #000;
+    }
+    #performance-2 th {
+      border: 1px solid #000;
+    }
+    #performance-3 td {
+      border: 1px solid #000;
+    }
+    #performance-3 th {
+      border: 1px solid #000;
+    }
+    .month-crc-visit td {
+      border: 1px solid #000;
+    }
+    .month-crc-visit th {
+      border: 1px solid #000;
+    }
+
+
+    .content {
+      margin: 0;
+      padding: 0;
+    }
+    .content::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    .content ul.menu {
+      display: inline-flex;
+      flex-flow: row wrap;
+      width: 300px;
+    }
+    .content .menu li {
+      width: 300px;
+      height: 50px;
+      text-align: center;
+      line-height: 50px;
+      border: 1px solid #000;
+      box-sizing: border-box;
+      margin-bottom: 1px;
+      cursor: pointer;
+    }
+    .content .menu li:last-child {
+      margin: 0;
+    }
+    .content .menu li.active {
+      color: #fff;
+      background: #000;
+    }
+    .content div.tab {
+      width: 1300px;
+      height: 100%;
+      float: right;
+      margin: 0px 10px;
+    }
+    .content>div>div {
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+    .content>div>div.active {
+      display: block;
+    }
+
+    .arrow {
+      position: absolute;
+      left: 70px;
+    }
+
+    .arrow::before,
+    .arrow::after {
+      position: relative;
+      content: '';
+      display: block;
+      width: 10px;
+      height: 1px;
+      background: black;
+      transition: 0.3s ease-in-out;
+    }
+
+    .arrow::before {
+      transform: rotate(45deg);
+    }
+    .arrow::after {
+      left: 6px;
+      top: -1px;
+      transform: rotate(-45deg);
+    }
+
+    .flip.active .arrow::before {
+      transform: rotate(-45deg);
+    }
+    .flip.active .arrow::after {
+      transform: rotate(45deg);
+    }
+</style>
+{% endblock %}

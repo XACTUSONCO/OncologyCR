@@ -1,0 +1,277 @@
+<div class="form-group row {% if 'team' in errors %} card-inverse-danger {% endif %}">
+  <label for="team" class="col-lg-2 col-form-label">Team
+    {% autoescape off %}
+      {% if 'team' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.team }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+      {% for team in teams %}
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="team" value="{{ team.name }}"
+                   {% if team.name == pre_initiation.team or request.GET.team == team.name %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">{{ team.name }}</span>
+	  </label>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'study_code' in errors %} card-inverse-danger {% endif %}">
+  <label for="study_code" class="col-lg-2 col-form-label">Project No.
+    {% autoescape off %}
+      {% if 'study_code' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.study_code }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+      <input type="text" class="form-control" name="study_code"
+             value="{% if pre_initiation.study_code %}{{ pre_initiation.study_code }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'pre_research_name' in errors %} card-inverse-danger {% endif %}">
+  <label for="pre_research_name" class="col-lg-2 col-form-label">Study Name
+    {% autoescape off %}
+      {% if 'pre_research_name' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.pre_research_name }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="pre_research_name"
+             value="{% if pre_initiation.pre_research_name %}{{ pre_initiation.pre_research_name }}{% endif %}">
+  </div>
+  <label for="tx" class="col-lg-2 col-form-label">Tx
+    {% autoescape off %}
+      {% if 'tx' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.tx }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="tx"
+             value="{% if pre_initiation.tx %}{{ pre_initiation.tx }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'study_explanation' in errors %} card-inverse-danger {% endif %}">
+  <label for="study_explanation" class="col-lg-2 col-form-label">Protocol Title
+    {% autoescape off %}
+      {% if 'study_explanation' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.study_explanation }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+      <textarea class="form-control" name="study_explanation" rows="4">{% if pre_initiation.study_explanation %}{{ pre_initiation.study_explanation }}{% endif %}</textarea>
+  </div>
+</div>
+
+<div class="form-group row {% if 'type' in errors %} card-inverse-danger {% endif %}">
+    {% include 'pages/research/pre_initiation/pre_initiation_add_edit_form/type.html' %}
+</div>
+
+<div class="form-group row {% if 'set_up' in errors %} card-inverse-danger {% endif %}">
+    {% include 'pages/research/pre_initiation/pre_initiation_add_edit_form/set_up.html' %}
+</div>
+
+<div class="form-group row {% if 'PI' in errors %} card-inverse-danger {% endif %}">
+  <label for="PI" class="col-lg-2 col-form-label">PI
+    {% autoescape off %}
+      {% if 'PI' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.PI }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="PI"
+             value="{% if pre_initiation.PI %}{{ pre_initiation.PI }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'crc' in errors %} card-inverse-danger {% endif %}">
+  <label for="crc" class="col-lg-2 col-form-label">CRC
+    {% autoescape off %}
+      {% if 'crc' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.crc }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="crc"
+             value="{% if pre_initiation.crc %}{{ pre_initiation.crc }}{% else %}미정{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'is_withhold' in errors %} card-inverse-danger {% endif %}">
+  <label for="is_withhold" class="col-lg-2 col-form-label align-items-flex-start flex-direction-column">Pending Yes/No
+  <span class="text-danger">* (기본값: N)</span>
+    {% autoescape off %}
+      {% if 'is_withhold' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.is_withhold }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_withhold" value="Y" {% if 'Y' == pre_initiation.is_withhold %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Y</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_withhold" value="N" {% if 'N' == pre_initiation.is_withhold %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">N</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <label for="is_commence" class="col-lg-2 col-form-label align-items-flex-start flex-direction-column">Initiation Yes/No
+  <span class="text-danger">* (기본값: N)</span>
+    {% autoescape off %}
+      {% if 'is_commence' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.is_commence }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_commence" value="Y" {% if 'Y' == pre_initiation.is_commence %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Y</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="is_commence" value="N"  {% if 'N' == pre_initiation.is_commence %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">N</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'cancer' in errors %} card-inverse-danger {% endif %}">
+  {% include 'pages/research/research_add_edit_form/_cancer.html' %}
+</div>
+
+<div class="form-group row {% if 'phase' in errors %} card-inverse-danger {% endif %}">
+  {% include 'pages/research/research_add_edit_form/_phase.html' %}
+</div>
+
+<div class="form-group row {% if 'sponsor' in errors %} card-inverse-danger {% endif %}">
+  <label for="sponsor" class="col-lg-2 col-form-label align-items-flex-start flex-direction-column">Sponsor
+  <span class="text-danger">* SIT: 의뢰사<br>&nbsp;&nbsp; IIT: Company or CI</span>
+    {% autoescape off %}
+      {% if 'sponsor' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.sponsor }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+      <input type="text" class="form-control" name="sponsor"
+             value="{% if pre_initiation.sponsor %}{{ pre_initiation.sponsor }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'CRO' in errors %} card-inverse-danger {% endif %}">
+  <label for="CRO" class="col-lg-2 col-form-label align-items-flex-start flex-direction-column">CRO
+    {% autoescape off %}
+      {% if 'CRO' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.CRO }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+      <input type="text" class="form-control" name="CRO"
+             value="{% if pre_initiation.CRO %}{{ pre_initiation.CRO }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'initiation_date' in errors %} card-inverse-danger {% endif %}">
+  <label for="initiation_date" class="col-lg-2 col-form-label">Initiation Date
+    {% autoescape off %}
+      {% if 'initiation_date' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.initiation_date }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+    <div class="row">
+      <div class="col-lg-5 input-group">
+        <input type="text" autocomplete="off" class="form-control initiationdate" name="initiation_date"
+               value="{% if pre_initiation.initiation_date %}{{ pre_initiation.initiation_date|date:"m/d/Y" }}{% endif %}" >
+        <label for="initiation_date" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'CTC_contract' in errors %} card-inverse-danger {% endif %}">
+  <label for="CTC_contract" class="col-lg-2 col-form-label">CTC 주사실 계약 여부
+    {% autoescape off %}
+      {% if 'CTC_contract' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.CTC_contract }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" name="CTC_contract" {% if pre_initiation.CTC_contract == True %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">계약함</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'CTC_contract' in errors %} card-inverse-danger {% endif %}">
+  <label for="CTC_non_contract_reason" class="col-lg-2 col-form-label">CTC 주사실 계약 (사유)
+    {% autoescape off %}
+      {% if 'CTC_non_contract_reason' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.CTC_non_contract_reason }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+      <input type="text" autocomplete="off" class="form-control" name="CTC_non_contract_reason"
+             value="{% if pre_initiation.CTC_non_contract_reason %}{{ pre_initiation.CTC_non_contract_reason }}{% endif %}" >
+  </div>
+</div>
+
+<div class="form-group row {% if 'memo' in errors %} card-inverse-danger {% endif %}">
+  <label for="memo" class="col-lg-2 col-form-label">Comment
+    {% autoescape off %}
+      {% if 'memo' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.memo }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+      <textarea class="form-control" name="memo" rows="4">{% if pre_initiation.memo %}{{ pre_initiation.memo }}{% endif %}</textarea>
+  </div>
+</div>

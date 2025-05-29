@@ -1,0 +1,23 @@
+[
+    {
+        "model": "research.Brain_METS",
+        "pk": 1,
+        "fields": {
+            "value": "na"
+        }
+    },
+    {
+        "model": "research.Brain_METS",
+        "pk": 2,
+        "fields": {
+            "value": "possible"
+        }
+    },
+    {
+        "model": "research.Brain_METS",
+        "pk": 3,
+        "fields": {
+            "value": "impossible"
+        }
+    }
+]

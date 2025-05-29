@@ -1,0 +1,251 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+    {% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<!-- <div class="bg-overlay bg-white"></div> -->
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Dashboard</h2>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row dashboard-area" id="printArea">
+
+					<div class="col-9">
+						<div class="row">
+							<div class="col-6 dashboard-index">
+								<div class="card shadow mb-4">
+									<div class="card-header py-3">
+										<h6 class="m-0 font-weight-bold text-primary">Study Status</h6>
+										<div class="category">
+											<ul class="nav nav-tabs">
+												<li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#Allstudy">All</a></li>
+												<li class="nav-item"><a class="nav-link " data-bs-toggle="tab" href="#Mystudy">My</a></li>
+											</ul>
+										</div>
+									</div>
+									<div class="card-body">
+										<div class="tab-content">
+											<div class="tab-pane active" id="Allstudy">
+												<div class="index-box">
+													{% for status in study_status %}
+														<div class="item">
+															<div class="box index {% if status.is_recruiting == 'Recruiting' %}green{% elif status.is_recruiting == 'Completed' %}gray{% elif status.is_recruiting == 'Not yet recruiting' %}red{% elif status.is_recruiting == 'Holding' %}yellow{% endif %}">
+																<span>{{ status.is_recruiting }}</span>
+																<strong>
+																	{% for status_data in study_status %}
+																		{% if status_data.is_recruiting == status.is_recruiting %}
+																			{{ status_data.all }}
+																		{% endif %}
+																	{% endfor %}
+																</strong>
+															</div>
+														</div>
+													{% endfor %}
+												</div>
+											</div>
+											<div class="tab-pane" id="Mystudy">
+												<div class="index-box">
+													{% for status in study_status %}
+														<div class="item">
+															<div class="box index {% if status.is_recruiting == 'Recruiting' %}green{% elif status.is_recruiting == 'Completed' %}gray{% elif status.is_recruiting == 'Not yet recruiting' %}red{% elif status.is_recruiting == 'Holding' %}yellow{% endif %}">
+																<span>{{ status.is_recruiting }}</span>
+																<strong>
+																	{% for status_data in study_status %}
+																		{% if status_data.is_recruiting == status.is_recruiting %}
+																			{{ status_data.my }}
+																		{% endif %}
+																	{% endfor %}
+																</strong>
+															</div>
+														</div>
+													{% endfor %}
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-6 dashboard-notice">
+								<div class="card shadow mb-4">
+									<!-- <div class="card-header py-3">
+										<h6 class="m-0 font-weight-bold text-primary">공지&안내</h6>
+									</div> -->
+									<div class="card-body">
+
+										<!-- Nav tabs -->
+										<ul class="nav nav-tabs">
+										  <li class="nav-item">
+											<a class="nav-link active" data-bs-toggle="tab" href="#Notifications">Notifications</a>
+										  </li>
+										  <li class="nav-item">
+											<a class="nav-link" data-bs-toggle="tab" href="#Guideline">Guideline</a>
+										  </li>
+										</ul>
+
+										<!-- Tab panes -->
+										<!-- certificationAdd 추가 -->
+										{% for notice in notice_list %}
+										<div class="modal fade" id="notice_{{ notice.id }}" tabindex="-1" role="dialog">
+											<div class="modal-dialog modal-dialog-centered modal-md" role="document">
+												<div class="modal-content">
+													<div class="modal-header">
+														<h4 class="modal-title">공지사항</h4>
+														<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+													</div>
+													<div class="modal-body">
+														<div class="form-group row">
+															<label for="version" class="col-sm-2 col-form-label">제목</label>
+															<div class="col-sm-10">
+																<input type="text" class="form-control" value="{{ notice.title }}" readonly>
+															</div>
+														</div>
+														<div class="form-group row">
+															<label for="name" class="col-sm-2 col-form-label">내용</label>
+															<div class="col-sm-10">
+																<input type="text" class="form-control" value="{{ notice.contents }}" readonly>
+															</div>
+														</div>
+													</div>
+													<div class="modal-footer">
+														<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+															<i class="bi bi-arrow-left-square"></i> <span>닫기</span>
+														</button>
+													</div>
+												</div>
+											</div>
+										</div>
+										{% endfor %}
+
+										<div class="tab-content">
+											<div class="tab-pane active" id="Notifications">
+												<div class="board-list">
+													{% ifequal notice_list|length 0 %}
+													<div class="d-flex">
+														<span>등록된 공지사항이 없습니다.</span>
+													</div>
+													{% endifequal %}
+													{% for notice in notice_list %}
+													<div class="d-flex">
+														<a class="title" data-bs-toggle="modal" data-bs-target="#notice_{{ notice.id }}">{{ notice.title }}</a>
+														<span class="date ms-auto">{{ notice.create_date|date:'Y-m-d' }}</span>
+													</div>
+													{% endfor %}
+												</div>
+											</div>
+											<div class="tab-pane fade" id="Guideline">
+												<div class="board-list">
+													<div class="d-flex">
+														<a class="title">매뉴얼 파일 첨부 예정입니다.</a>
+													</div>
+												</div>
+											</div>
+										</div>
+
+									</div><!-- //card-body -->
+								</div>
+							</div>
+
+							<div class="col-12 dashboard-slider">
+								<div class="card shadow mb-4">
+									<div class="card-header py-3">
+										<h6 class="m-0 font-weight-bold text-primary">Incharge Cancer List</h6>
+									</div>
+									<div class="card-body">
+										<div class="imgbox-btns">
+											<div class="slider responsive">
+												<div class="item">
+													<a href="/dataroom/data/?cancer=Phase1">
+														<img src="{% static 'assets/images/contents/no.M291_23.6.27-phase1.jpg' %}" alt="이미지"></a>
+													<div class="text-center mt-1">Phase1</div>
+												</div>
+												<div class="item">
+													<a href="/dataroom/data/?cancer=CRC">
+														<img src="{% static 'assets/images/contents/no.M291_23.6.27-intestine.jpg' %}" alt="이미지"></a>
+													<div class="text-center mt-1">대장암</div>
+												</div>
+												<div class="item">
+													<a href="/dataroom/data/?cancer=Urological">
+														<img src="{% static 'assets/images/contents/no.M291_23.6.27-urological.jpg' %}" alt="이미지"></a>
+													<div class="text-center mt-1">비뇨기암</div>
+												</div>
+												<div class="item">
+													<a href="/dataroom/data/?cancer=Stomach">
+														<img src="{% static 'assets/images/contents/no.M291_23.6.27-stomach.jpg' %}" alt="이미지"></a>
+													<div class="text-center mt-1">위암</div>
+												</div>
+												<div class="item">
+													<a href="/dataroom/data/?cancer=Sarcoma">
+														<img src="{% static 'assets/images/contents/no.M291_23.6.27-sarcoma.jpg' %}" alt="이미지"></a>
+													<div class="text-center mt-1">육종암</div>
+												</div>
+												<div class="item">
+													<a href="/dataroom/data/?cancer=Pancreatic">
+														<img src="{% static 'assets/images/contents/no.M291_23.6.27-pancreas.jpg' %}" alt="이미지"></a>
+													<div class="text-center mt-1">간담췌암</div>
+												</div>
+												<div class="item">
+													<a href="/dataroom/data/?cancer=Melanoma">
+														<img src="{% static 'assets/images/contents/no.M291_23.6.27-melanoma.jpg' %}" alt="이미지"></a>
+													<div class="text-center mt-1">흑색종</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="d-flex flex-row-reverse">
+											<!--
+											<div>
+												<button type="button" class="btn btn-primary px-3"><i class="bi bi-camera-video"></i> <span>동영상 메뉴얼</span></button>
+												<button type="button" class="btn btn-info px-3"><i class="bi bi-person"></i> <span>사용자 메뉴얼</span></button>
+												<button type="button" class="btn btn-outline-secondary px-3"><i class="bi bi-question-circle-fill"></i> <span>FAQ</span></button>
+											</div>
+											<div class="me-2">
+												<select id="" class="form-select">
+													<option value="">관련사이트</option>
+													<option value=""></option>
+												</select>
+											</div>
+											-->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-3">
+						<div class="card shadow mb-4 dashboard-datalist">
+							<div class="card-header py-3">
+								<h6 class="m-0 font-weight-bold text-primary">My Ongoing Research List</h6>
+							</div>
+							<div class="card-body">
+								<ul>
+									{% for ongoing in my_ongoing_list %}
+										<a href="/research/{{ ongoing.id }}/"><li>{{ ongoing.research_name}}</li></a>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+					</div>
+
+				</div>
+				<!-- end contents-area -->
+			</div>
+			<!-- container-fluid -->
+		</div>
+		<!-- End Page-content -->
+	{% endblock %}
+
+
+{% block script %}
+	<!-- studies 페이지용 js -->
+	<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

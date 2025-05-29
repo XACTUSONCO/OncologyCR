@@ -1,0 +1,116 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load subtract from research_tag %}
+{% load cal_career from research_tag %}
+
+
+    {% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="card maindata-card shadow mb-5">
+							<div class="card-body">
+								<div class="default-forms">
+                                  <form method="POST">
+                                      {% csrf_token %}
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">Name</label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="text" class="form-control" name="name" value="{{ request.user.first_name }}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">Kind<span class="text-danger">*</span>
+					      {% autoescape off %}
+                                                  {% if form.kind.errors %}
+                                                    <span class="error-inline">{{ form.kind.errors.0 }}</span>
+                                                  {% endif %}
+                                              {% endautoescape %}	  
+					  </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <select class="form-select" id="kind" name="kind" required>
+                                                  <option value="" selected="">-------</option>
+                                                  <option value="Annual" {% if leave.kind == "Annual" %} selected {% endif %}>연차</option>
+                                                  <option value="Monthly" {% if leave.kind == "Monthly" %} selected {% endif %}>월차</option>
+                                                  <option value="morning_Half" {% if leave.kind == "morning_Half" %} selected {% endif %}>반차 (오전)</option>
+                                                  <option value="afternoon_Half" {% if leave.kind == "afternoon_Half" %} selected {% endif %}>반차 (오후)</option>
+                                                  <option value="official" {% if leave.kind == "official" %} selected {% endif %}>공가 및 특별휴가</option>
+						  <option value="carry_over" {% if leave.kind == "carry_over" %} selected {% endif %}>이월 (1일)</option>
+                                                  <option value="carry_over_Half" {% if leave.kind == "carry_over_Half" %} selected {% endif %}>이월 (반차)</option>
+                                              </select>
+                                          </div>
+                                      </div>
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">Date</label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input class="form-control datepicker" name="from_date" value="{{ request.GET.from_date }}" required>
+                                          </div>
+                                      </div>
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">Memo</label>
+                                          <div class="col-lg-10 col-form-data">
+											  <input class="form-control" name="memo" value="{{ leave.memo|default_if_none:"" }}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">User</label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="text" class="form-control" name="user" value="{{ request.user.id }}" disabled="disabled">
+                                          </div>
+                                      </div>
+
+                                      <div class="py-4 px-3 text-end">
+                                          <button type="submit" class="btn btn-success edit-btn px-4">
+                                              <i class="bi bi-pencil"></i> <span>Save</span>
+                                          </button>
+                                          <button type="button" id="leave-remove-button" leave-id="{{ leave.id }}" class="btn btn-outline-secondary">
+                                              <i class="bi bi-trash"></i> <span>Remove</span>
+                                          </button>
+                                      </div>
+                                  </form>
+								</div>
+							</div>
+						</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<link href="{% static 'css/fullcalendar/fullcalendar_3.4.0.css' %}" rel="stylesheet">
+<style>
+    ul.errorlist {
+        list-style-type: none; /* 동그라미 점 제거 */
+         padding: 0;
+    }
+
+    .error-inline {
+        color: red; /* 오류 메시지 색상 */
+        font-size: small; /* 작은 글씨 */
+        margin-left: 5%; /* 레이블과 오류 메시지 간의 간격 */
+        line-height: 1rem; /* 줄 높이 조정 */
+    }
+</style>
+<script>
+$(function () {
+            $('#leave-remove-button').click(function (e) {
+                let leaveID = $(this).attr('leave-id');
+                let deleteLeave = confirm("정말 삭제하시겠습니까?");
+                if (deleteLeave) {
+                    window.location.href = '/leave/delete/' + leaveID + '/';
+                }
+            });
+
+            $( ".datepicker" ).datepicker({
+                todayHighlight : true,
+                format: "yyyy-mm-dd",
+                startDate: '+7d',
+            });
+        });
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+<table id="waiting-list-table" class="table table-compact">
+  <thead>
+   <tr>
+       <th class="text-black text-center text-nowrap bg-secondary
+        font-weight-bold sticky-top-custom">등록번호</th>
+       <th class="text-black text-center text-nowrap bg-secondary
+        font-weight-bold sticky-top-custom">이름</th>
+       <th class="text-black text-center text-nowrap bg-secondary
+        font-weight-bold sticky-top-custom">주치의</th>
+       <th class="text-black text-center text-nowrap bg-secondary
+        font-weight-bold sticky-top-custom">성별</th>
+       <th class="text-black text-center text-nowrap bg-secondary
+        font-weight-bold sticky-top-custom">나이</th>
+       <th class="text-black text-center text-nowrap bg-secondary
+        font-weight-bold sticky-top-custom">현재 상태</th>
+       <th class="text-black text-center text-nowrap bg-secondary
+        font-weight-bold sticky-top-custom">Create Date</th>
+       <th class="text-black text-center text-nowrap bg-secondary
+        font-weight-bold sticky-top-custom">Update Date</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% ifequal waitinglists|length 0 %}
+    <tr>
+      <td colspan="6">
+        <div class="text-center">존재하지 않습니다.</div>
+      </td>
+    </tr>
+  {% endifequal %}
+
+  {% for waiting in waitinglists %}
+    <tr class="tr-hover table-link" data-link="/research/waitinglist/{{ waiting.id }}/">
+      <td class="text-center assignment-info striped nowrap">{{ waiting.register_number }}</td>
+      <td class="text-center assignment-info striped pre-wrap">{{ waiting.name }}</td>
+      <td class="text-center assignment-info striped pre-wrap">{{ waiting.doctor }}</td>
+      <td class="text-center assignment-info striped pre-wrap">{{ waiting.sex }}</td>
+      <td class="text-center assignment-info striped pre-wrap">{{ waiting.age }}</td>
+      <td align="left" class="assignment-info striped pre-wrap">{{ waiting.curr_status }}</td>
+      <td class="text-center assignment-info striped pre-wrap">{{ waiting.create_date }}</td>
+      <td class="text-center assignment-info striped pre-wrap">{{ waiting.update_date }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>

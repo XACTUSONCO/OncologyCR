@@ -1,0 +1,79 @@
+{% load is_numberic from research_tag %}
+
+<div class="row row-cols-auto header-btns">
+  <div class="col">
+    <h3 class="tables-title"></h3>
+  </div>
+  <div class="col ms-auto">
+    <button type="button" class="btn btn-success edit-btn px-4" data-bs-toggle="modal" data-bs-target="#feedbackNew">
+      <i class="bi bi-plus-square"></i> <span>New</span>
+    </button>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table custom-table">
+    <thead>
+      <tr>
+        <th>Cycle</th>
+        <th>Visit Date</th>
+        <th>Tx, Dose</th>
+        <th>Imaging Date</th>
+        <th>Response</th>
+        <th>AE</th>
+        <th>Comment</th>
+        <th>ICF date</th>
+        <th>Screening Fail<br/>Date</th>
+        <th>관리</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for feedback in feedbacks %}
+        <tr>
+          {% if feedback.cycle|is_numberic %}
+            <td>C{{ feedback.cycle }}D{{ feedback.day }}</td>
+          {% else%}
+            <td>{{ feedback.cycle|default_if_none:"" }}<br/>
+              {% if 'EOT' in feedback.cycle and feedback.fu.count != 0 %}
+                {% with count=feedback.fu.count %}
+                  ({% for fu in feedback.fu.all %}{{ fu }}{% if forloop.counter < count %},<br/>{% endif %} {% endfor %})
+                {% endwith %}
+              {% elif feedback.eos %}
+                    (EOS: {{ feedback.eos }})
+              {% endif %}
+            </td>
+          {% endif %}
+          <td>{{ feedback.dosing_date|date:"Y-m-d" }}</td>
+          <td>{{ feedback.tx_dose|default_if_none:"" }}</td>
+          <td>{{ feedback.photo_date|date:"Y-m-d" }}</td>
+          <td>{{ feedback.response|default_if_none:"" }} {{ feedback.response_text|default_if_none:"" }}</td>
+          <td style="white-space: pre-line">{{ feedback.toxicity }}</td>
+          <td style="white-space: pre-line">{{ feedback.comment }}</td>
+          <td>{{ feedback.ICF_date|date:"Y-m-d"|default_if_none:"" }}</td>
+          <td>{{ feedback.scr_fail|date:"Y-m-d"|default_if_none:"" }}</td>
+          <td>
+            <button type="button" class="btn btn-outline-danger feedback-remove-button" feedback-id="{{ feedback.id }}">
+              <i class="bi bi-trash3"></i> <span class="visually-hidden">Remove</span>
+            </button>
+            <!-- <tr class="tr-hover table-link feedback" feedback-id="{{ feedback.id }}"> -->
+            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#edit_feedback_{{ feedback.id }}">
+              <i class="bi bi-pencil"></i> <span class="visually-hidden">Edit</span>
+            </button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div><!-- //table-responsive -->
+
+<div class="row row-cols-auto header-btns mt-4">
+  <div class="col">
+    <h3 class="tables-title"></h3>
+  </div>
+  <div class="col ms-auto">
+    <button type="button" class="btn btn-success edit-btn px-4" data-bs-toggle="modal" data-bs-target="#feedbackNew">
+      <i class="bi bi-plus-square"></i> <span>New</span>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,349 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>사용자 정보</h2>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+									<li class="breadcrumb-item"><a href="/administration/user/">사용자 정보</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<ul id="submenu-tab">
+								<li><a href="/administration/user/"><i></i> User</a></li>
+								<li><a href="/administration/user/group/"><i></i> Group</a></li>
+                                <li><a href="/administration/user/team/"><i></i> Team</a></li>
+								<li><a href="/administration/user/location/"><i></i> Location</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 admin-tables">
+
+                    {# 수정 모달 #}
+                    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addModalLabel">유저 수정</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form method="post" action="/administration/user/" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input id="user-id" type="hidden" name="user_id"/>
+                                    <input id="is-update" type="hidden" name="is_update" value="true"/>
+                                    <div class="modal-body">
+                                        <div class="form-group row">
+                                            <label for="username" class="col-sm-2 col-form-label">User ID</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" id="username" name="username" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="email" class="col-sm-2 col-form-label">E-mail</label>
+                                            <div class="col-sm-10">
+                                                <input type="email" class="form-control" id="email" name="email" maxlength="100">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="name" class="col-sm-2 col-form-label">이름(Kor)</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" id="name" name="name" maxlength="50">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="eng_name" class="col-sm-2 col-form-label">이름(Eng)</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" id="eng_name" name="eng_name" maxlength="50">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="phone" class="col-sm-2 col-form-label">Phone</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" id="phone" name="phone" maxlength="50">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="work_phone" class="col-sm-2 col-form-label">Work Phone</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" id="work_phone" name="work_phone" maxlength="50">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="career" class="col-sm-2 col-form-label">입사일자</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" id="career" name="career">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="career_end" class="col-sm-2 col-form-label">퇴사일자</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" id="career_end" name="career_end">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="group" class="col-sm-2 col-form-label">Group</label>
+                                            <div class="col-sm-10">
+                                                <select class="form-control custom-select" id="group" name="groups" multiple>
+                                                    {% for group in groups %}
+                                                        <option value="{{ group }}">{{ group }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="team" class="col-sm-2 col-form-label">Team</label>
+                                            <div class="col-sm-10">
+                                                <select class="form-control custom-select" id="team" name="team">
+                                                    {% for team in teams %}
+                                                        <option value="{{ team.name }}">{{ team.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="location" class="col-sm-2 col-form-label">Location</label>
+                                            <div class="col-sm-10">
+                                                <select class="form-control custom-select" id="loca" name="location">
+                                                    {% for location in locations %}
+                                                        <option value="{{ location.name }}">{{ location.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="active" class="col-sm-2 col-form-label">Active</label>
+                                            <div class="col-sm-10">
+                                                <select class="form-control custom-select" id="active" name="active">
+                                                    <option value="Y">Y</option>
+                                                    <option value="N">N</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="onco_A" class="col-sm-2 col-form-label">CRC 배정</label>
+                                            <div class="col-sm-10">
+                                                <select class="form-control custom-select" id="onco_A" name="onco_A">
+                                                    <option value="Y">Y</option>
+                                                    <option value="N">N</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="is_senior" class="col-sm-2 col-form-label">시니어</label>
+                                            <div class="col-sm-10">
+                                                <select class="form-control custom-select" id="is_senior" name="is_senior">
+                                                    <option value="Y">Y</option>
+                                                    <option value="N">N</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                            <i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+                                        </button>
+                                        <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+                                            <i class="bi bi-pencil"></i> <span>Save</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+					<div class="table-responsive">
+						<table class="table custom-table" id="user-table">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>User ID</th>
+									<th>이름(Kor)</th>
+									<th>이름(Eng)</th>
+									<th>E-mail</th>
+									<th>Group</th>
+									<th>Team</th>
+									<th>Phone</th>
+									<th>Work Phone</th>
+									<th>입사일자</th>
+									<th>퇴사일자</th>
+									<th>근무기간</th>
+									<th>Location</th>
+									<th>Join date</th>
+									<th>Last login</th>
+									<th>Active</th>
+									<th>CRC 배정</th>
+									<th>시니어</th>
+								</tr>
+							</thead>
+							<tbody>
+							{% for user in users %}
+								<tr onClick="handleClickEdit(
+									'{{ user.id|default_if_none:"" }}'
+									,'{{ user.username|default_if_none:"" }}'
+									,'{{ user.email|default_if_none:"" }}'
+									,'{{ user.contact.name|default_if_none:"" }}'
+									,'{{ user.contact.eng_name|default_if_none:"" }}'
+									,'{{ user.contact.phone|default_if_none:"" }}'
+									,'{{ user.contact.work_phone|default_if_none:"" }}'
+									,'{{ user.contact.career|date:'Y-m-d'|default_if_none:"" }}'
+									,'{{ user.contact.career_end|date:'Y-m-d'|default_if_none:"" }}'
+									,'{{ user.contact.group_str|default_if_none:"" }}'
+									,'{{ user.contact.team.name|default_if_none:"" }}'
+									,'{{ user.contact.location.name|default_if_none:"" }}'
+									,'{% if user.is_active %}Y{% else %}N{% endif %}'
+									,'{% if user.contact.onco_A == 1 %}Y{% else %}N{% endif %}'
+									,'{% if user.contact.is_senior == 1 %}Y{% else %}N{% endif %}'
+								)" style="cursor: pointer">
+									<th>{{ user.id|default_if_none:"" }}</th>
+									<td>{{ user.username|default_if_none:"" }}</td>
+									<td>{{ user.contact.name|default_if_none:"" }}</td>
+									<td>{{ user.contact.eng_name|default_if_none:"" }}</td>
+									<td>{{ user.email|default_if_none:"" }}</td>
+									<td>{{ user.contact.group_str|default_if_none:"" }}</td>
+									<td>{{ user.contact.team.name|default_if_none:"" }}</td>
+									<td>{{ user.contact.phone|default_if_none:"" }}</td>
+									<td>{{ user.contact.work_phone|default_if_none:"" }}</td>
+									<td>{{ user.contact.career|date:'Y-m-d'|default_if_none:"" }}</td>
+									<td>{{ user.contact.career_end|date:'Y-m-d'|default_if_none:"" }}</td>
+									<td>{{ user.contact.career_period|default_if_none:"" }}</td>
+									<td>{{ user.contact.location.name|default_if_none:"" }}</td>
+									<td>{{ user.date_joined|default_if_none:"" }}</td>
+									<td>{{ user.last_login|default_if_none:"" }}</td>
+									<td>
+										{% if user.is_active %}
+											Y
+										{% else %}
+											N
+										{% endif %}
+									</td>
+									<td>
+										{% if user.contact.onco_A == True %}
+											○
+										{% else %}
+										{% endif %}
+									</td>
+									<td>
+										{% if user.contact.is_senior == True %}
+											○
+										{% else %}
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+            </div>
+        </div>
+	
+        <style>
+            .modal-dialog {
+                max-height: calc(100vh - 1rem);
+            }
+
+            .modal-content {
+                max-height: calc(100vh - 5rem);
+                overflow-y: auto;
+            }
+        </style>
+	{% endblock %}
+
+{% block script %}
+<!-- <script src="{% static 'assets/js/plugins.js' %}"></script> -->
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/admin.js' %}"></script>
+
+<script>
+		$(document).ready(function () {
+            $('#user-table').DataTable({
+				"order": [[0, "desc"]],
+                columnDefs: [
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+            });
+
+            $("#user-table_wrapper").css("width", "100%")
+
+            $('#addModal').on('hide.bs.modal', () => {
+                clearModal();
+            })
+
+            $("#career, #career_end").datepicker({
+				todayHighlight: true,
+				dateFormat: 'yy-mm-dd'
+            })
+        });
+
+        function handleClickEdit(id, username, email, name, eng_name, phone, work_phone, career, career_end, group, team, loca, active, onco_A, is_senior) {
+            $('#user-id').val(id);
+            $('#username').val(username);
+            $('#email').val(email);
+            $('#name').val(name);
+            $('#eng_name').val(eng_name);
+            $('#phone').val(phone);
+            $('#work_phone').val(work_phone);
+            $('#career').val(getDateFormat(career));
+            $('#career_end').val(getDateFormat(career_end));
+            $('#group').val(group.split(', '));
+            $('#team').val(team);
+            $('#loca').val(loca);
+            $('#active').val(active);
+            $('#onco_A').val(onco_A);
+	    $('#is_senior').val(is_senior);	
+            $('#addModal').modal('show');
+        }
+
+        function clearModal() {
+            $('#user-id').val('');
+            $('#username').val('');
+            $('#email').val('');
+            $('#name').val('');
+            $('#eng_name').val('');
+            $('#phone').val('');
+            $('#work_phone').val('');
+            $('#career').val('');
+            $('#career_end').val('');
+            $('#group').val('');
+            $('#team').val('');
+            $('#loca').val('');
+            $('#active').val('');
+            $('#onco_A').val('');
+	    $('#is_senior').val('');	
+        }
+
+        function getDateFormat(dateString) {
+            if (!dateString) return ""
+            const date = new Date(dateString);
+            return `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)}`
+        }
+</script>
+{% endblock %}

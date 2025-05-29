@@ -1,0 +1,63 @@
+{% load get_m2m_values from research_tag %}
+
+<label for="chemotherapy"
+       class="font-weight-bold col-sm-2 col-form-label pl-3 word-keep-all striped" style="color:black;">
+  Type of Therapy
+  {% autoescape off %}
+    {% if 'chemotherapy' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.chemotherapy }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+
+<div class="col-sm-2 form-input-container checkbox-radio-input">
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category border-0">
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="chemotherapy" value="toxic_agent"
+                    {% if 'na' in research.chemotherapy.all|get_m2m_values %}
+                       disabled {% endif %}
+                    {% if 'toxic_agent' in research.chemotherapy.all|get_m2m_values or 'toxic_agent' in pre_initiation.chemotherapy.all|get_m2m_values %}
+                       checked {% endif %}
+                    {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span>toxic agent</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="chemotherapy" value="target_agent"
+                    {% if 'na' in research.chemotherapy.all|get_m2m_values %}
+                       disabled {% endif %}
+                    {% if 'target_agent' in research.chemotherapy.all|get_m2m_values or 'target_agent' in pre_initiation.chemotherapy.all|get_m2m_values %}
+                       checked {% endif %}
+                    {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span>target agent</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="chemotherapy" value="Immunotherapy"
+                    {% if 'na' in research.chemotherapy.all|get_m2m_values %}
+                       disabled {% endif %}
+                    {% if 'Immunotherapy' in research.chemotherapy.all|get_m2m_values or 'Immunotherapy' in pre_initiation.chemotherapy.all|get_m2m_values %}
+                       checked {% endif %}
+                    {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span>Immunotherapy</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="chemotherapy" value="etc"
+                    {% if 'na' in research.chemotherapy.all|get_m2m_values %}
+                       disabled {% endif %}
+                    {% if 'etc' in research.chemotherapy.all|get_m2m_values or 'etc' in pre_initiation.chemotherapy.all|get_m2m_values %}
+                       checked {% endif %}
+                    {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span>기타</span></label>
+        </div>
+      </div>
+    </div>
+</div>

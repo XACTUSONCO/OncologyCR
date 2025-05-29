@@ -1,0 +1,32 @@
+{#파일 다운로드 안내 모달#}
+<div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="downloadModalLabel">데이터 다운로드 전 확인 사항</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+	    </div>
+            <div class="modal-body">
+                <ol>
+                    <li>다운받은 데이터의 관리 책임은 사용자에게 있고, 업무 목적으로만 사용 가능합니다.</li>
+                    <li>다운받은 데이터는 보안장치가 된 곳에 안전하게 관리하여야 하며, 모든 데이터는 사용 목적 달성 후 지체 없이 파기하여야 합니다.</li>
+                </ol>
+                <div style="text-align: center">
+                    <label for="downloadCheck" style="display: block;text-indent: -15px;">
+                        <input type="checkbox" id="downloadCheck"
+                               onchange="document.getElementById('save-btn').disabled = !this.checked;"
+                               style="padding: 0;margin: 0;vertical-align: bottom;position: relative;top: -1px;overflow: hidden;accent-color: #006638"
+                        >
+                        &nbsp;위 내용을 모두 확인하였습니다.
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button id="download-btn" type="button" class="btn btn-primary" onClick="handleClickSaveBtn()" disabled>
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,202 @@
+{% extends "bases/base_generic.html" %}
+{% load static from staticfiles %}
+
+{% block title %}
+  <title>X-OncoTrack</title>
+{% endblock %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12 mb-4 mb-xl-0">
+      <a href="/patient/{{ patient.id }}/">
+        <h4 class="font-weight-bold text-dark">{{ patient.patient_name }}{% if patient.is_deleted %}(삭제됨){% endif %}</h4>
+        <p class="font-weight-normal mb-2 text-muted">{{ patient.patient_id }}</p>
+      </a>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">환자 정보</h4>
+          <div id="research-detail-form">
+
+            <!-- Patient ID Name -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3">Patient ID</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label">
+                  {{ patient.patient_id }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Research Name -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3">Patient Name</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label">
+                  {{ patient.patient_name }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Assigned Research -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3">Assigned Research</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label">
+                  <a href="/research/{{ patient.assigned_research.id }}">
+                      {{ patient.assigned_research.research_name }}
+                      ({{ patient.assigned_research.medicine_name }})
+                  </a>
+                </label>
+              </div>
+            </div>
+
+            <!-- Cancer -->
+            <div class="row">
+              <label class="col-2 col-form-label pl-3" style="padding-top:17px;">Cancer</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                    {{ patient.cancer.show }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Histology -->
+            <div class="row">
+              <label class="col-2 col-form-label pl-3" style="padding-top:17px;">Histology</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                    {{ patient.histology.show }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Age -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3">Age</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label">
+                  {{ patient.age }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Chemotherapy -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3" style="padding-top:17px;">Chemotherapy</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                    {{ patient.chemotherapy.show }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- ECOG -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3" style="padding-top:17px;">ECOG</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                    {{ patient.ecog.show }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Lesion -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3" style="padding-top:17px;">Lesion</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                    {{ patient.lesion.show }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Alternation -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3" style="padding-top:17px;">Alternation</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  {% for inst in patient.alternation %}
+                    <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                      {{ inst.show }}
+                    </span>
+                  {% endfor %}
+                </label>
+              </div>
+            </div>
+
+            <!-- PDL1 -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3" style="padding-top:17px;">PDL1</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label">
+                  {{ patient.pdl1 }}
+                </label>
+              </div>
+            </div>
+
+            <!-- MSI -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3" style="padding-top:17px;">MSI</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                    {{ patient.msi.show }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Line -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3" style="padding-top:17px;">Line</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                    {{ patient.line.show }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+             <!-- IO Naive -->
+            <div class="row">
+              <label for="is_recruiting" class="col-2 col-form-label pl-3" style="padding-top:17px;">IO Naive</label>
+              <div class="col-10 font-weight-bold">
+                <label class="col-form-label" style="padding-top:10px;">
+                  <span class="badge badge-secondary text-body" style="font-size: 100%; padding-top:0.35em; margin-top:2px">
+                    {{ patient.io_naive.show }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {% if not patient.is_deleted %}
+            <div class="mt-2" style="float:right;">
+              <button id="patient-remove-button" patient-id="{{ patient.id }}" type="button" class="btn btn-inverse-danger">Remove</button>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block custom_end %}
+  <script src="{% static 'js/patient_detail.js' %}"></script>
+{% endblock %}

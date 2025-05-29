@@ -1,0 +1,58 @@
+[
+    {
+        "model": "research.CRMS",
+        "pk": 1,
+        "fields": {
+            "value": "contract_review"
+        }
+    },
+    {
+        "model": "research.CRMS",
+        "pk": 2,
+        "fields": {
+            "value": "drug_cost"
+        }
+    },
+    {
+        "model": "research.CRMS",
+        "pk": 3,
+        "fields": {
+            "value": "drug_cost_reduction"
+        }
+    },
+    {
+        "model": "research.CRMS",
+        "pk": 4,
+        "fields": {
+            "value": "CTC_funds"
+        }
+    },
+    {
+        "model": "research.CRMS",
+        "pk": 5,
+        "fields": {
+            "value": "CTC_agreement_application"
+        }
+    },
+    {
+        "model": "research.CRMS",
+        "pk": 6,
+        "fields": {
+            "value": "allowance_of_medicalcare"
+        }
+    },
+    {
+        "model": "research.CRMS",
+        "pk": 7,
+        "fields": {
+            "value": "anticancer_allowance_of_medicalcare"
+        }
+    },
+    {
+        "model": "research.CRMS",
+        "pk": 8,
+        "fields": {
+            "value": "GOV"
+        }
+    }
+]

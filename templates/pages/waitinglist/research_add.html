@@ -1,0 +1,56 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Add WaitingList - <a href="/research/{{ research.id }}">{{ research.research_name }}</a></h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="">Studies</a></li>
+									<li class="breadcrumb-item"><a href="/research/search/">임상연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<!-- 연구 상세 -->
+						<div class="card maindata-card shadow mb-5">
+							<!-- Card Body -->
+							<div class="card-body">
+								<div class="default-forms">
+									<form class="forms-sample" method="post" action="/research/waitinglist/add/research/{{ research.id }}/" enctype="multipart/form-data">
+										{% csrf_token %}
+										{% include 'pages/waitinglist/partials/waitinglist_add_edit_form.html' %}
+										<div class="py-4 px-3 text-end">
+											<button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+												<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+											</button>
+											<button type="submit" class="btn btn-success edit-btn px-4" onclick="location.href='/research/{{ research.id }}/'">
+												<i class="bi bi-pencil"></i> <span>Save</span>
+											</button>
+										</div>
+									</form>
+								</div><!-- //default-forms -->
+							</div>
+						</div><!-- //maindata-card -->
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}

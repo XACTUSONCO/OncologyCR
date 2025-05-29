@@ -1,0 +1,92 @@
+{% load subtract from research_tag %}
+{% load cal_career from research_tag %}
+
+<div class="card" style="z-index: 1">
+  <div class="card-header">
+     <h4 class="card-title" style="margin:0;">{{user.first_name}}</h4>
+  </div>
+  <div class="card-body">
+    <p class="card-description" style="font-size: 0.75rem;">
+      근무 기간 1년 미만의 경우, 사용 가능한 연/월차 개수는 Calendar 탭의 상단 오른쪽 - Manual 버튼 클릭하여 확인 부탁드립니다.
+    </p>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="text-black text-center font-weight-bold">월차 (일)</th>
+            <th class="text-black text-center font-weight-bold">연차 (일)</th>
+            <th class="text-black text-center font-weight-bold">휴가일수 (일)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-black text-center">{{ fixed_monthly }}</td>
+            <td class="text-black text-center">{{ fixed_annual }}</td>
+            <td class="text-black text-center">{{ fixed_monthly|add:fixed_annual }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table" id="usage-detail-table">
+      <thead>
+          <tr>
+            <th class="text-black text-center font-weight-bold">No.</th>
+            <th class="text-black text-center font-weight-bold">Date</th>
+            <th class="text-black text-center font-weight-bold">분류</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% ifequal user_leave|length 0 %}
+          <tr>
+            <td class="text-black text-center assignment-info striped pre-wrap" colspan="3">등록된 정보가 없습니다.</td>
+          </tr>
+          {% endifequal %}
+          {% for user_leave in user_leave %}
+          <tr>
+            <td class="text-black text-center">{{ forloop.counter }}</td>
+            <td class="text-black text-center">{{ user_leave.from_date|date:'Y-m-d' }}</td>
+            <td class="text-black text-center">
+              {% if user_leave.kind == 'Monthly' %}
+                월차 (1.0)
+              {% elif user_leave.kind == 'morning_Half' %}
+                반차 - 오전 (0.5)
+              {% elif user_leave.kind == 'afternoon_Half' %}
+                반차 - 오후 (0.5)
+              {% elif user_leave.kind == 'official' %}
+                공가 및 특별휴가
+              {% else %}
+                연차 (1.0)
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+          <tr>
+            <th class="text-black text-center font-weight-bold" colspan="3">사용 가능 일수</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <td class="text-black text-center font-weight-bold" colspan="3">
+                {% if cal_career %}
+                    {% if cal_career.0.0 == 0 and cal_career.1 == 0 %}
+                      0
+                    {% else %}
+                      {{ fixed_annual_monthly_available.0|subtract:usage_count.0 }} (일)
+                    {% endif %}
+                {% endif %}
+              </td>
+          </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

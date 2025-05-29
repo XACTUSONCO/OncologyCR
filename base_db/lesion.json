@@ -1,0 +1,23 @@
+[
+    {
+        "model": "research.Lesion",
+        "pk": 1,
+        "fields": {
+            "value": "na"
+        }
+    },
+    {
+        "model": "research.Lesion",
+        "pk": 2,
+        "fields": {
+            "value": "required"
+        }
+    },
+    {
+        "model": "research.Lesion",
+        "pk": 3,
+        "fields": {
+            "value": "not_required"
+        }
+    }
+]

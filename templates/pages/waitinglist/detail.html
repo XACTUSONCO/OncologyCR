@@ -1,0 +1,83 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+{% block title %}
+  <title>Oncology CR</title>
+{% endblock %}
+
+{% block content %}
+
+  <!-- Modal -->
+  <div class="modal fade" id="edit_waitinglist" tabindex="-1" role="dialog"
+       aria-labelledby="waitinglist_edit" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="waitinglist_edit">환자정보 수정</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body row" id="waitinglist-add-form">
+          <div class="col-sm-12">
+            <form id="waitinglist-edit-form" method="post">
+              {% csrf_token %}
+              {% include 'pages/waitinglist/partials/waitinglist_add_edit_form.html' %}
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="waitinglist-edit-button"
+                  waitinglist-id="{{ waitinglist.id }}">Save changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-sm-7 mb-4 mb-xl-0">
+      <h4 class="font-weight-bold text-dark">
+        {% if waitinglist.cancer.value %}
+        <a href="/research/search/?cancer={{ waitinglist.cancer.value }}">{{ waitinglist.cancer.value }}</a>
+        - {{ waitinglist.name }}</a>
+        {% else %}
+        <a href="/research/search/?phase={{ waitinglist.phase.value }}">{{ waitinglist.phase.value }}</a>
+        - {{ waitinglist.name }}</a>
+        {% endif  %}
+        {% if waitinglist.is_deleted %}(삭제됨){% endif %}
+      </h4>
+    </div>
+
+
+    <div class="col-sm-5 mb-4 mb-xl-0">
+      <div class="pull-right">
+        <button data-toggle="modal" data-target="#remove_waitinglist" type="button"
+                id="waitinglist-remove-button"
+                waitinglist-id="{{ waitinglist.id }}"
+                class="btn btn-inverse-danger">Remove
+        </button>
+        &nbsp;&nbsp;
+        <button type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#edit_waitinglist">
+          Edit
+        </button>
+        &nbsp;&nbsp;
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row mt-3">
+    <div class="col-lg-12 grid-margin stretch-card">
+      {% include "pages/waitinglist/detail_list.html" %}
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block custom_end %}
+  <script src="{% static 'js/CRUD/waitinglist_detail.js' %}"></script>
+{% endblock %}

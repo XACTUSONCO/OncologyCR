@@ -1,0 +1,38 @@
+<div class="card" style="z-index: 1">
+  <div class="card-header">
+     <h4 class="card-title pt-1" style="margin:0;">{{pre_seven_day}} ~ {{today}}</h4>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-compact">
+      <thead>
+          <tr>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom"></th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Status</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Name</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Sex</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Age</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">No</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Register number</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">담당 CRC</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">주치의</th>
+          </tr>
+      </thead>
+
+      <tbody>
+          {% for rec_scr in rec_scr %}
+          <tr>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ forloop.counter }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ rec_scr.assignment__status }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap"><a href="/assignment/{{rec_scr.assignment__id}}">{{ rec_scr.assignment__name }}</a></td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ rec_scr.assignment__sex }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ rec_scr.assignment__age }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ rec_scr.assignment__no }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ rec_scr.assignment__register_number }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ rec_scr.assignment__curr_crc__name }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ rec_scr.assignment__PI }}</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

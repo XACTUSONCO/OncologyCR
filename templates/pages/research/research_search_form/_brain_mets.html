@@ -1,0 +1,51 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+
+<label for="brain_mets"
+       class="font-weight-bold col-sm-1 col-form-label pl-3 striped overflow-hidden word-keep-all text-black">
+  Brain mets 환자 가능여부
+  {% autoescape off %}
+    {% if 'brain_mets' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.brain_mets }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-2 form-input-container checkbox-radio-input flex-container">
+
+  <div class="cancer-type-category" style="border: none;">
+    <div class="form-check" style="margin-right: 30px;">
+      <label class="form-check-label">
+        <input type="radio" style="padding:10px" class="form-check-input"
+               name="brain_mets" value="na"
+            {% if 'na' == query.brain_mets %}
+               checked {% endif %}
+            {% if not editable %} disabled {% endif %}>
+        <i class="input-helper"></i><span>해당없음</span></label>
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+    <div class="cancer-type-category">
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input"
+               name="brain_mets" value="possible"
+          {% if 'possible' in query.brain_mets %}
+                  checked {% endif %}>
+          <i class="input-helper"></i><span>Yes</span>
+          <i class="input-helper"></i></label>
+      </div>
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input"
+                name="brain_mets" value="impossible"
+          {% if 'impossible' in query.brain_mets %}
+                  checked {% endif %}>
+          <i class="input-helper"></i><span>No</span>
+          <i class="input-helper"></i></label>
+      </div>
+    </div>
+    <!-- Flex end -->
+  </div>
+  </div>

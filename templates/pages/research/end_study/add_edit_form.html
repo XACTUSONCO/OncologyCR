@@ -1,0 +1,193 @@
+<!-- Research Name -->
+<div class="form-group row {% if 'research_name' in errors %} card-inverse-danger {% endif %}">
+  <label for="research_name" class="col-lg-2 col-form-label">Study Name
+    {% autoescape off %}
+      {% if 'research_name' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.research_name }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="research_name"
+             value="{% if end_research.research_name %}{{ end_research.research_name }}{% endif %}">
+  </div>
+</div>
+<!-- Study Code -->
+<div class="form-group row {% if 'study_code' in errors %} card-inverse-danger {% endif %}">
+  <label for="study_code" class="col-lg-2 col-form-label">Project No.
+    {% autoescape off %}
+      {% if 'study_code' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.study_code }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="study_code"
+             value="{% if end_research.study_code %}{{ end_research.study_code }}{% endif %}">
+  </div>
+</div>
+<!-- PI -->
+<div class="form-group row {% if 'PI' in errors %} card-inverse-danger {% endif %}">
+  <label for="PI" class="col-lg-2 col-form-label">PI
+    {% autoescape off %}
+      {% if 'PI' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.PI }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+    <input type="text" class="form-control" name="PI"
+           value="{% if end_research.PI %}{{ end_research.PI }}{% endif %}">
+  </div>
+</div>
+<!-- Status -->
+<div class="form-group row {% if 'status' in errors %} card-inverse-danger {% endif %}">
+  <label for="status" class="col-lg-2 col-form-label">Status
+    {% autoescape off %}
+      {% if 'status' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.status }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-10 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="status" value="종료보고완료"
+                   {% if '종료보고완료' == end_research.status or status == '종료보고완료' %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">종료 보고 완료</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="status" value="결과보고완료"
+                   {% if '결과보고완료' == end_research.status or status == '결과보고완료' %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">결과 보고 완료</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="status" value="장기보관완료"
+                   {% if '장기보관완료' == end_research.status or status == '장기보관완료' %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">장기 보관 완료</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Binder Location -->
+<div class="form-group row {% if 'binder_location' in errors %} card-inverse-danger {% endif %}">
+  <label for="binder_location" class="col-lg-2 col-form-label">Binder Location
+    {% autoescape off %}
+      {% if 'binder_location' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.binder_location }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="binder_location"
+             value="{% if end_research.binder_location %}{{ end_research.binder_location }}{% endif %}">
+  </div>
+  <label for="study_coordinator" class="col-lg-2 col-form-label">Study Coordinator
+    {% autoescape off %}
+      {% if 'study_coordinator' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.study_coordinator }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="study_coordinator"
+             value="{% if end_research.study_coordinator %}{{ end_research.study_coordinator }}{% endif %}">
+  </div>
+</div>
+
+<!-- SIT의 경우, CRA 정보 -->
+<div class="form-group row {% if 'sponsor' in errors %} card-inverse-danger {% endif %}">
+  <label for="sponsor" class="col-lg-2 col-form-label">Sponsor
+    {% autoescape off %}
+      {% if 'sponsor' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.sponsor }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-3 col-form-data">
+      <label class="text-black">소속:</label>
+      <input type="text" class="form-control" name="sponsor" value="{% if end_research.sponsor %}{{ end_research.sponsor }}{% endif %}">
+  </div>
+  <div class="col-lg-3 col-form-data">
+      <label class="text-black">CRA 성함:</label>
+      <input type="text" class="form-control" name="CRA_name" value="{% if end_research.CRA_name %}{{ end_research.CRA_name }}{% endif %}">
+  </div>
+  <div class="col-lg-3 col-form-data">
+      <label class="text-black">CRA 전화번호:</label>
+      <input type="text" class="form-control" name="CRA_phoneNumber" value="{% if end_research.CRA_phoneNumber %}{{ end_research.CRA_phoneNumber }}{% endif %}">
+  </div>
+</div>
+
+<!-- 종료보고일, 결과보고일, 장기보관날짜 -->
+<div class="form-group row {% if 'storage_date' in errors %} card-inverse-danger {% endif %}">
+  <label for="end_brief" class="col-lg-2 col-form-label">종료보고일
+    {% autoescape off %}
+      {% if 'end_brief' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.end_brief }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input class="form-control endbrief" data-provide="datepicker" name="end_brief" autocomplete="off"
+             value="{{ end_research.end_brief|date:"m/d/Y" }}">
+  </div>
+
+  <label for="result_brief" class="col-lg-2 col-form-label">결과보고일
+    {% autoescape off %}
+      {% if 'result_brief' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.result_brief }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input class="form-control resultbrief" data-provide="datepicker" name="result_brief" autocomplete="off"
+             value="{{ end_research.result_brief|date:"m/d/Y" }}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'CRA' in errors %} card-inverse-danger {% endif %}">
+  <label for="storage_date" class="col-lg-2 col-form-label">장기 보관 날짜
+    {% autoescape off %}
+      {% if 'storage_date' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.storage_date }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input class="form-control storagedate" data-provide="datepicker" name="storage_date" autocomplete="off"
+             value="{{ end_research.storage_date|date:"m/d/Y" }}" >
+  </div>
+
+  <label  class="col-lg-2 col-form-label">장기 보관 문서
+    <span class="text-danger">※ 장기 보관 문서 파일 업로드 시, 바인더 위치 이미지는 삭제됩니다.</span>
+  </label>
+  <div class="col-lg-4 col-form-data file_cons">
+    <div class="filebox bs3-primary">
+        <input type="file" name="end_research_archive[]" id="end_research_archive" class="upload-hidden" multiple>
+        <input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택">
+        <label for="end_research_archive" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+        <div class="file-list pl-2 pt-2 mb-3">
+          {% if not end_research_archives %}
+          {% else %}
+            <ul>
+              {% for archive in end_research_archives %}
+                <li><a href="{{ archive.file.url }}" target="_blank" download>{{ archive.filename }}</a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+    </div>
+  </div>
+</div>

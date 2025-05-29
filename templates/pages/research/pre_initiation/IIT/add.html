@@ -1,0 +1,55 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+<head>
+  {% block custom_head %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.standalone.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/datetimepicker.css' %}">
+  {% endblock %}
+  {% block title %}
+    <title>Oncology CR</title>
+  {% endblock %}
+</head>
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12 mb-4 mb-xl-0">
+      <h4 class="font-weight-bold text-dark">개시 연구 등록</h4>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title"><연구 정보></h4>
+          <form id="research-edit-form" class="forms-sample" method="post"
+                action="/research/pre_initiation_IIT/add/"
+                enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include 'pages/research/pre_initiation/IIT/pre_initiation_add_edit_form.html' %}
+            <div class="mt-2" style="float:right;">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script src="{% static 'js/CRUD/research_add.js' %}"></script>
+  <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+  <script src="{% static 'js/datetimepicker.js' %}"></script>
+
+  <script>
+      $(function() {
+        $( ".datepicker" ).datepicker({
+            todayHighlight : true
+        });
+        $( ".PSV" ).datetimepicker({
+            todayHighlight : true
+        });
+      });
+  </script>
+{% endblock %}

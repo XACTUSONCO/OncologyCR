@@ -1,0 +1,1108 @@
+{% extends "bases/base_generic.html" %}
+{% load total_sum from research_tag %}
+{% load total_sum_by_team from research_tag %}
+{% load PMS_total_sum from research_tag %}
+{% load get_value from research_tag %}
+{% load static %}
+
+	{% block content %}
+		{% if tab == "status04_02" %}
+		<script type='text/javascript'>
+		    document.addEventListener('DOMContentLoaded', function () {
+		    var someTabTriggerEl = document.querySelector('#tab04_02');
+		    var tab = new bootstrap.Tab(someTabTriggerEl);
+
+		    tab.show(); // 프로필 탭을 활성화
+		});
+		</script>
+		{% elif tab == "status04_03" %}
+		<script type='text/javascript'>
+		    document.addEventListener('DOMContentLoaded', function () {
+		    var someTabTriggerEl = document.querySelector('#tab04_03');
+		    var tab = new bootstrap.Tab(someTabTriggerEl);
+
+		    tab.show(); // 프로필 탭을 활성화
+		});
+		</script>
+		{% elif tab == "status04_06" %}
+		<script type='text/javascript'>
+		    document.addEventListener('DOMContentLoaded', function () {
+		    var someTabTriggerEl = document.querySelector('#tab04_06');
+		    var tab = new bootstrap.Tab(someTabTriggerEl);
+
+		    tab.show(); // 프로필 탭을 활성화
+		});
+		</script>
+		{% endif %}
+
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>CRC</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">STAT</li>
+									<li class="breadcrumb-item"><a href="#!">CRC</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<!-- Nav tabs -->
+							<ul id="submenu-tab" class="nav nav-tabs">
+								<li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#status04_01">CRC별 담당 연구 개수</a></li>
+								<li class="nav-item"><a class="nav-link" id="tab04_02" data-bs-toggle="tab" href="#status04_02">CRC별 Enroll 수 (월별)</a></li>
+								<li class="nav-item"><a class="nav-link" id="tab04_03" data-bs-toggle="tab" href="#status04_03">CRC별 Cycle Visit 수 (월별)</a></li>
+								<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#status04_04">CRC별 Cycle Visit Count 증감율</a></li>
+								<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#status04_05">CRC별 진행 환자 수</a></li>
+								<li class="nav-item"><a class="nav-link" id="tab04_06" data-bs-toggle="tab" href="#status04_06">Performance</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<!-- Tab panes -->
+						<div class="tab-content">
+							<div class="tab-pane active" id="status04_01">
+								<h3 class="sr-only">CRC별 담당 연구 개수</h3>
+								<div class="info-box mb-5">
+									<div class="mb-4">
+										<div class="row">
+											<div class="col-md-9">
+												<div class="fulldetalil-search">
+												<form action="/research/CRC_statistic" method="GET">
+													<div class="form-group">
+														<div class="form-cons">
+															<div class="input-group me-1">
+																<select name="is_recruiting_by_CRC" id="is_recruiting_by_CRC" class="form-select">
+																	<option value="Recruiting" {% if is_recruiting_by_CRC == "Recruiting" %} selected {% endif %}>Recruiting</option>
+																    <option value="Holding" {% if is_recruiting_by_CRC == "Holding" %} selected {% endif %}>Holding</option>
+																    <option value="Completed" {% if is_recruiting_by_CRC == "Completed" %} selected {% endif %}>Completed</option>
+																    <option value="Not yet recruiting" {% if is_recruiting_by_CRC == "Not yet recruiting" %} selected {% endif %}>Not yet recruiting</option>
+																    <option value="ALL" {% if is_recruiting_by_CRC == "ALL" %} selected {% endif %}>ALL</option>
+																</select>
+															</div>
+															<div class="input-group me-1">
+																<select name="DateSelectbox" id="DateSelectbox" class="form-select" onchange="chageDateSelect();">
+																	<option value="0" {% if DateSelectbox == "0" or not request.GET %} selected {% endif %}>전체</option>
+																    <option value="1" {% if DateSelectbox == "1" %} selected {% endif %}>일주일</option>
+																    <option value="2" {% if DateSelectbox == "2" %} selected {% endif %}>1개월</option>
+																    <option value="3" {% if DateSelectbox == "3" %} selected {% endif %}>3개월</option>
+																    <option value="4" {% if DateSelectbox == "4" %} selected {% endif %}>6개월</option>
+																    <option value="5" {% if DateSelectbox == "5" %} selected {% endif %}>1년</option>
+																</select>
+															</div>
+															<div class="input-group">
+																<input type="text" id="strtDate" name="from_date" class="form-control datepickerStyle datepicker" autocomplete="off" value="{{from_date|default_if_none:''}}"/>
+																<label for="strtDate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+															</div>
+															<div class="dash px-2"><span> ~ </span></div>
+															<div class="input-group">
+																<input type="text" id="endDate" name="to_date" class="form-control datepickerStyle datepicker" autocomplete="off" value="{{to_date|default_if_none:''}}"/>
+																<label for="endDate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+															</div>
+															<button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 ms-1 search-btn">
+																<i class="bi bi-search"></i> <span class="sr-only-">조회</span>
+															</button>
+														</div>
+													</div>
+												</form>
+												</div>
+											</div>
+											<div class="col-md-3 text-end">
+												<p class="text-danger mb-0">※ top of the each bar: ongoing 수</p>
+											</div>
+										</div>
+									</div>
+									<div class="chart-box">
+										<div id="crc_research_count_dashboard"></div>
+									</div>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="status04_04">
+								<div class="info-box mb-5">
+									<div class="d-flex">
+										<h3 class="tables-title">CRC별 Cycle Visit Count 증감율</h3>
+										<div class="ms-auto text-danger f_ss2 mb-3">※ {% if today|date:'n' <= 6 %}하반기{% else %}상반기{% endif %} 평균 Cycle Visit 수: {{ prev_variance|floatformat:2 }}</div>
+									</div>
+									<div class="p-3">
+										<div class="chart-box">
+											<div id="cycle-visit-count-QOQ"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="status04_05">
+								<div class="info-box mb-5">
+									<h3 class="tables-title">CRC별 진행 환자 수</h3>
+									<div class="p-3">
+										<div class="chart-box">
+											 <div id="N_of_ongoings_by_CRC_PI_dict_dashboard"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="status04_02">
+								<h3 class="sr-only">CRC별 Enroll 수 (월별)</h3>
+								<form class="mt-1" action="/research/CRC_statistic" method="GET">
+									<div class="row row-cols-auto select-action">
+										<div class="col pe-0">
+											<select name="enroll_year" id="enroll_year" class="form-select">
+												{% for y in year_dropdown %}
+												  {% if request.GET %}
+													<option value="{{ y }}" {% if enroll_year == y %} selected {% endif %}>{{ y }}</option>
+												  {% else %}
+													<option value="{{ y }}" {% if date_year == y %} selected {% endif %}>{{ y }}</option>
+												  {% endif %}
+												{% endfor %}
+											</select>
+										</div>
+										<div class="col">
+											<button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 search-btn">
+												<i class="bi bi-search"></i> <span class="sr-only-">조회</span>
+											</button>
+										</div>
+									</div>
+								</form>
+								<div class="text-end text-danger f_ss2 mb-3">※  (): PMS, EAP, 관찰연구, 완화연구</div>
+
+								{% for team in teams %}
+								<div class="pointtable-box mb-5">
+									<h4 class="tables-title">{{ team.name }}</h4>
+									<div class="table-responsive colorTableStyle">
+									  <table>
+										<thead>
+											<tr>
+											  <th class="diagonal">
+												<span class="crc">CRC</span>
+												<span class="month">Month</span>
+												<div class="line"></div>
+											  </th>
+											  <th>Jan</th>
+											  <th>Feb</th>
+											  <th>Mar</th>
+											  <th>Apr</th>
+											  <th>May</th>
+											  <th>Jun</th>
+											  <th>Jul</th>
+											  <th>Aug</th>
+											  <th>Sept</th>
+											  <th>Oct</th>
+											  <th>Nov</th>
+											  <th>Dec</th>
+											  <th>개인별 합계</th>
+											</tr>
+										</thead>
+										<tbody>
+										    {% for monthly_enroll_list in monthly_enroll_list %}
+											{% if monthly_enroll_list.27 == team.name %}
+											<tr class="item">
+												<td class="bg-warning name">{{ monthly_enroll_list.0 }} {% if monthly_enroll_list.28 == False %}(퇴사){% endif %}</td>
+												<td>{{ monthly_enroll_list.1 }} {% if monthly_enroll_list.14 > 0 %}({{ monthly_enroll_list.14 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.2 }} {% if monthly_enroll_list.15 > 0 %}({{ monthly_enroll_list.15 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.3 }} {% if monthly_enroll_list.16 > 0 %}({{ monthly_enroll_list.16 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.4 }} {% if monthly_enroll_list.17 > 0 %}({{ monthly_enroll_list.17 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.5 }} {% if monthly_enroll_list.18 > 0 %}({{ monthly_enroll_list.18 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.6 }} {% if monthly_enroll_list.19 > 0 %}({{ monthly_enroll_list.19 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.7 }} {% if monthly_enroll_list.20 > 0 %}({{ monthly_enroll_list.20 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.8 }} {% if monthly_enroll_list.21 > 0 %}({{ monthly_enroll_list.21 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.9 }} {% if monthly_enroll_list.22 > 0 %}({{ monthly_enroll_list.22 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.10 }} {% if monthly_enroll_list.23 > 0 %}({{ monthly_enroll_list.23 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.11 }} {% if monthly_enroll_list.24 > 0 %}({{ monthly_enroll_list.24 }}){% endif %}</td>
+												<td>{{ monthly_enroll_list.12 }} {% if monthly_enroll_list.25 > 0 %}({{ monthly_enroll_list.25 }}){% endif %}</td>
+												<td style="background-color: #fcb3cb;">{{ monthly_enroll_list.13 }} {% if monthly_enroll_list.26 > 0 %}({{ monthly_enroll_list.26 }}){% endif %}명 </td>
+											</tr>
+										    {% endif %}
+											{% endfor %}
+											<tr class="total">
+												<td class="bg-info">월별 합계</td>
+												{% with monthly_sum=monthly_enroll_list|total_sum_by_team:team.name %}
+												{% with PMS_monthly_sum=monthly_enroll_list|PMS_total_sum:team.name %}
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=1&team={{team.name}}">{{ monthly_sum.0 }} ({{ PMS_monthly_sum.0 }})</a></td> <!-- 1월 합계 -->
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=2&team={{team.name}}">{{ monthly_sum.1 }} ({{ PMS_monthly_sum.1 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=3&team={{team.name}}">{{ monthly_sum.2 }} ({{ PMS_monthly_sum.2 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=4&team={{team.name}}">{{ monthly_sum.3 }} ({{ PMS_monthly_sum.3 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=5&team={{team.name}}">{{ monthly_sum.4 }} ({{ PMS_monthly_sum.4 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=6&team={{team.name}}">{{ monthly_sum.5 }} ({{ PMS_monthly_sum.5 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=7&team={{team.name}}">{{ monthly_sum.6 }} ({{ PMS_monthly_sum.6 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=8&team={{team.name}}">{{ monthly_sum.7 }} ({{ PMS_monthly_sum.7 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=9&team={{team.name}}">{{ monthly_sum.8 }} ({{ PMS_monthly_sum.8 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=10&team={{team.name}}">{{ monthly_sum.9 }} ({{ PMS_monthly_sum.9 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=11&team={{team.name}}">{{ monthly_sum.10 }} ({{ PMS_monthly_sum.10 }})</a></td>
+												<td class="bg-info"><a href="{% url 'monthly_enroll' %}?year={{enroll_year}}&month=12&team={{team.name}}">{{ monthly_sum.11 }} ({{ PMS_monthly_sum.11 }})</a></td>
+												{% endwith %}
+												{% endwith %}
+												<td></td>
+											</tr>
+										</tbody>
+									  </table>
+									</div>
+								</div>
+								{% endfor %}
+
+								<div class="pointtable-box mb-5">
+									<h4 class="tables-title"> 임상병리사</h4>
+									<div class="table-responsive colorTableStyle">
+									  <table>
+										<thead>
+											<tr>
+											  <th class="diagonal">
+												<span class="crc">임상병리사</span>
+												<span class="month">Month</span>
+												<div class="line"></div>
+											  </th>
+											  <th>Jan</th>
+											  <th>Feb</th>
+											  <th>Mar</th>
+											  <th>Apr</th>
+											  <th>May</th>
+											  <th>Jun</th>
+											  <th>Jul</th>
+											  <th>Aug</th>
+											  <th>Sept</th>
+											  <th>Oct</th>
+											  <th>Nov</th>
+											  <th>Dec</th>
+											  <th>개인별 합계</th>
+											</tr>
+										</thead>
+										<tbody>
+										  {% for monthly_t_enroll_list in monthly_t_enroll_list %}
+										  <tr class="item">
+											  <td class="bg-warning name">{{ monthly_t_enroll_list.0 }} {% if monthly_t_enroll_list.14 == False %}(퇴사){% endif %}</td>
+											  <td>{{ monthly_t_enroll_list.1 }}</td>
+											  <td>{{ monthly_t_enroll_list.2 }}</td>
+											  <td>{{ monthly_t_enroll_list.3 }}</td>
+											  <td>{{ monthly_t_enroll_list.4 }}</td>
+											  <td>{{ monthly_t_enroll_list.5 }}</td>
+											  <td>{{ monthly_t_enroll_list.6 }}</td>
+											  <td>{{ monthly_t_enroll_list.7 }}</td>
+											  <td>{{ monthly_t_enroll_list.8 }}</td>
+											  <td>{{ monthly_t_enroll_list.9 }}</td>
+											  <td>{{ monthly_t_enroll_list.10 }}</td>
+											  <td>{{ monthly_t_enroll_list.11 }}</td>
+											  <td>{{ monthly_t_enroll_list.12 }}</td>
+											  <td style="background-color: #fcb3cb;">{{ monthly_t_enroll_list.13 }} 건 </td>
+										  </tr>
+										  {% endfor %}
+										  <tr class="total">
+											<td class="bg-info">월별 합계</td>
+											{% with monthly_t_sum=monthly_t_enroll_list|total_sum %}
+											<td class="bg-info">{{ monthly_t_sum.0 }}</td> <!-- 1월 합계 -->
+											<td class="bg-info">{{ monthly_t_sum.1 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.2 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.3 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.4 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.5 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.6 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.7 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.8 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.9 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.10 }}</td>
+											<td class="bg-info">{{ monthly_t_sum.11 }}</td>
+											{% endwith %}
+											<td></td>
+										  </tr>
+										</tbody>
+									  </table>
+									</div>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="status04_03">
+								<h3 class="sr-only">CRC별 Cycle Visit 수 (월별)</h3>
+								<form class="mt-1" action="/research/CRC_statistic" method="GET">
+									<div class="row row-cols-auto select-action">
+										<div class="col pe-0">
+											<select name="enroll_year2" id="enroll_year2" class="form-select">
+												{% for y in year_dropdown %}
+												  {% if request.GET %}
+													<option value="{{ y }}" {% if enroll_year2 == y %} selected {% endif %}>{{ y }}</option>
+												  {% else %}
+													<option value="{{ y }}" {% if date_year == y %} selected {% endif %}>{{ y }}</option>
+												  {% endif %}
+												{% endfor %}
+											</select>
+										</div>
+										<div class="col">
+											<button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 search-btn">
+												<i class="bi bi-search"></i> <span class="sr-only-">조회</span>
+											</button>
+										</div>
+									</div>
+								</form>
+								<div class="text-end text-danger f_ss2 mb-3">※  (): PMS, EAP, 관찰연구, 완화연구</div>
+
+								{% for team in teams %}
+								<div class="pointtable-box mb-5">
+									<h4 class="tables-title">{{ team.name }}</h4>
+									<div class="table-responsive colorTableStyle">
+									  <table>
+										<thead>
+											<tr>
+											  <th class="diagonal">
+												<span class="crc">CRC</span>
+												<span class="month">Month</span>
+												<div class="line"></div>
+											  </th>
+											  <th>Jan</th>
+											  <th>Feb</th>
+											  <th>Mar</th>
+											  <th>Apr</th>
+											  <th>May</th>
+											  <th>Jun</th>
+											  <th>Jul</th>
+											  <th>Aug</th>
+											  <th>Sept</th>
+											  <th>Oct</th>
+											  <th>Nov</th>
+											  <th>Dec</th>
+											  <th>개인별 합계</th>
+											</tr>
+										</thead>
+										<tbody>
+										  {% for monthly_visit_list in monthly_visit_list %}
+										  {% if monthly_visit_list.27 == team.name %}
+										    <tr class="item">
+											  <td class="bg-warning name">{{ monthly_visit_list.0 }} {% if monthly_visit_list.28 == False %}(퇴사){% endif %}</td>
+											  <td>{{ monthly_visit_list.1 }} {% if monthly_visit_list.14 > 0 %}({{ monthly_visit_list.14 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.2 }} {% if monthly_visit_list.15 > 0 %}({{ monthly_visit_list.15 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.3 }} {% if monthly_visit_list.16 > 0 %}({{ monthly_visit_list.16 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.4 }} {% if monthly_visit_list.17 > 0 %}({{ monthly_visit_list.17 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.5 }} {% if monthly_visit_list.18 > 0 %}({{ monthly_visit_list.18 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.6 }} {% if monthly_visit_list.19 > 0 %}({{ monthly_visit_list.19 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.7 }} {% if monthly_visit_list.20 > 0 %}({{ monthly_visit_list.20 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.8 }} {% if monthly_visit_list.21 > 0 %}({{ monthly_visit_list.21 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.9 }} {% if monthly_visit_list.22 > 0 %}({{ monthly_visit_list.22 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.10 }} {% if monthly_visit_list.23 > 0 %}({{ monthly_visit_list.23 }}){% endif %}</td>
+											  <td>{{ monthly_visit_list.11 }} {% if monthly_visit_list.24 > 0 %}({{ monthly_visit_list.24 }}){% endif %}</td>
+										  	  <td>{{ monthly_visit_list.12 }} {% if monthly_visit_list.25 > 0 %}({{ monthly_visit_list.25 }}){% endif %}</td>
+											  <td style="background-color: #fcb3cb;">{{ monthly_visit_list.13 }} {% if monthly_visit_list.26 > 0 %}({{ monthly_visit_list.26 }}){% endif %}건 </td>
+										    </tr>
+										  {% endif %}
+									   	  {% endfor %}
+										  <tr class="total">
+											<td class="bg-info">월별 합계</td>
+										    {% with monthly_sum=monthly_visit_list|total_sum_by_team:team.name %}
+										    {% with PMS_monthly_sum=monthly_visit_list|PMS_total_sum:team.name %}
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=1&team={{team.name}}">{{ monthly_sum.0 }} ({{ PMS_monthly_sum.0 }})</a></td> <!-- 1월 합계 -->
+											<td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=2&team={{team.name}}">{{ monthly_sum.1 }} ({{ PMS_monthly_sum.1 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=3&team={{team.name}}">{{ monthly_sum.2 }} ({{ PMS_monthly_sum.2 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=4&team={{team.name}}">{{ monthly_sum.3 }} ({{ PMS_monthly_sum.3 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=5&team={{team.name}}">{{ monthly_sum.4 }} ({{ PMS_monthly_sum.4 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=6&team={{team.name}}">{{ monthly_sum.5 }} ({{ PMS_monthly_sum.5 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=7&team={{team.name}}">{{ monthly_sum.6 }} ({{ PMS_monthly_sum.6 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=8&team={{team.name}}">{{ monthly_sum.7 }} ({{ PMS_monthly_sum.7 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=9&team={{team.name}}">{{ monthly_sum.8 }} ({{ PMS_monthly_sum.8 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=10&team={{team.name}}">{{ monthly_sum.9 }} ({{ PMS_monthly_sum.9 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=11&team={{team.name}}">{{ monthly_sum.10 }} ({{ PMS_monthly_sum.10 }})</a></td>
+										    <td class="bg-info"><a href="{% url 'monthly_visit' %}?year={{enroll_year2}}&month=12&team={{team.name}}">{{ monthly_sum.11 }} ({{ PMS_monthly_sum.11 }})</a></td>
+										    {% endwith %}
+										    {% endwith %}
+										    <td></td>
+										  </tr>
+										</tbody>
+									  </table>
+									</div>
+								</div>
+								{% endfor %}
+							</div>
+
+							<div class="tab-pane fade" id="status04_06">
+								<h3 class="sr-only">Performance</h3>
+								<form class="mt-1" action="/research/CRC_statistic" method="GET">
+									<div class="row row-cols-auto select-action">
+										<div class="col pe-0">
+											<select name="performance_year" id="performance_year" class="form-select">
+												{% for y in year_dropdown %}
+												  {% if performance_year %}
+													<option value="{{ y }}" {% if performance_year == y %} selected {% endif %}>{{ y }}</option>
+												  {% else %}
+													<option value="{{ y }}" {% if date_year == y %} selected {% endif %}>{{ y }}</option>
+												  {% endif %}
+												{% endfor %}
+											</select>
+										</div>
+										<div class="col pe-0">
+											<select name="half_of_year" id="half_of_year" class="form-select">
+												{% if performance_half_of_year %}
+												  <option value="first_half" {% if performance_half_of_year == "first_half" %} selected {% endif %}>상반기</option>
+												  <option value="second_half" {% if performance_half_of_year == "second_half" %} selected {% endif %}>하반기</option>
+												{% else %}
+												  {% with month=today|date:'n'|add:0 %}
+												  <option value="first_half" {% if month <= 6 %} selected {% endif %}>상반기</option>
+												  <option value="second_half" {% if month > 6 %} selected {% endif %}>하반기</option>
+												  {% endwith %}
+												{% endif %}
+											</select>
+										</div>
+										<div class="col">
+											<button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 search-btn">
+												<i class="bi bi-search"></i> <span class="sr-only-">조회</span>
+											</button>
+										</div>
+										<div class="col ms-auto">
+											{% if performance_half_of_year %}
+												<button class="btn btn-outline-secondary" type="button" onclick="location.href='/research/statistic/performance/download/?performance_year={{performance_year}}&half_of_year={{performance_half_of_year}}'">
+													<i class="bi bi-file-earmark-excel"></i> <span>Download</span>
+												</button>
+											{% elif not performance_half_of_year %}
+												<button class="btn btn-outline-secondary" type="button" onclick="location.href='/research/statistic/performance/download/'">
+													<i class="bi bi-file-earmark-excel"></i> <span>Download</span>
+												</button>
+											{% endif %}
+										</div>
+									</div>
+								</form>
+
+								{% for team in teams %}
+								<div class="pointtable-box mb-5">
+									<h4 class="tables-title">CRC ({{ team.name }})</h4>
+									<div class="table-responsive colorTableStyle">
+									  <table>
+										<thead>
+											<tr>
+											  <th>Name</th>
+											  <th>ICF x10</th>
+											  <th>ICF (Pre/관찰연구) x3</th>
+											  <th>ICF (Re) x1</th>
+											  <th>Cycle Visit x1</th>
+											  <th>IIT Set Up x120</th>
+											  <th>SIT Set Up x30</th>
+											  <th>기타(PMS/EAP/완화연구 등) Set Up x10</th>
+											  <th>Total</th>
+											</tr>
+										</thead>
+										<tbody>
+										  {% for p in performance_list %}
+                    					  {% if p.7 == team.name and p.5 == 'nurse' or p.7 == team.name and p.5 == 'SETUP' %}
+										  <tr class="item">
+											  <td class="bg-warning name">{{ p.0 }}</td>
+											  <td>{{ p.1 }}</td>
+											  <td>{{ p.2 }}</td>
+											  <td>{{ p.3 }}</td>
+											  <td>{{ p.4 }}</td>
+											  <td>{% for p_s in performance_setup_list %}{% if p_s.0 == p.6 %}{{ p_s.1 }}{% endif %}{% endfor %}</td>
+											  <td>{% for p_s in performance_setup_list %}{% if p_s.0 == p.6 %}{{ p_s.2 }}{% endif %}{% endfor %}</td>
+											  <td>{% for p_s in performance_setup_list %}{% if p_s.0 == p.6 %}{{ p_s.3 }}{% endif %}{% endfor %}</td>
+											  <td style="background-color: #fcb3cb;">
+												{% for p_s in performance_setup_list %}
+												  {% if p_s.0 == p.6 %}
+													{{ p.1|add:p.2|add:p.3|add:p.4|add:p_s.1|add:p_s.2|add:p_s.3 }}
+												  {% endif %}
+												{% endfor %}
+											  </td>
+										  </tr>
+										  {% endif %}
+										  {% endfor %}
+										</tbody>
+									  </table>
+									</div>
+								</div>
+								{% endfor %}
+
+								<div class="pointtable-box mb-5">
+									<h4 class="tables-title">의무기록사</h4>
+									<div class="table-responsive colorTableStyle">
+									  <table>
+										<thead>
+											<tr>
+											  <th>Name</th>
+											  <th>ICF x10</th>
+											  <th>ICF (Pre/관찰연구) x3</th>
+											  <th>ICF (Re) x1</th>
+											  <th>Cycle Visit x1</th>
+											  <th>Total</th>
+											</tr>
+										</thead>
+										<tbody>
+										  {% for p in performance_list %}
+										  {% if p.5 == 'medical records' %}
+											  <tr class="item">
+												<td class="bg-warning name">{{ p.0 }}</td>
+												<td>{{ p.1 }}</td>
+												<td>{{ p.2 }}</td>
+												<td>{{ p.3 }}</td>
+												<td>{{ p.4 }}</td>
+												<td style="background-color: #fcb3cb;">{{ p.1|add:p.2|add:p.3|add:p.4 }}</td>
+											  </tr>
+										  {% endif %}
+										  {% endfor %}
+										</tbody>
+									  </table>
+									</div>
+								</div>
+
+								<div class="pointtable-box mb-5">
+									<h4 class="tables-title">Lab Technician</h4>
+									<div class="table-responsive colorTableStyle">
+									  <table>
+										<thead>
+											<tr>
+											  <th>Name</th>
+											  <th>건수</th>
+											</tr>
+										</thead>
+										<tbody>
+										  {% for p_t in performance_t_list %}
+											<tr class="item">
+											  <td class="bg-warning name">{{ p_t.0 }}</td>
+											  <td>{{ p_t.1 }}</td>
+											</tr>
+										  {% endfor %}
+										</tbody>
+									  </table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+
+{% block script %}
+<script>
+    // CRC별 담당 연구 개수 그래프
+    {% if request.GET.from_date %}
+    var series = [{
+        name: '기간별 담당 연구 개수',
+        data:  {{ count | safe }}
+        }
+    ];
+    {% else %}
+    var series = [{% if is_recruiting_by_CRC == 'Recruiting' or not is_recruiting_by_CRC %}
+        {
+          name: 'IIT',
+          data: {{ crc_research_count_dict.R_IIT | safe }}
+        }, {
+          name: 'SIT',
+          data: {{ crc_research_count_dict.R_SIT | safe }}
+        }, {
+          name: 'PMS',
+          data: {{ crc_research_count_dict.R_PMS | safe }}
+        }, {
+          name: 'EAP',
+          data: {{ crc_research_count_dict.R_EAP | safe }}
+        }, {
+          name: 'Palliative',
+          data: {{ crc_research_count_dict.R_Palliative | safe }}
+        }, {
+          name: 'Blood',
+          data: {{ crc_research_count_dict.R_Blood | safe }}
+        }, {
+          name: 'ETC',
+          data: {{ crc_research_count_dict.R_ETC | safe }}
+        },{% elif is_recruiting_by_CRC == 'ALL' %}
+        {
+          name: 'IIT',
+          data: {{ crc_research_count_dict.IIT | safe }}
+        }, {
+          name: 'SIT',
+          data: {{ crc_research_count_dict.SIT | safe }}
+        }, {
+          name: 'PMS',
+          data: {{ crc_research_count_dict.PMS | safe }}
+        }, {
+          name: 'EAP',
+          data: {{ crc_research_count_dict.EAP | safe }}
+        }, {
+          name: 'Palliative',
+          data: {{ crc_research_count_dict.Palliative | safe }}
+        }, {
+          name: 'Blood',
+          data: {{ crc_research_count_dict.Blood | safe }}
+        }, {
+          name: 'ETC',
+          data: {{ crc_research_count_dict.ETC | safe }}
+        },{% elif is_recruiting_by_CRC == 'Holding' %}
+        {
+          name: 'IIT',
+          data: {{ crc_research_count_dict.H_IIT | safe }}
+        }, {
+          name: 'SIT',
+          data: {{ crc_research_count_dict.H_SIT | safe }}
+        }, {
+          name: 'PMS',
+          data: {{ crc_research_count_dict.H_PMS | safe }}
+        }, {
+          name: 'EAP',
+          data: {{ crc_research_count_dict.H_EAP | safe }}
+        }, {
+          name: 'Palliative',
+          data: {{ crc_research_count_dict.H_Palliative | safe }}
+        }, {
+          name: 'Blood',
+          data: {{ crc_research_count_dict.H_Blood | safe }}
+        }, {
+          name: 'ETC',
+          data: {{ crc_research_count_dict.H_ETC | safe }}
+        },{% elif is_recruiting_by_CRC == 'Completed' %}
+        {
+          name: 'IIT',
+          data: {{ crc_research_count_dict.C_IIT | safe }}
+        }, {
+          name: 'SIT',
+          data: {{ crc_research_count_dict.C_SIT | safe }}
+        }, {
+          name: 'PMS',
+          data: {{ crc_research_count_dict.C_PMS | safe }}
+        }, {
+          name: 'EAP',
+          data: {{ crc_research_count_dict.C_EAP | safe }}
+        }, {
+          name: 'Palliative',
+          data: {{ crc_research_count_dict.C_Palliative | safe }}
+        }, {
+          name: 'Blood',
+          data: {{ crc_research_count_dict.C_Blood | safe }}
+        }, {
+          name: 'ETC',
+          data: {{ crc_research_count_dict.C_ETC | safe }}
+        },{% elif is_recruiting_by_CRC == 'Not yet recruiting' %}
+        {
+          name: 'IIT',
+          data: {{ crc_research_count_dict.N_IIT | safe }}
+        }, {
+          name: 'SIT',
+          data: {{ crc_research_count_dict.N_SIT | safe }}
+        }, {
+          name: 'PMS',
+          data: {{ crc_research_count_dict.N_PMS | safe }}
+        }, {
+          name: 'EAP',
+          data: {{ crc_research_count_dict.N_EAP | safe }}
+        }, {
+          name: 'Palliative',
+          data: {{ crc_research_count_dict.N_Palliative | safe }}
+        }, {
+          name: 'Blood',
+          data: {{ crc_research_count_dict.N_Blood | safe }}
+        }, {
+          name: 'ETC',
+          data: {{ crc_research_count_dict.N_ETC | safe }}
+        },{% endif %}
+    ];
+    {% endif %}
+
+    var crc_research_count_option = {
+      series,
+      chart: {
+        type: "bar",
+        height: 550,
+        stacked: true,
+        toolbar: {
+          show: false
+        },
+        events: {
+          mounted: (chartContext, config) => {
+            console.log("mounted", chartContext, config, config.globals.yRange);
+              addAnnotations(config);
+          },
+          updated: (chartContext, config) => {
+              addAnnotations(config);
+          }
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        style: {
+                fontSize: '10px',
+                colors: ["#304758"]
+            }
+      },
+      colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#bcf60c', '#6c757d'],
+      plotOptions: {
+        bar: {
+          columnWidth: '50%',
+          dataLabels: {
+            maxItems: 2,
+            position: 'center',
+          }
+        }
+      },
+      xaxis: {
+        categories: {{ crc | safe }},
+        axisTicks: {
+          show: true
+        },
+        axisBorder: {
+          show: true
+        },
+        // floating: true,
+        labels: {
+          // maxHeight: 0,
+          hideOverlappingLabels: false,
+        }
+      },
+      yaxis: {
+        axisTicks: {
+          show: true
+        },
+        axisBorder: {
+          show: true
+        },
+        labels: {
+          hideOverlappingLabels: true,
+        }
+      },
+      fill: {
+        opacity: 1
+      },
+      legend: {
+        position: "top",
+        horizontalAlign: "left"
+      },
+      grid: {
+        padding: {
+          left: 13.5,
+          right: 0
+        },
+        xaxis: {
+            lines: {
+                show: true
+            }
+        },
+      }
+    };
+
+    var crc_research_count = new ApexCharts(document.querySelector("#crc_research_count_dashboard"), crc_research_count_option);
+    crc_research_count.render();
+
+    // CRC별 담당 연구 개수 그래프 (ongoing 환자 수 annotation)
+    const addAnnotations = (config) => {
+      const ongoing = {{ ongoing | safe }};
+      const seriesTotals = config.globals.stackedSeriesTotals;
+      const isHorizontal = crc_research_count_option.plotOptions.bar.horizontal;
+      crc_research_count.clearAnnotations();
+
+      try {
+        crc_research_count_option.xaxis.categories.forEach((category, index) => {
+          crc_research_count.addPointAnnotation(
+            {
+              y: isHorizontal
+                ? calcHorizontalY(config, index)
+                : seriesTotals[index],
+              x: isHorizontal ? 0 : category,
+              label: {
+                text: `${ongoing[index]}명`
+          }
+            },
+            false
+          );
+
+          if (isHorizontal) {
+            adjustPointAnnotationXCoord(config, index);
+          }
+        });
+      } catch (error) {
+        console.log(`Add point annotation error: ${error.message}`);
+      }
+    };
+
+    const calcHorizontalY = (config, index) => {
+      const catLength = categories.length;
+      const yRange = config.globals.yRange[0];
+      const minY = config.globals.minY;
+      const halfBarHeight = yRange / catLength / 2;
+
+      return minY + halfBarHeight + 2 * halfBarHeight * (catLength - 1 - index);
+    };
+
+    const adjustPointAnnotationXCoord = (config, index) => {
+      const gridWidth = config.globals.gridWidth;
+      const seriesTotal = config.globals.stackedSeriesTotals[index];
+      const minY = config.globals.minY;
+      const yRange = config.globals.yRange[0];
+      const xOffset = (gridWidth * (seriesTotal + Math.abs(minY))) / yRange;
+      const labelField = document.querySelector(
+        `.apexcharts-point-annotations rect:nth-of-type(${index + 1}`
+      );
+      const labelFieldXCoord = parseFloat(labelField.getAttribute("x"));
+      const text = document.querySelector(
+        `.apexcharts-point-annotations text:nth-of-type(${index + 1}`
+      );
+
+      labelField.setAttribute("x", labelFieldXCoord + xOffset);
+      text.setAttribute("x", xOffset);
+      console.log(labelFieldXCoord);
+    };
+
+    // CRC별 Cycle Visit Count 증감율
+    var options5 = {
+        series: [
+          {
+            name: "",
+            data: {{ variance_list | safe }}
+          }
+        ],
+        chart: {
+          height: 600,
+          type: 'bar',
+          toolbar: {
+            show: false
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (y) {
+            if(typeof y !== "undefined") {
+                return  y.toFixed(0) + " %";
+            }
+                return y;
+          }
+        },
+        markers: {
+          size: 1
+        },
+        xaxis: {
+          categories: {{ variance_xaxis_list | safe }},
+          title: {
+              text: '',
+          },
+        },
+        yaxis: [
+          {
+            labels: {
+              formatter: function(val) {
+                return val;
+              }
+            }
+          }
+        ],
+        tooltip: {
+          shared: true,
+          intersect: false,
+          y: [{
+            formatter: function (y) {
+            if(typeof y !== "undefined") {
+                return  y + " %";
+            }
+                return y;
+            }
+          }]
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'right',
+          floating: true,
+          offsetY: -25,
+          offsetX: -5
+        }
+    };
+
+    var chart5 = new ApexCharts(
+        document.querySelector("#cycle-visit-count-QOQ"), options5
+    );
+    chart5.render();
+
+
+    // CRC별 진행 환자 수
+    var N_of_ongoings_by_CRC_PI_option = {
+      series: [{% for PI, ongoings in N_of_ongoings_by_CRC_PI_dict %}
+          {
+            name: "{{ PI | safe }}",
+            data: {{ ongoings | safe }}
+          },{% endfor %}
+      ],
+      chart: {
+        type: "bar",
+        height: 550,
+        stacked: true,
+        toolbar: {
+          show: false
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        style: {
+                fontSize: '10px',
+                colors: ["#304758"]
+            }
+      },
+      colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#bcf60c', '#6c757d', '#aab2bd'],
+      plotOptions: {
+        bar: {
+          columnWidth: '50%',
+          dataLabels: {
+            maxItems: 2,
+            position: 'center',
+          }
+        }
+      },
+      xaxis: {
+        categories: {{ N_of_ongoings_by_CRC_PI_list | safe }},
+        axisTicks: {
+          show: true
+        },
+        axisBorder: {
+          show: true
+        },
+        // floating: true,
+        labels: {
+          // maxHeight: 0,
+          hideOverlappingLabels: false,
+        }
+      },
+      yaxis: {
+        axisTicks: {
+          show: true
+        },
+        axisBorder: {
+          show: true
+        },
+        labels: {
+          hideOverlappingLabels: true,
+        }
+      },
+      fill: {
+        opacity: 1
+      },
+      legend: {
+        position: "top",
+        horizontalAlign: "left"
+      },
+      grid: {
+        padding: {
+          left: 13.5,
+          right: 0
+        },
+        xaxis: {
+            lines: {
+                show: true
+            }
+        },
+      }
+    };
+
+    var N_of_ongoings_by_CRC_PI_dict = new ApexCharts(document.querySelector("#N_of_ongoings_by_CRC_PI_dict_dashboard"), N_of_ongoings_by_CRC_PI_option);
+    N_of_ongoings_by_CRC_PI_dict.render();
+
+
+    var selectedValue = document.getElementById("DateSelectbox")
+    var sValue = selectedValue.options[selectedValue.selectedIndex].value;
+    if(sValue == '0'){
+            $( '#strtDate' ).attr('disabled', 'disabled').val('');
+            $( '#endDate' ).attr('disabled', 'disabled').val('');
+        }
+
+    function chageDateSelect() {
+        var v = $("#DateSelectbox").val(); // [1주일, 3개월, 6개월, 1년] 중 선택된 값
+        var recruitingSelect = document.getElementById("is_recruiting_by_CRC");
+        if (v == '0') {
+          recruitingSelect.disabled = false;
+        } else {
+          recruitingSelect.disabled = true;
+        }
+
+        var today = new Date();
+        var year = today.getFullYear();
+        var month = today.getMonth() + 1;
+        var date = today.getDate();
+
+        // month, date가 10보다 작으면 문자 '0'을 추가하는 코드
+        month = month >= 10 ? month : '0' + month;
+        date = date >= 10 ? date : '0' + date;
+
+        // 종료 날짜
+        if (v == '0') {
+          $('#endDate').attr('disabled', 'disabled').val('');
+        } else {
+          $("#endDate").removeAttr('disabled');
+          $("#endDate").val(`${year}-${month}-${date}`)
+
+        }
+
+        var newDate = new Date($("#endDate").val())
+
+        // 시작 날짜
+        if (v == '0') {
+              $("#strtDate").attr('disabled', 'disabled').val('');
+        } else if (v == '1') {
+              $("#strtDate").removeAttr('disabled');
+              newDate.setDate(newDate.getDate() - 7)
+              $("#strtDate").val(dateFormatter(newDate))
+        } else if (v == '2') {
+              $("#strtDate").removeAttr('disabled');
+              newDate.setMonth(newDate.getMonth() - 1)
+              $("#strtDate").val(dateFormatter(newDate))
+        } else if (v == '3') {
+              $("#strtDate").removeAttr('disabled');
+              newDate.setMonth(newDate.getMonth() - 3)
+              $("#strtDate").val(dateFormatter(newDate, today))
+        } else if (v == '4') {
+              $("#strtDate").removeAttr('disabled');
+              newDate.setMonth(newDate.getMonth() - 6)
+              $("#strtDate").val(dateFormatter(newDate, today))
+        } else if (v == '5') {
+              $("#strtDate").removeAttr('disabled');
+              newDate.setFullYear(newDate.getFullYear() - 1)
+              $("#strtDate").val(dateFormatter(newDate, today))
+        }
+    }
+</script>
+
+<!-- stat 페이지용 js -->
+<script src="{% static 'assets/js/pages/stat.js' %}"></script>
+<script src="{% static 'js/datatable/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'js/datatable/jszip.min.js' %}"></script>
+<script src="{% static 'js/datatable/buttons.html5.min.js' %}"></script>
+<style>
+  .line {
+      position: absolute;
+      height: 40px;
+      top: 40px;
+      bottom: 0;
+      margin: auto;
+      left: -5px;
+      width: 100%;
+      border-top: 1px solid #000;
+      -webkit-transform: rotate(14deg);
+      -ms-transform: rotate(14deg);
+      transform: rotate(14deg);
+    }
+    .diagonal {
+      width: 150px;
+      height: 40px;
+    }
+    .diagonal span.crc {
+      position: absolute;
+      bottom: 2px;
+      left: 6px;
+    }
+    .diagonal span.lab_technician {
+      position: absolute;
+      bottom: 2px;
+      left: 6px;
+    }
+    .diagonal span.month {
+      position: absolute;
+      top: 2px;
+      right: 6px;
+    }
+</style>
+{% endblock %}

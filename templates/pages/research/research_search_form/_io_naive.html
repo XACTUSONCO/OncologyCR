@@ -1,0 +1,46 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+
+<label for="io_naive" class="font-weight-bold col-sm-1 col-form-label pl-3 striped word-keep-all text-black">
+  IO (면역치료) 사용력
+  {% autoescape off %}
+    {% if 'io_naive' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.io_naive }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-2 form-input-container checkbox-radio-input">
+
+    <div class="cancer-type-category" style="border: none;">
+      <div class="form-check">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input"
+                 name="io_naive" value="na"
+              {% if 'na' == query.io_naive %}
+                 checked {% endif %}
+              {% if not editable %} disabled {% endif %}>
+          <i class="input-helper"></i><span>해당없음</span></label>
+      </div>
+    </div>
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category">
+        {% for value, text in field_choice.io_naive %}
+          {% if forloop.counter0 > 0 %}
+            <div class="form-check" style="margin-right: 30px;">
+              <label class="form-check-label">
+                <input type="radio" style="padding:10px"
+                       class="form-check-input" name="io_naive" value="{{ value }}"
+                    {% if value == query.io_naive %}
+                       checked {% endif %}
+                    {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span>{{ text }}</span>
+              </label>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <!-- Flex end -->
+    </div>
+
+</div>

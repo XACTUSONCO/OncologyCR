@@ -1,0 +1,59 @@
+  {% for waiting in research_waiting_list %}
+    <div id="research_waitinglist_{{ waiting.id }}" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Edit</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <form id="waiting-edit-form-{{ waiting.id }}" class="forms-sample" method="post" enctype="multipart/form-data">
+              <div class="modal-body">
+                  {% csrf_token %}
+                  {% include 'pages/waitinglist/partials/research_waitinglist_add_edit_form.html' %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary update-assignment" waiting-id="{{ waiting.id }}" research-id="{{ waiting.research.id }}">환자 등록</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+                </button>
+                <button type="button" class="btn btn-danger research-waiting-remove-button"
+                        waiting-id="{{ waiting.id }}">Remove</button>
+                <button type="button" class="btn btn-success edit-btn px-4 research-waiting-edit-button" research-id="{{ waiting.research.id }}" waiting-id="{{ waiting.id }}">
+                    <i class="bi bi-pencil"></i> <span>Save</span>
+                </button>
+              </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+  <thead>
+   <tr>
+       <th>Patients No.</th>
+       <th>Name</th>
+       <th>Doctor</th>
+       <th>Sex</th>
+       <th>Age</th>
+       <th>Current Status</th>
+       <th>Create Date</th>
+       <th>Update Date</th>
+  </tr>
+  </thead>
+
+  <tbody>
+      {% for waiting in research_waiting_list %}
+        <tr data-bs-toggle="modal" data-bs-target="#research_waitinglist_{{ waiting.id }}">
+          <td>{{ waiting.register_number }}</td>
+          <td>{{ waiting.name }}</td>
+          <td>{{ waiting.doctor }}</td>
+          <td>{{ waiting.sex }}</td>
+          <td>{{ waiting.age }}</td>
+          <td style="white-space: pre-line;">{{ waiting.curr_status }}</td>
+          <td>{{ waiting.create_date|date:'Y-m-d H:i:s' }}</td>
+          <td>{{ waiting.update_date|date:'Y-m-d H:i:s' }}</td>
+        </tr>
+      {% endfor %}
+  </tbody>

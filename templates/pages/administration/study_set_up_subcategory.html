@@ -1,0 +1,226 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Study Set-up</h2>
+
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+                                    <li class="breadcrumb-item"><a href="/administration/study_set_up/"> List </a></li>
+                                    <li class="breadcrumb-item"> {{ study_category.name }} </li>
+                                    <li class="breadcrumb-item"> Sub Category setup </li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 education-datas">
+
+                        <div class="row row-cols-auto select-action">
+							<div class="col ms-auto">
+								<button id="row-delete-button" type="button" class="btn btn-danger edit-btn px-4" onClick="handleClickDeleteSelection()" style="display: none">
+									<i class="bi bi-trash"></i> <span>DELETE</span>
+								</button>
+								<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAdd()">
+									<i class="bi bi-plus-square"></i> <span>Add</span>
+								</button>
+							</div>
+						</div>
+
+                        <div class="table-responsive">
+							<table class="table table-bordered custom-table" id="study-subcategory-table">
+								<thead>
+                                    <tr>
+                                        <th scope="col">삭제</th>
+                                        <th scope="col" style="display:none;">#</th>
+                                        <th scope="col">Study Sub Category</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">순서</th>
+                                        <th scope="col"></th>
+                                    </tr>
+								</thead>
+								<tbody>
+								  {% for study_subcategory in study_subcategories %}
+                                      <tr>
+                                          <td></td>
+                                          <th scope="row" style="display:none;">{{ study_subcategory.id }}</th>
+                                          <td>{{ study_subcategory.name }}</td>
+                                          <td>{{ study_subcategory.description|default_if_none:"" }}</td>
+                                          <td>{{ study_subcategory.order|default_if_none:"" }}</td>
+                                          <td>
+                                              <button type="button" class="btn btn-outline-secondary"
+                                                      onClick="handleClickEdit('{{ study_subcategory.name }}', '{{ study_subcategory.description|default_if_none:"" }}', '{{ study_subcategory.order|default_if_none:"" }}', '{{ study_subcategory.id }}')">
+                                                수정
+                                              </button>
+                                          </td>
+                                      </tr>
+                                  {% endfor %}
+								</tbody>
+							</table>
+						</div><!-- //table-responsive -->
+
+                        {# 추가/수정 모달 #}
+                        <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addModalLabel">Sub Category 추가</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post" action="/administration/study_set_up/{{ study_category.id }}/" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="study-subcategory-id" type="hidden" name="study_subcategory_id"/>
+                                        <input id="is-update" type="hidden" name="is_update"/>
+                                        <input id="is-deleted" type="hidden" name="is_deleted"/>
+                                        <div class="modal-body">
+                                            <div class="form-group row">
+                                                <label for="category" class="col-sm-3 col-form-label">Category</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="category" name="category"
+                                                           value="{{ study_category.name }}" maxlength="100" required readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="name" class="col-sm-3 col-form-label">Sub Category</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="name" name="name" maxlength="100" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="description" class="col-sm-3 col-form-label">Description</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="description" name="description"
+                                                           maxlength="100">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="order" class="col-sm-3 col-form-label">Order</label>
+                                                <div class="col-sm-9">
+                                                    <input type="number" class="form-control" id="order" name="order" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                                <i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+                                            </button>
+                                            <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+                                                <i class="bi bi-pencil"></i> <span>Save</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<script>
+        $(document).ready(function () {
+            const table = $('#study-subcategory-table').DataTable({
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    },
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+                select: {
+                    style: 'multiple',
+                    selector: 'td:first-child'
+                },
+                "order": [[4, "asc"]],
+            })
+
+            $('#study-subcategory-table').data('selectedIds', []);
+
+            table.on('select', function (e, dt, type, indexes) {
+                const studyCategoryId = table.rows(indexes).data().toArray()[0][1];
+                $('#study-subcategory-table').data('selectedIds', [...$('#study-subcategory-table').data('selectedIds'), studyCategoryId]);
+                if ($('#study-subcategory-table').data('selectedIds').length === 1) {
+                    $('#row-delete-button').show();
+                }
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                const studyCategoryId = table.rows(indexes).data().toArray()[0][1];
+                const tmp = $('#study-subcategory-table').data('selectedIds').filter(a => a !== studyCategoryId)
+                $('#study-subcategory-table').data('selectedIds', tmp);
+                if (tmp.length === 0) {
+                    $('#row-delete-button').hide();
+                }
+            });
+
+            $('.dataTables_length').addClass('bs-select');
+
+            $("#study-subcategory-table_wrapper").css("width", "100%")
+
+            $('#addModal').on('hide.bs.modal', () => {
+                $('#is-update').val('');
+                $('#name').val('');
+                $('#description').val('');
+                $('#order').val('');
+            })
+        });
+
+        function handleClickAdd() {
+            $('#addModalLabel').text('Sub Category 추가');
+            $('#is-update').val(false);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(name, description, order, studyCategoryId) {
+            $('#addModalLabel').text('Sub Category 수정');
+            $('#name').val(name);
+            $('#description').val(description);
+            $('#order').val(order);
+            $('#is-update').val('true');
+            $('#study-subcategory-id').val(studyCategoryId);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteSelection() {
+            const targetList = $('#study-subcategory-table').data('selectedIds');
+            if (confirm(`${targetList.length}개의 데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/administration/study_set_up/subcategory/delete/',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "study_subcategory_ids": targetList.join(","),
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

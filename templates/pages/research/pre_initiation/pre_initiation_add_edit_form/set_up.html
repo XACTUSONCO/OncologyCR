@@ -1,0 +1,29 @@
+{% load get_m2m_ids from research_tag %}
+{% load get_m2m_names from research_tag %}
+{% load chunks from research_tag %}
+
+<label for="set_up" class="col-lg-2 col-form-label">Set Up
+  {% autoescape off %}
+    {% if 'set_up' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.set_up }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-lg-10 col-form-data">
+  <div class="row row-cols-auto">
+    {% for chunk in contact_value_and_text.contact|chunks:3 %}
+        {% for value, text in chunk %}
+            <div class="col">
+                <div class="form-check form-check-success">
+                    <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" name="set_up" value="{{ text }}"
+                               {% if text in pre_initiation.set_up.all|get_m2m_names %} checked {% endif %}>
+                        <i class="input-helper"></i><span class="form-check-sign">{{ text }}</span>
+                    </label>
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+  </div>
+</div>

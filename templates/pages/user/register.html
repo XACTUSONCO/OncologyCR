@@ -1,0 +1,182 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+
+<head>
+
+	<meta charset="utf-8" />
+	<title>X-OncoTrack</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- <meta name="viewport" content="width=1024px"> -->
+	<meta content="임상시험 관리 시스템" name="description" />
+	<meta name="keywords" content="임상시험 관리 시스템">
+	<meta name="format-detection" content="telephone=no">
+	<meta content="임상시험 관리 시스템" property="og:description">
+	<meta name="author" content="임상시험 관리 시스템">
+
+	<!-- App favicon -->
+	<link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}">
+
+	<!-- Bootstrap Css -->
+	<link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+	<link href="{% static 'assets/css/bootstrap-icons.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Icons Css -->
+	<link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Layout  Css -->
+	<link href="{% static 'assets/css/layout.min.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Plugin  Css -->
+	<link href="{% static 'assets/css/plugins.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Style Css -->
+	<link href="{% static 'assets/css/style.css' %}" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+<!-- Begin page -->
+<div id="layout-wrapper">
+
+        <div class="authentication-bg min-vh-100">
+            <div class="container">
+                <div class="d-flex flex-column min-vh-100 px-3 py-4">
+                    <div class="row justify-content-center my-auto">
+                        <div class="col-xs-12 sign-box">
+							<div class="row align-items-center login-point-bg1">
+								<div class="col-lg-6 point-box d-lg-block d-sm-none d-none">
+									<div class="text-center">
+										<h1>
+											<span>Welcome to</span>
+											<strong><a href="/">X-OncoTrack</a></strong>
+										</h1>
+									</div>
+								</div>
+								<div class="col-lg-6 py-5 bg-white">
+									<div class="text-center px-5 signup-area">
+										<div class="mb-4">
+											<h2>Register Account</h2>
+											<p>Create your account.</p>
+										</div>
+
+										<!-- Tab panes -->
+										<div class="tab-content">
+											<div class="container">
+												<h4 class="visually-hidden">회원 가입 정보 입력</h4>
+                                                <form class="pt-1" method="post" action="/register/">
+                                                {% csrf_token %}
+													<div class="form-floating form-floating-custom mb-2">
+                                                        {% if 'username' in errors %}
+                                                          <div class="text-danger small">{{ errors.username }}</div>
+                                                        {% endif %}
+														<input type="text" class="form-control" name="username" value="{{ username }}" id="input-userid" placeholder="Enter User ID">
+														<label for="input-userid">User ID</label>
+														<div class="form-floating-icon">
+															<i class="uil uil-chat-bubble-user"></i>
+														</div>
+													</div>
+													<div class="form-floating form-floating-custom mb-2">
+                                                    	{% if 'job_title' in errors %}
+															<div class="text-danger small">{{ errors.job_title }}</div>
+														{% endif %}
+														<select class="form-select select-lg" name="job_title" title="그룹선택">
+															<option value="" disabled="" selected="">(그룹선택)</option>
+															<option value="doctor" {% if 'doctor' == job_title %} selected {% endif %}>의사</option>
+															<option value="nurse" {% if 'nurse' == job_title %} selected {% endif %}>간호사</option>
+															<option value="etc" {% if 'etc' == job_title %} selected {% endif %}>기타</option>
+															<option value="technician" {% if 'technician' == job_title %} selected {% endif %}>Technician</option>
+															<option value="QC" {% if 'QC' == job_title %} selected {% endif %}>QC</option>
+															<option value="secretary" {% if 'secretary' == job_title %} selected {% endif %}>Secretary</option>
+															<option value="medical records" {% if 'medical records' == job_title %} selected {% endif %}>의무기록사</option>
+															<option value="SETUP" {% if 'SETUP' == job_title %} selected {% endif %}>Setup</option>
+														</select>
+													</div>
+													<div class="form-floating form-floating-custom mb-2">
+														<div class="form-floating form-floating-custom">
+															{% if 'fullname' in errors %}
+																<div class="text-danger small">{{ errors.fullname }}</div>
+															{% endif %}
+															<input type="text" class="form-control" name="fullname" value="{{ fullname }}" id="input-username" placeholder="Enter User Name">
+															<label for="input-username">User Name</label>
+															<div class="form-floating-icon">
+																<i class="uil uil-users-alt"></i>
+															</div>
+														</div>
+													</div>
+													<p class="f_ss text-start mb-1">※ 의료원 메일이 없는 경우, 빈칸으로 두시면 됩니다.</p>
+													<div class="form-floating form-floating-custom mb-2">
+                                                        {% if 'email' in errors %}
+                                                          <div class="text-danger small">{{ errors.email }}</div>
+                                                        {% endif %}
+														<input type="email" class="form-control" name="email" value="{{ email }}" id="input-email" placeholder="Enter Email">
+														<label for="input-email">Email</label>
+														<div class="form-floating-icon">
+															<i class="uil uil-envelope-alt"></i>
+														</div>
+													</div>
+													<p class="f_ss text-start mb-1">※ 영문자+숫자+특수문자 조합으로 8자리 이상이어야 합니다.</p>
+													<div class="form-floating form-floating-custom mb-2">
+                                                        {% if 'password' in errors %}
+                                                          <div class="text-danger small">{{ errors.password }}</div>
+                                                        {% endif %}
+														<input type="password" class="form-control" name="password" value="{{ password }}" id="input-password" placeholder="Enter Password">
+														<label for="input-password">Password</label>
+														<div class="form-floating-icon">
+															<i class="uil uil-padlock"></i>
+														</div>
+													</div>
+													<div class="form-floating form-floating-custom mb-2">
+                                                        {% if 'password_again' in errors %}
+                                                          <div class="text-danger small">{{ errors.password_again }}</div>
+                                                        {% endif %}
+														<input type="password" class="form-control" name="password_again" value="{{ password_again }}" id="input-password-confirmed" placeholder="Enter Confirmed Password">
+														<label for="input-password-confirmed">Confirmed Password</label>
+														<div class="form-floating-icon">
+															<i class="uil uil-padlock"></i>
+														</div>
+													</div>
+													<div class="form-check form-check-success font-size-16">
+                                                        {% if 'term_agree' in errors %}
+                                                            <div class="text-danger small">{{ errors.term_agree }}</div>
+                                                        {% endif %}
+														<label class="form-check-label" for="term-agree">
+															<input type="checkbox" class="form-check-input" name="term-agree" id="term-agree"> I agree to all Terms & Conditions <i class="input-helper"></i>
+														</label>
+													</div>
+
+													<div class="mt-3">
+														<button class="btn btn-success w-100" type="submit">Sign up</button>
+													</div>
+												</form><!-- end form -->
+
+												<div class="mt-3 text-center text-muted">
+													<p>Already have an account? <a href="/login/" class="fw-medium text-decoration-underline"> Sign in </a></p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>
+<!-- END layout-wrapper -->
+
+<!-- JAVASCRIPT -->
+<script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+
+<!-- overlayScrollbars -->
+<script src="{% static 'assets/libs/jquery.overlayScrollbars.js' %}"></script>
+
+<!-- 커스텀 js -->
+<script src="{% static 'assets/js/active.js' %}"></script>
+
+</body>
+</html>

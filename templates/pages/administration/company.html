@@ -1,0 +1,230 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>회사 정보</h2>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+									<li class="breadcrumb-item"><a href="/administration/company/">회사정보</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+                
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 admin-tables">
+						
+						<div class="row row-cols-auto select-action">
+							<div class="col ms-auto">
+								<button id="row-delete-button" type="button" class="btn btn-danger edit-btn px-4" onClick="handleClickDeleteSelection()" style="display: none">
+									<i class="bi bi-trash"></i> <span>DELETE</span>
+								</button>
+								<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAdd()">
+									<i class="bi bi-plus-square"></i> <span>Add</span>
+								</button>
+							</div>
+						</div>
+
+						<div class="table-responsive">
+							<table class="table table-bordered custom-table" id="company-table">
+								<thead>
+                                    <tr>
+                                        <th scope="col">삭제</th>
+                                        <th scope="col" style="display: none;">#</th>
+                                        <th scope="col">구분</th>
+                                        <th scope="col">회사명 (Kor)</th>
+                                        <th scope="col">회사명 (Eng)</th>
+                                        <th scope="col">국내/외</th>
+                                        <th scope="col"></th>
+                                    </tr>
+								</thead>
+								<tbody>
+                                {% for company in companies %}
+                                    <tr>
+                                        <td style="cursor: pointer"></td>
+                                        <td scope="row" style="display: none;">{{ company.id }}</td>
+                                        <td>{{ company.type }}</td>
+                                        <td>{{ company.name_kor }}</td>
+                                        <td>{{ company.name_eng }}</td>
+                                        <td>{{ company.foreign_type }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                    onClick="handleClickEdit('{{ company.type }}', '{{ company.name_kor }}', '{{ company.name_eng }}', '{{ company.foreign_type }}', '{{ company.id }}')">
+                                                수정
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+							</table>
+						</div><!-- //table-responsive -->
+                        
+                        {# 추가/수정 모달 #}
+                        <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form method="post"
+                                          action="/administration/company/"
+                                          enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="company-id" type="hidden" name="company_id"/>
+                                        <input id="is-update" type="hidden" name="is_update"/>
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addModalLabel">회사 추가</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3 row">
+                                                <label for="type" class="col-sm-2 col-form-label">구분</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="type" name="type" maxlength="50" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="name_eng" class="col-sm-2 col-form-label">회사명 (Eng)</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="name_eng" name="name_eng" maxlength="100"
+                                                           required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="name_kor" class="col-sm-2 col-form-label">회사명 (Kor)</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="name_kor" name="name_kor" maxlength="100"
+                                                           required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="foreign_type" class="col-sm-2 col-form-label">국내/외</label>
+                                                <div class="col-sm-10">
+                                                    <select class="form-control" id="foreign_type" name="foreign_type" required>
+                                                        <option value="국내">국내</option>
+                                                        <option value="국외">국외</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+												<i class="bi bi-pencil"></i> <span>Save</span>
+											</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<script>
+        $(document).ready(function () {
+            const table = $('#company-table').DataTable({
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    },
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+                select: {
+                    style: 'multiple',
+                    selector: 'td:first-child'
+                },
+                "order": [[1, "desc"]],
+            })
+
+            $('#company-table').data('selectedIds', []);
+
+            table.on('select', function (e, dt, type, indexes) {
+                const companyId = table.rows(indexes).data().toArray()[0][1];
+                $('#company-table').data('selectedIds', [...$('#company-table').data('selectedIds'), companyId]);
+                if ($('#company-table').data('selectedIds').length === 1) {
+                    $('#row-delete-button').show();
+                }
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                const companyId = table.rows(indexes).data().toArray()[0][1];
+                const tmp = $('#company-table').data('selectedIds').filter(a => a !== companyId)
+                $('#company-table').data('selectedIds', tmp);
+                if (tmp.length === 0) {
+                    $('#row-delete-button').hide();
+                }
+            });
+
+            $('.dataTables_length').addClass('bs-select');
+
+            $("#company-table_wrapper").css("width", "100%")
+
+            $('#addModal').on('hide.bs.modal', () => {
+                $('#is-update').val('');
+                $('#company-id').val('');
+                $('#type').val('');
+                $('#name_kor').val('');
+                $('#name_eng').val('');
+                $('#foreign_type').val('');
+            })
+        });
+
+        function handleClickAdd() {
+            $('#addModalLabel').text('회사 추가');
+            $('#is-update').val(false);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(type, name_kor, name_eng, foreign_type, companyId) {
+            $('#addModalLabel').text('회사 수정');
+            $('#type').val(type);
+            $('#name_kor').val(name_kor);
+            $('#name_eng').val(name_eng);
+            $('#foreign_type').val(foreign_type);
+            $('#is-update').val('true');
+            $('#company-id').val(companyId);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteSelection() {
+            const targetList = $('#company-table').data('selectedIds');
+            if (confirm(`${targetList.length}개의 데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/administration/company/delete/',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "company_ids": targetList.join(","),
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

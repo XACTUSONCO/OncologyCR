@@ -1,0 +1,96 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load subtract from research_tag %}
+{% load cal_career from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="card maindata-card shadow mb-5">
+							<div class="card-body">
+								<div class="default-forms">
+									{% for leave in leave %}
+									<div class="form-group row">
+									  <label class="col-lg-2 col-form-label">Name</label>
+									  <div class="col-lg-10 col-form-data">
+										<input type="text" class="form-control" name="name" value="{{ leave.name }}" disabled="disabled">
+									  </div>
+									</div>
+									<div class="form-group row">
+									  <label class="col-lg-2 col-form-label">Leave Date</label>
+									  <div class="col-lg-10 col-form-data">
+									    <input name="from_date" class="form-control"
+											   value="{{ leave.from_date|date:"Y-m-d" }} ({% if leave.kind == 'Annual' %} 연차 {% elif leave.kind == 'morning_Half' %} 반차 -오전 {% elif leave.kind == 'afternoon_Half' %} 반차 - 오후 {% elif leave.kind == 'Monthly' %} 월차 {% elif leave.kind == 'official' %} 공가 및 특별휴가 {% elif leave.kind == 'carry_over' %} 이월 (1일) {% elif leave.kind == 'carry_over_Half' %} 이월 (반차) {% endif %})" disabled="disabled">
+									  </div>	  
+									</div>
+
+									<div class="form-group row">
+									  <label class="col-lg-2 col-form-label">Backup</label>
+									  <div class="col-lg-10 col-form-data">
+										  <table class="table table-bordered">
+											<thead>
+											  <tr class="text-center">
+												<th>연구명</th>
+												<th>백업 1</th>
+												<th>백업 2</th>
+											  </tr>
+											</thead>
+
+											<tbody>
+											{% for research in research %}
+											  {% for crc in research.crc.all %}
+												{% if crc.id == leave.user__contact__id %}
+												  <tr class="text-center">
+													<td>{{ research.research_name }}</td>
+													<td>{{ research.first_backup }} ({{research.first_backup.phone}}, {{research.first_backup.work_phone}})</td>
+													<td>{{ research.second_backup }} ({{research.second_backup.phone}}, {{research.second_backup.work_phone}})</td>
+												  </tr>
+												{% endif %}
+											  {% endfor %}
+											{% endfor %}
+											</tbody>
+										  </table>
+										</div>
+									</div>
+
+									<div class="form-group row">
+									  <label class="col-lg-2 col-form-label">Memo</label>
+									  <div class="col-lg-10 col-form-data">
+										<input name="memo" class="form-control" value="{{ leave.memo }}" disabled="disabled"></input>
+									  </div>
+									</div>
+								    {% endfor %}
+								</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<link href="{% static 'css/fullcalendar/fullcalendar_3.4.0.css' %}" rel="stylesheet">
+<script>
+$(function () {
+            $('#leave-remove-button').click(function (e) {
+                let leaveID = $(this).attr('leave-id');
+                let deleteLeave = confirm("정말 삭제하시겠습니까?");
+                if (deleteLeave) {
+                    window.location.href = '/leave/delete/' + leaveID + '/';
+                }
+            });
+
+            $( ".datepicker" ).datepicker({
+                todayHighlight : true,
+                format: "yyyy-mm-dd",
+                startDate: '+7d',
+            });
+        });
+</script>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% load get_o2m_values from research_tag %}
+
+<div class="form-group row {% if 'vendor' in errors %} card-inverse-danger {% endif %}">
+  <label for="vendor" class="col-sm-3 col-form-label">Vendor
+    {% autoescape off %}
+      {% if 'vendor' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.vendor }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+        {% for value, text in field_choice.vendor %}
+          <div class="col">
+            <div class="form-check form-check-success">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="vendor" value="{{ value }}"
+                       {% if value in QC.vendor|get_o2m_values %}
+                         checked {% endif %}
+                       {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span class="form-check-sign">{{ text }}</span>
+              </label>
+            </div>
+          </div>
+        {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'research' in errors %} card-inverse-danger {% endif %}">
+  <label for="research" class="col-sm-3 col-form-label">Study Name
+    {% autoescape off %}
+      {% if 'research' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.research }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <select id="research" name="research" class="form-select">
+        <option value="">-------</option>
+          {% for research in research %}
+          <option value="{{research.id}}" {% if research.id == QC.research.id %} selected {% endif %}>{{research.research_name}}</option>
+          {% endfor %}
+      </select>
+  </div>
+</div>
+
+<div class="form-group row {% if 'crc' in errors %} card-inverse-danger {% endif %}">
+  <label for="crc" class="col-sm-3 col-form-label">CRC
+    {% autoescape off %}
+      {% if 'crc' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.crc }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <select id="crc" name="crc" class="form-select">
+        <option value="">-------</option>
+          {% for crc in crc %}
+          <option value="{{crc.id}}" {% if crc.id == QC.crc.id %} selected {% endif %}>{{crc}}</option>
+          {% endfor %}
+      </select>
+  </div>
+</div>
+
+<div class="form-group row {% if 'QC_category' in errors %} card-inverse-danger {% endif %}">
+  <label for="QC_category" class="col-sm-3 col-form-label">Query - Category
+    {% autoescape off %}
+      {% if 'QC_category' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.QC_category }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+
+  <div class="col-lg-9 col-form-data">
+    <div class="row row-cols-auto">
+      {% for value, text in field_choice.qc_category %}
+        <div class="col">
+          <div class="form-check form-check-success">
+            <label class="form-check-label">
+              <input type="radio" class="form-check-input" name="QC_category" value="{{ value }}"
+                     {% if value in QC.QC_category|get_o2m_values %}
+                       checked {% endif %}
+                     {% if not editable %} disabled {% endif %}>
+              <i class="input-helper"></i><span class="form-check-sign">{{ text }}</span>
+            </label>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'QC_count' in errors %} card-inverse-danger {% endif %}">
+  <label for="QC_count" class="col-sm-3 col-form-label">Query - Count
+    {% autoescape off %}
+      {% if 'QC_count' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.QC_count }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="QC_count" id="QC_count"
+             value="{% if QC.QC_count %}{{ QC.QC_count }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'start' in errors %} card-inverse-danger {% endif %}">
+  <label for="start" class="col-sm-3 col-form-label">기준일 (yyyy-mm)
+    {% autoescape off %}
+      {% if 'start' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.start }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <input type="text" autocomplete="off" class="form-control datepicker" placeholder="시작일" name="start" id="start_full"
+               data-calendar="false" value="{% if QC.start %}{{ QC.start|date:'Y-m-d' }}{% endif %}" >
+      </div>
+      <div class="col">~</div>
+      <div class="col">
+        <input type="text" autocomplete="off" class="form-control datepicker" placeholder="종료일" name="end" id="end_full"
+               data-calendar="false" value="{% if QC.end %}{{ QC.end|date:'Y-m-d' }}{% endif %}" >
+      </div>
+    </div>
+  </div>
+</div>

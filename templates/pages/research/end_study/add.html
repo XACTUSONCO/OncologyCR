@@ -1,0 +1,79 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>종료 보고 이후 연구 등록</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Studies</li>
+									<li class="breadcrumb-item"><a href="/research/end_study/">종료 보고 이후 연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<div class="card maindata-card shadow mb-5">
+							<div class="card-body">
+								<div class="default-forms">
+							      <form class="forms-sample" method="post" action="/research/end_study/add/" enctype="multipart/form-data">
+								    {% csrf_token %}
+								    {% include 'pages/research/end_study/add_edit_form.html' %}
+
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Image of Binder Location</label>
+										<div class="col-lg-10 col-form-data file_cons">
+											<div class="filebox bs3-primary">
+												<input type="file" name="image[]" id="image" class="upload-hidden" multiple>
+												<input type="text" class="upload-name" value="파일선택" disabled="disabled" title="파일선택" >
+												<label for="image" class="btn"><i class="bi bi-folder2"></i> 찾아보기</label>
+												<div class="file-list pl-2 pt-2 mb-3"></div>
+											</div>
+										</div>
+									</div>
+									<div class="py-4 px-3 text-end">
+										<button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                                          <i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+                                        </button>
+										<button type="submit" class="btn btn-success edit-btn px-4">
+                                          <i class="bi bi-pencil"></i> <span>Save</span>
+                                        </button>
+									</div>
+							      </form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- 커스텀 js -->
+<script src="{% static 'js/CRUD/waitinglist_add.js' %}"></script>
+<script src="{% static 'js/CRUD/file-upload.js' %}"></script>
+<script>
+      $(function() {
+        $( ".storagedate, .endbrief, .resultbrief" ).datepicker({
+            todayHighlight : true
+        });
+      });
+</script>
+{% endblock %}

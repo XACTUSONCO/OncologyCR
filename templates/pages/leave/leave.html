@@ -1,0 +1,360 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load subtract from research_tag %}
+{% load cal_career from research_tag %}
+{% load add_floats from research_tag %}
+{% load subtract_floats from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>휴가</h2>
+
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Staff</li>
+									<li class="breadcrumb-item">휴가</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<ul id="submenu-tab">
+								<li><a href="/leave/calendar/"><i></i> 월별</a></li>
+								{% if user.is_superuser == 1 %}
+								<li><a href="/leave/total_usage/"><i></i> 휴가 사용 현황</a></li>
+								{% endif %}
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="row row-cols-auto header-btns mb-4">
+							<div class="col">
+								<p class="text-danger">※ 의무기록사, 임상병리사, 연구행정, 반차 제외 하루 최대 11명 등록 가능합니다.</p>
+								<div class="cal-index-area">
+									<span class="index lilac">월차</span>
+									<span class="index sky">연차 (휴가, 병가 등)</span>
+									<span class="index pea-green">반차</span>
+									<span class="index pastel-pink">공가 및 특별휴가 </span>
+									<span class="index gray">이월 </span>
+								</div>
+							</div>
+							<div class="col ms-auto">
+								<button type="button" class="btn edit-btn px-4" data-bs-toggle="modal" data-bs-target="#leave_manual">
+									<i class="bi bi-book"></i> <span>Manual</span>
+								</button>
+								<button type="button" class="btn edit-btn px-4" data-bs-toggle="modal" data-bs-target="#usage_detail">
+									<i class="bi bi-calendar2-week"></i> <span>사용 현황</span>
+								</button>
+							</div>
+						</div>
+
+						<div id='calendar-container'>
+							<div id='calendar'></div>
+						</div><!-- //calendar-container -->
+
+
+						<!-- Maual -->
+						<div id="leave_manual" class="modal fade" role="dialog">
+							<div class="modal-dialog modal-dialog-centered modal-lg">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">종양내과 A팀 휴가운영원칙</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<div class="modal-body">
+										<ul>
+											<li class="mb-1"><a href="/media/protocol_ko/leave_manual.docx" style="color:red;">휴가운영원칙 파일 다운로드 (클릭)</a></li>
+											<li class="mb-4">부재 신청 건은 부재 날짜까지 수정/삭제 가능 (단, 당일 기준 7일 이후 날짜로만 변경 가능)</li>
+										</ul>
+
+										<h5 class="tables-title mb-3">1년 차 미만 연차/월차 개수</h5>
+										<div class="point-tablebox type2">
+											<table class="table custom-table">
+												<thead>
+												   <tr>
+													 <th>구분</th>
+													 <th>월차</th>
+													 <th>연차</th>
+												   </tr>
+												 </thead>
+												 <tbody>
+												   <tr class="text-center">
+													 <th>전년도 12월 1일 이전 입사자</th>
+													 <td>한 달 만근 시 매달 1개 발생</td>
+													 <td rowspan="2">
+													   <div class="mb-1">분기별 1개 발생</div>
+													   <div class="mb-1"> - 1~2개월: +1</div>
+													   <div class="mb-1">- 3~5개월: +1</div>
+													   <div class="mb-1">- 6~8개월: +1</div>
+													   <div>- 9~11개월: +1</div>
+													 </td>
+												   </tr>
+												   <tr>
+													 <th>전년도 12월 1일 이후 입사자 및 당해 연도 입사자</th>
+													 <td>입사일 기준 1개월 만근 시 매달 1개 발생</td>
+												   </tr>
+											   </tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div><!-- //leave_manual -->
+
+						<!-- 사용 현황 -->
+						<div id="usage_detail" class="modal fade" role="dialog">
+							<div class="modal-dialog modal-dialog-centered modal-lg">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">사용 현황 - {{ user.first_name }}</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<div class="modal-body">
+										<p class="preFontR f_ss2 mb-3">※ 근무 기간 1년 미만의 경우, 사용 가능한 연/월차 개수는 Calendar 탭의 상단 오른쪽 - Manual 버튼 클릭하여 확인 부탁드립니다.</p>
+
+										<div class="table-responsive">
+											<div class="point-tablebox type2">
+												<table class="table custom-table">
+													<thead>
+													  <tr>
+														<th>월차 (일)</th>
+														<th>연차 (일)</th>
+														<th>이월 (일)</th>
+														<th>휴가일수 (일)</th>
+													  </tr>
+													</thead>
+													<tbody>
+													  <tr>
+														<td>{{ fixed_monthly }}</td>
+														<td>{{ fixed_annual }}</td>
+													        <td>{% if last_year_leave %}{{ last_year_leave.0.carry_over }}{% else %}{% endif %}</td>
+														<td>{% if last_year_leave %}{{ fixed_monthly|add:fixed_annual|add_floats:last_year_leave.0.carry_over }}{% else %}{{ fixed_monthly|add:fixed_annual }}{% endif %}</td>
+													  </tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<!-- 다중선택되는 select박스로 검색하기 -->
+										<div class="row row-cols-auto select-action">
+											<div class="col">
+												<select id="table-filter" class="form-select">
+													<option value="">분류 전체</option>
+													<option value="연차 (1.0)">연차 (1.0)</option>
+													<option value="월차 (1.0)">월차 (1.0)</option>
+													<option value="반차 - 오전 (0.5)">반차 - 오전 (0.5)</option>
+													<option value="반차 - 오후 (0.5)">반차 - 오후 (0.5)</option>
+													<option value="이월 - 1일 (1.0)">이월 - 1일 (1.0)</option>
+													<option value="이월 - 0.5일 (0.5)">이월 - 반차 (0.5)</option>
+													<option value="공가 및 특별휴가">공가 및 특별휴가</option>
+												</select>
+											</div>
+										</div>
+
+										<div class="table-responsive">
+											<div class="point-tablebox type2">
+												<table class="table custom-table" id="usage-detail-table">
+												  <thead>
+													  <tr>
+														<th>No.</th>
+														<th>Date</th>
+														<th>분류</th>
+													  </tr>
+												  </thead>
+												  <tbody>
+                                                    {% for user_leave in user_leave %}
+                                                      <tr>
+                                                          <td>{{ forloop.counter }}</td>
+                                                          <td>{{ user_leave.from_date|date:"Y-m-d" }}</td>
+                                                          <td>{% if user_leave.kind == 'Monthly' %}
+								  월차 (1.0)
+															  {% elif user_leave.kind == 'morning_Half' %}
+															    반차 - 오전 (0.5)
+															  {% elif user_leave.kind == 'afternoon_Half' %}
+															    반차 - 오후 (0.5)
+															  {% elif user_leave.kind == 'carry_over' %}
+															    이월 - 1일 (1.0)
+															  {% elif user_leave.kind == 'carry_over_Half' %}
+															    이월 - 반차 (0.5)  
+															  {% elif user_leave.kind == 'official' %}
+															    공가 및 특별휴가
+															  {% else %}
+															    연차 (1.0)
+															  {% endif %}
+														  </td>
+                                                      </tr>
+                                                    {% endfor %}
+												  </tbody>
+												</table>
+											</div>
+										</div>
+
+										<div class="table-responsive">
+											<div class="point-tablebox type2">
+												<table class="table custom-table">
+												  <thead>
+													  <tr>
+														<th colspan="3">사용 가능 일수</th>
+													  </tr>
+												  </thead>
+												  <tbody>
+													  <tr>
+														  <td colspan="3">
+                                                              {% if cal_career %}
+                                                                {% if cal_career.0 == 0 and cal_career.1 == 0 %}
+                                                                    0
+                                                                {% else %}
+								    {% if last_year_leave %}
+                                                                  	{{ fixed_annual_monthly_available.0|add_floats:last_year_leave.0.carry_over|subtract:usage_count.0|subtract_floats:carry_over_usage_count.0 }} (일)
+															      {% else %}
+															        {{ fixed_annual_monthly_available.0|subtract:usage_count.0|subtract_floats:carry_over_usage_count.0 }} (일)
+															      {% endif %}
+								{% endif %}
+                                                              {% endif %}
+                                                          </td>
+													  </tr>
+												  </tbody>
+												</table>
+											</div>
+									  </div>
+
+									</div>
+								</div>
+							</div>
+						</div><!-- //leave_manual -->
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/staff2.js' %}"></script>
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+	var calendarEl = document.getElementById('calendar');
+	var calendar = new FullCalendar.Calendar(calendarEl, {
+		initialView: "dayGridMonth",
+		locale: 'ko', // 한국어 설정
+        events: {
+			url: '/leave/all_events'
+        },
+		height: 'auto',
+		expandRows: true,
+		eventColor: '#787dec',//월차
+		eventClick: function (info) {
+                    var eventID = info.event.id;
+                    var kind = info.event.extendedProps.kind;
+                    var user_id = info.event.extendedProps.user_id;
+                    var curr_user_id = info.event.extendedProps.curr_user_id;
+                    var from_date = info.event.extendedProps.from_date;
+                    var today = new Date().getFullYear()+'-'+("0"+(new Date().getMonth()+1)).slice(-2)+'-'+("0"+new Date().getDate()).slice(-2);
+                    if (user_id == curr_user_id && from_date >= today && (kind == 'Annual' || kind == 'morning_Half' || kind == 'afternoon_Half' || kind == 'Monthly' || kind == 'official' || kind == 'carry_over' || kind == 'carry_over_Half')) {
+                        window.location.href = '/leave/edit/' + eventID + '/?from_date=' + from_date;
+                    }
+                    else if (user_id != curr_user_id && (kind == 'Annual' || kind == 'morning_Half' || kind == 'afternoon_Half' || kind == 'Monthly' || kind == 'official' || kind == 'carry_over' || kind == 'carry_over_Half')) {
+                        window.location.href = '/leave/detail/' + eventID + '/';
+                    }
+                    else if (from_date < today && user_id == curr_user_id && (kind == 'Annual' || kind == 'morning_Half' || kind == 'afternoon_Half' || kind == 'Monthly' || kind == 'official' || kind == 'carry_over' || kind == 'carry_over_Half')) {
+                        window.location.href = '/leave/detail/' + eventID + '/';
+                    }
+        },
+		{% if job_title == 'doctor' or job_title == 'transfer' or job_title == 'secretary' or fixed_annual == None %}
+        dateClick: function (info) {
+                    var from_date_int = info.date;
+                    var current_calendar_year = info.date.getFullYear();
+                    var current_calendar_month = String(info.date.getMonth() + 1).padStart(2, '0');
+		    		var current_calendar = String(info.date.getDate()).padStart(2, '0');
+                    var from_date = current_calendar_year + '-' + current_calendar_month + '-' + current_calendar;
+                    var today_date = new Date().setDate(new Date().getDate() + 6);
+                    if (today_date > from_date_int) {
+                        alert('해당 날짜에 추가할 수 없습니다.');
+                    }
+                    else {
+                        window.location.href = '/leave/add_event/?from_date=' + from_date
+                    }
+                },
+        {% else %}
+        dateClick: function (info) {
+                    var from_date_int = info.date;
+                    var today_date = new Date().setDate(new Date().getDate() + 6);
+                    var current_calendar_year = info.date.getFullYear();
+                    var current_calendar_month = String(info.date.getMonth() + 1).padStart(2, '0');
+		    		var current_calendar = String(info.date.getDate()).padStart(2, '0');
+                    var from_date = current_calendar_year + '-' + current_calendar_month + '-' + current_calendar;
+		    		{% if limit %}
+		    			var limit = {{ limit|safe }};
+		    		{% else %}
+		    			var limit = undefined;
+		    		{% endif %}
+		    		if (today_date > from_date_int) {
+                        alert('해당 날짜에 추가할 수 없습니다.');
+                    }
+                    else if ({{cal_career.0}} == 0 && {{cal_career.1}} == 0) {
+                        alert('1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 사용이 불가합니다.');
+                    }
+		    else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && {{this_month_count.0}} >= 4.0 && current_calendar_month == {{this_month}}) {
+                        alert('한달 내에 사용할 수 있는 휴가는 최대 4일입니다.\n{{this_month}}월 추가 등록은 불가합니다.');
+                    }
+                    else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && new Date('{{career_str}}') < new Date('{{december_str}}') && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+                        alert('사용 가능한 휴가 일수를 모두 사용하였습니다.\n1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 {{user.first_name}}님의 사용 가능한 휴가 일수는 총 {{fixed_annual_monthly_available.0}}일 (연차: {{fixed_annual}}일 포함) 입니다.');
+                    }
+                    else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && new Date('{{career_str}}') >= new Date('{{december_str}}') && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+                        alert('사용 가능한 휴가 일수를 모두 사용하였습니다.\n1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 {{user.first_name}}님의 사용 가능한 휴가 일수는 총 {{fixed_annual_monthly_available.0}}일 (연차: {{fixed_annual}}일 포함) 입니다.');
+                    }
+		    else if ({{cal_career.0}} != 0 && {{this_month_count.0}} >= 4.0 && current_calendar_month == {{this_month}}) {
+                        alert('한달 내에 사용할 수 있는 휴가는 최대 4일입니다.\n{{this_month}}월 추가 등록은 불가합니다.');
+                    }
+                    else if ((({{cal_career.0}} != 0 && {{cal_career.1}} == 0) | ({{cal_career.0}} != 0 && {{cal_career.1}} != 0)) && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+                        alert('사용 가능한 휴가 일수를 모두 사용하였습니다.');
+                    }
+                    else if ({{days_remaining.0}} == 0.5) {
+                        alert('사용 가능한 휴가 일수는 0.5일로, 오전/오후 반차만 사용 가능합니다.');
+		       			window.location = '/leave/add_event/?from_date=' + from_date
+                    } 
+		    else if ({{this_month_count.0}} == 3.5) {
+                        alert('한달 내에 사용할 수 있는 휴가는 최대 4일로, 사용 가능한 휴가 일수는 0.5일입니다. 오전/오후 반차만 사용 가능합니다.');
+                        window.location = '/leave/add_event/?from_date=' + from_date
+		    }
+		    else if (limit !== undefined && limit.includes(from_date)) {
+                        alert('최대 등록 가능 인원을 초과하여 등록이 불가합니다. 책임 교수님과 이윤정 선생님께 메일 부탁드립니다.\n*임상병리사/의무기록사/연구행정 및 반차 신청은 이윤정 선생님께 메일');
+                    }
+	            else {
+                        window.location.href = '/leave/add_event/?from_date=' + from_date
+                    }
+                },
+        {% endif %}
+	  });
+	calendar.render();
+});
+</script>
+<style>
+	.fc-event-title {
+		font-size: 13px;
+		color: black;
+	}
+
+</style>
+{% endblock %}

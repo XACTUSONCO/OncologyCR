@@ -1,0 +1,273 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Cancer Image Set-up</h2>
+
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+									<li class="breadcrumb-item">Cancer Image Set-up</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                <!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<ul id="submenu-tab">
+								<li><a href="/administration/cancer_image_set_up/"><i></i> Page</a></li>
+								<li><a href="/administration/cancer_image_set_up/images/"><i></i> Images</a></li>
+								<li><a href="/administration/cancer_image_set_up/image_links/"><i></i> Image Links</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 education-datas">
+
+						<div class="row row-cols-auto select-action">
+							<div class="col ms-auto">
+								<button id="row-delete-button" type="button" class="btn btn-danger edit-btn px-4" onClick="handleClickDeleteSelection()" style="display: none">
+									<i class="bi bi-trash"></i> <span>DELETE</span>
+								</button>
+								<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAdd()">
+									<i class="bi bi-plus-square"></i> <span>Add</span>
+								</button>
+							</div>
+						</div>
+
+                        <div class="table-responsive">
+							<table class="table table-bordered custom-table" id="imagelink-table">
+								<thead>
+                                    <tr>
+                                        <th scope="col">삭제</th>
+                                        <th scope="col" style="display: none;">#</th>
+                                        <th scope="col">Research</th>
+                                        <th scope="col">Clinical trial</th>
+                                        <th scope="col">Cancer</th>
+                                        <th scope="col">Slide Number</th>
+                                        <th scope="col">Link top</th>
+                                        <th scope="col">Link left</th>
+                                        <th scope="col">Link right</th>
+                                        <th scope="col">Link bottom</th>
+                                        <th scope="col"></th>
+                                    </tr>
+								</thead>
+								<tbody>
+								  {% for imagelink in image_links %}
+                                      <tr>
+                                          <td style="cursor: pointer"></td>
+                                          <th scope="row" style="display: none;">{{ imagelink.id|default_if_none:"" }}</th>
+                                          <td>{{ imagelink.clinical_trial.research.research_name|default_if_none:"" }}</td>
+                                          <td>{{ imagelink.clinical_trial.m_name|default_if_none:"" }}</td>
+                                          <td>{{ imagelink.clinical_trial.cancer|default_if_none:"" }}</td>
+                                          <td>{{ imagelink.clinical_trial.slide_number|default_if_none:"" }}</td>
+                                          <td>{{ imagelink.link_top|default_if_none:"" }}</td>
+                                          <td>{{ imagelink.link_left|default_if_none:"" }}</td>
+                                          <td>{{ imagelink.link_right|default_if_none:"" }}</td>
+                                          <td>{{ imagelink.link_bottom|default_if_none:"" }}</td>
+                                          <td>
+                                              <button type="button" class="btn btn-outline-secondary"
+                                                      onClick="handleClickEdit('{{ imagelink.clinical_trial.id }}', '{{ imagelink.link_top }}', '{{ imagelink.link_left }}', '{{ imagelink.link_right }}', '{{ imagelink.link_bottom }}', '{{ imagelink.id }}')">
+                                                    수정
+                                              </button>
+                                          </td>
+                                      </tr>
+                                  {% endfor %}
+								</tbody>
+							</table>
+						</div><!-- //table-responsive -->
+
+                        {# 추가/수정 모달 #}
+                        <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addModalLabel">Image Link 추가</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post" action="/administration/cancer_image_set_up/image_links/" enctype="multipart/form-data" onsubmit="return validateForm();">
+                                        {% csrf_token %}
+                                        <input id="imagelink-id" type="hidden" name="imagelink_id"/>
+                                        <input id="is-update" type="hidden" name="is_update"/>
+                                        <div class="modal-body">
+                                            <div class="form-group row">
+                                                <label for="clinical_trial" class="col-sm-3 col-form-label">Clinical trial</label>
+                                                <div class="col-sm-9">
+                                                    <select class="form-control" id="clinical_trial" name="clinical_trial" required>
+                                                        {% for image in images %}
+                                                            <option value="{{ image.id }}">{{ image.m_name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="link-top" class="col-sm-3 col-form-label">Link Top</label>
+                                                <div class="col-sm-9">
+                                                    <input type="number" class="form-control" id="link-top" name="link_top" min="0">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="link-left" class="col-sm-3 col-form-label">Link Left</label>
+                                                <div class="col-sm-9">
+                                                    <input type="number" class="form-control" id="link-left" name="link_left" min="0">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="link-right" class="col-sm-3 col-form-label">Link Right</label>
+                                                <div class="col-sm-9">
+                                                    <input type="number" class="form-control" id="link-right" name="link_right" min="0">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="link-bottom" class="col-sm-3 col-form-label">Link Bottom</label>
+                                                <div class="col-sm-9">
+                                                    <input type="number" class="form-control" id="link-bottom" name="link_bottom" min="0">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                                <i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+                                            </button>
+                                            <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+                                                <i class="bi bi-pencil"></i> <span>Save</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<script>
+        $(document).ready(function () {
+            const table = $('#imagelink-table').DataTable({
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    },
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+                select: {
+                    style: 'multiple',
+                    selector: 'td:first-child'
+                },
+                "order": [[1, "desc"]],
+            })
+
+            $('#imagelink-table').data('selectedIds', []);
+
+            table.on('select', function (e, dt, type, indexes) {
+                const imagelinkId = table.rows(indexes).data().toArray()[0][1];
+                $('#imagelink-table').data('selectedIds', [...$('#imagelink-table').data('selectedIds'), imagelinkId]);
+                if ($('#imagelink-table').data('selectedIds').length === 1) {
+                    $('#row-delete-button').show();
+                }
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                const imagelinkId = table.rows(indexes).data().toArray()[0][1];
+                const tmp = $('#imagelink-table').data('selectedIds').filter(a => a !== imagelinkId)
+                $('#imagelink-table').data('selectedIds', tmp);
+                if (tmp.length === 0) {
+                    $('#row-delete-button').hide();
+                }
+            });
+
+            $('.dataTables_length').addClass('bs-select');
+
+            $("#imagelink-table_wrapper").css("width", "100%")
+
+            $('#addModal').on('hide.bs.modal', () => {
+                $('#is-update').val('');
+                $('#imagelink-id').val('');
+                $('#clinical_trial option:first-child').prop('selected', true);
+                $('#link-top').val('');
+                $('#link-left').val('');
+                $('#link-right').val('');
+                $('#link-bottom').val('');
+            })
+        });
+
+        function handleClickAdd() {
+            $('#addModalLabel').text('Image Link 추가');
+            $('#is-update').val(false);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(clinicalTrialId, linkTop, linkLeft, linkRight, linkBottom, imagelinkId) {
+            $('#addModalLabel').text('Image Link 수정');
+            $(`#clinical_trial option[value=${clinicalTrialId}]`).prop('selected', true);
+            $('#link-top').val(linkTop);
+            $('#link-left').val(linkLeft);
+            $('#link-right').val(linkRight);
+            $('#link-bottom').val(linkBottom);
+            $('#is-update').val('true');
+            $('#imagelink-id').val(imagelinkId);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteSelection() {
+            const targetList = $('#imagelink-table').data('selectedIds');
+            if (confirm(`${targetList.length}개의 데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/administration/cancer_image_set_up/image_links/delete/',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "imagelink_ids": targetList.join(","),
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+
+        function validateForm() {
+            var linkTop = document.getElementById("link-top").value;
+            var linkBottom = document.getElementById("link-bottom").value;
+            var linkLeft = document.getElementById("link-left").value;
+            var linkRight = document.getElementById("link-right").value;
+
+            if ((linkTop === "" && linkBottom === "") || (linkLeft === "" && linkRight === "")) {
+                alert("Top 또는 Bottom, Left 또는 Right 중 하나를 작성해 주세요.");
+                return false;
+            }
+            return true;
+        }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

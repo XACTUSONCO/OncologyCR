@@ -1,0 +1,357 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<!-- 연구 정보 -->
+						<div class="card maindata-card shadow mb-5">
+							<div class="card-header py-3">
+								<h3 class="m-0"><span class="tit">{{ research.research_name }}{% if research.is_deleted %}(삭제됨){% endif %}</span> <span class="badge bg-light rounded-pill py-2 px-3">{{ research.medicine_name }}</span></h3>
+								<p class="exp">{{ research.research_explanation }}</p>
+							</div>
+						</div>
+
+						<div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center">
+								<span class="tit me-3">주 선정/제외 기준</span>
+								<span class="flex-grow-1 border-top line"></span>
+							</h4>
+
+							<div class="info-box2 type2 mb-5">
+								<div class="row">
+									<div class="col-6 table-box" style="border-right: 1px solid #ccc; height: 600px; overflow-y: scroll;">
+										<div class="table-con">
+											<div class="row row-cols-auto select-action"><h5>선정 기준</h5></div>
+											{% for inclusion in upload_inclusions %}
+											<img id="inclusion" src="{{ inclusion.file.url }}" style="width:100%">
+											{% endfor %}
+										</div>
+									</div>
+									<div class="col-6 table-box" style="height: 600px; overflow-y: scroll;">
+										<div class="table-con">
+											<div class="row row-cols-auto select-action"><h5>제외 기준</h5></div>
+											{% for exclusion in upload_exclusions %}
+											<img id="exclusion" src="{{ exclusion.file.url }}" style="width:100%">
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Protocol -->
+						<div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Protocol File</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<div class="col ms-auto mb-5">
+								{% with job_title=user.groups.all.0.name %}
+								   {% if job_title == 'doctor' or job_title == 'QC' or request.user.id == 213 %}
+								  <li class="mb-2">
+									{% for file in upload_files %}
+									<a href="{{ file.file.url }}" download="{{ file.filename }}.pdf">{% endfor %}
+										Download <strong>{{ research.research_name }}</strong> Protocol (국문)
+									</a>
+								  </li>
+								  <li>
+									{% for eng_file in upload_engfiles %}
+									<a href="{{ eng_file.file.url }}" download="{{ eng_file.filename }}.pdf">{% endfor %}
+										Download <strong>{{ research.research_name }}</strong> Protocol (영문)
+									</a>
+								  </li>
+								  {% else %}
+								  <div class="col text-danger">
+									 ※ 접근 권한이 없습니다.
+								  </div>
+								  {% endif %}
+								{% endwith %}
+							</div>
+						</div>
+
+						<!-- Memo -->
+						<div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Memo</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<!-- 다중선택되는 select박스로 검색하기 -->
+							<div class="row row-cols-auto select-action">
+								<div class="col text-danger">
+									※ 버튼 클릭 시 연구 수정 페이지로 이동되며, [Comment] 항목과 연동되어 있습니다.
+								</div>
+								<div class="col ms-auto mb-3">
+									<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/{{ research.id }}/edit/'">
+										{% ifequal research.remark|length 0 %}
+										    <i class="bi bi-plus-square"></i> <span>Add</span>
+										{% else %}
+											<i class="bi bi-plus-square"></i> <span>Edit</span>
+										{% endifequal %}
+									</button>
+								</div>
+							</div>
+
+							{% ifequal research.remark|length 0 %}
+							{% else %}
+								<div class="card maindata-card shadow mb-5 p-4" style="white-space: pre-line;">
+									<span>{{ research.remark|default_if_none:''|escape }}</span>
+								</div>
+							{% endifequal %}
+						</div>
+
+						<!-- Image -->
+						<div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Image</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<div class="card maindata-card shadow mb-5">
+								{% for reference in upload_references %}
+								<div id="reference-wrapper">
+									<img id="reference" src="{{ reference.file.url }}"><br>
+								</div>
+								{% endfor %}
+							</div>
+						</div>
+
+						<!-- Enrollment List -->
+						<div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Enrollment List</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<!-- 다중선택되는 select박스로 검색하기 -->
+							<dv class="row row-cols-auto select-action">
+								<div class="col">
+									<select id="table-filter" class="form-select">
+										<option value="" selected="">Status</option>
+										<option value="Off">Off</option>
+										<option value="On going">On going</option>
+										<option value="Screening">Screening</option>
+										<option value="Screening fail">Screening fail</option>
+									</select>
+								</div>
+								<div class="col">
+									<select id="table-filter2" class="form-select">
+										<option value="" selected="">Target</option>
+										{% if research.onco_cr_count_set.all|length == 1 %}
+											<option value="-">-</option>
+										{% else %}
+											{% for onco_cr_count in research.onco_cr_count_set.all %}
+												<option value="{{ onco_cr_count.r_target }}">{{ onco_cr_count.r_target }}</option>
+											{% endfor %}
+										{% endif %}
+									</select>
+								</div>
+
+								<div class="col ms-auto">
+									<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/{{ research.id }}/download/'">
+										<span>Download</span>
+									</button>
+									<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/{{ research.id }}/new_assignment/'">
+										<i class="bi bi-plus-square"></i><span>New Assignment</span>
+									</button>
+								</div>
+							</dv>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="clinicalTable01">
+									{% include "pages/research/partials/assignment_list.html" %}
+								</table>
+							</div>
+						</div>
+
+
+						<!-- Pre screening List -->
+						{% if research.is_pre_screening == 'Y' %}
+						<div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Pre screening List</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<!-- 다중선택되는 select박스로 검색하기 -->
+							<div class="row row-cols-auto select-action">
+								<div class="col">
+									<select id="table-filter3" class="form-select">
+										<option value="" selected="">Status</option>
+										<option value="Pre-screening">Pre-screening</option>
+										<option value="Pre-screening fail">Pre-screening fail</option>
+									<select>
+								</div>
+								<div class="col">
+									<select id="table-filter4" class="form-select">
+										<option value="" selected="">Target</option>
+										{% if research.onco_cr_count_set.all|length == 1 %}
+											<option value="-">-</option>
+										{% else %}
+											{% for onco_cr_count in research.onco_cr_count_set.all %}
+												<option value="{{ onco_cr_count.r_target }}">{{ onco_cr_count.r_target }}</option>
+											{% endfor %}
+										{% endif %}
+									</select>
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="pre-screening-list-table">
+									{% include "pages/dataroom/pre_screening_list.html" %}
+								</table>
+							</div>
+						</div>
+						{% endif %}
+
+						<!-- Waiting List -->
+						<div class="subtable-cons">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Waiting List</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<!-- 다중선택되는 select박스로 검색하기 -->
+							<div class="row row-cols-auto select-action">
+								<div class="col ms-auto">
+									<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/waitinglist/add/research/{{ research.id }}/'">
+										<i class="bi bi-plus-square"></i><span>Add</span>
+									</button>
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="research-waitinglist-list-table">
+									{% include "pages/waitinglist/waiting_list_research.html" %}
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- 커스텀 js -->
+<script src="{% static 'js/CRUD/research_detail.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('#assignment-list-table').DataTable( {
+       "order": [ 2, 'asc' ],
+        initComplete: function () {
+            this.api().columns([0,1]).every( function () {
+                var column = this;
+                var colTitle = this.header().innerHTML;
+                var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                    .appendTo( $(column.header()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option value="'+d+'">'+d+'</option>' )
+                } );
+            } );
+
+
+        }
+    } );
+
+    $('#research-waitinglist-list-table').DataTable( {
+        initComplete: function () {
+            this.api().columns([]).every( function () {
+                var column = this;
+                var colTitle = this.header().innerHTML;
+                var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                    .appendTo( $(column.header()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option value="'+d+'">'+d+'</option>' )
+                } );
+            } );
+        }
+    } );
+
+    var table = $('#clinicalTable01').DataTable({
+		"order": [[ 2, 'asc' ]],
+        dom: "Bfrltp",
+        buttons: ['']
+		//lengthMenu: [10, 20, 50, 100, 200, 500]
+    } );
+	$('#table-filter').on('change', function(){
+	    var selectedValue = this.value;
+	    if (selectedValue === '') {
+	        table.column(0).search('').draw();
+	    } else {
+	        table.column(0).search('^' + selectedValue + '$', true, false).draw();
+	    }
+    });
+	$('#table-filter2').on('change', function(){
+	    var selectedValue = this.value;
+	    if (selectedValue === '') {
+	        table.column(1).search('').draw();
+	    } else {
+	        // 선택한 값이 " - " (하이픈)인 경우 정확한 일치 필터링
+            if (selectedValue === " - ") {
+                table.column(1).search('^' + selectedValue + '$', true, false).draw();
+            } else {
+                // 선택한 값에 공백이 포함되어 있는 경우 정확한 일치 필터링
+                table.column(1).search('^' + selectedValue + '$', true, false).draw();
+            }
+	    }
+    });
+
+    var table2 = $('#pre-screening-list-table').DataTable( {
+       "order": [ 2, 'asc' ],
+    } );
+    $('#table-filter3').on('change', function(){
+	    var selectedValue = this.value;
+	    if (selectedValue === '') {
+	        table2.column(0).search('').draw();
+	    } else {
+	        table2.column(0).search('^' + selectedValue + '$', true, false).draw();
+	    }
+    });
+	$('#table-filter4').on('change', function(){
+	    var selectedValue = this.value;
+	    if (selectedValue === '') {
+	        table2.column(1).search('').draw();
+	    } else {
+	        // 선택한 값이 " - " (하이픈)인 경우 정확한 일치 필터링
+            if (selectedValue === " - ") {
+                table2.column(1).search('^' + selectedValue + '$', true, false).draw();
+            } else {
+                // 선택한 값에 공백이 포함되어 있는 경우 정확한 일치 필터링
+                table2.column(1).search('^' + selectedValue + '$', true, false).draw();
+            }
+	    }
+    });
+} );
+</script>
+<style>
+    a:link{
+        color: black;
+        background-color:transparent;
+        text-decoration: underline;
+            }
+    a:hover {
+        color: red;
+        background-color: transparent;
+        text-decoration: underline;
+            }
+
+    #reference-wrapper {
+    	width: 100%;
+    }
+    #reference {
+    	max-width: 100%;
+    	max-height: auto;
+    }
+</style>
+{% endblock %}

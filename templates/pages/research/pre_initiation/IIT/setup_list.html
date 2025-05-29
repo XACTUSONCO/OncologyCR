@@ -1,0 +1,105 @@
+{% load is_numberic from research_tag %}
+{% load get_value_from_dict from research_tag %}
+
+<div class="point-tablebox head type1">
+	<div class="table-responsive">
+		<table class="table custom-table">
+			<thead>
+			<tr>
+				<th>Project No.</th>
+				<th>Study Name</th>
+				<th>Tx</th>
+				<th>IIT/SIT</th>
+				<th>PI/MD</th>
+				<th>Cancer</th>
+				<th>Phase</th>
+				<th>Company or<br/>CI(타기관 경우)</th>
+				<th>Setup</th>
+				<th>CRC</th>
+				<th>Initiation Date<br/>(CTC 주사실 계약 여부)</th></th>
+				<th>Comment</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>{{ pre_initiation.study_code }}</td>
+				<td>{{ pre_initiation.pre_research_name }}</td>
+				<td>{{ pre_initiation.tx }}</td>
+				<td>
+					<span class="badge bg-secondary">
+						{% if pre_initiation.type %}
+							{% with count=pre_initiation.type.count %}
+								{% for type in pre_initiation.type.all %}
+									{{ type }}{% if forloop.counter < count %},{% endif %}
+								{% endfor %}
+							{% endwith %}
+						{% endif %}
+					</span>
+				</td>
+				<td>{{ pre_initiation.PI|default_if_none:"" }}</td>
+				<td>
+					<span class="badge bg-secondary">
+						{% with count=pre_initiation.cancer.count %}
+							{% for inst in pre_initiation.cancer.all %}
+								{{ inst }}{% if forloop.counter < count %},{% endif %}
+							{% endfor %}
+						{% endwith %}
+					</span>
+				</td>
+				<td>
+					<span class="badge bg-secondary">
+						{% with count=pre_initiation.phase.count %}
+							{% for inst in pre_initiation.phase.all %}
+								{{ inst }}{% if forloop.counter < count %},{% endif %}
+							{% endfor %}
+						{% endwith %}
+					</span>
+				</td>
+				<td>{{ pre_initiation.sponsor }}</td>
+				<td>
+					<span class="badge bg-secondary">
+						{% with count=pre_initiation.set_up.count %}
+							{% for inst in pre_initiation.set_up.all %}
+								{{ inst }}{% if forloop.counter < count %},{% endif %}
+							{% endfor %}
+						{% endwith %}
+					</span>
+				</td>
+				<td>{{ pre_initiation.crc }}</td>
+				<td data-toggle="tooltip" title="{% if pre_initiation.CTC_non_contract_reason %}{{ pre_initiation.CTC_non_contract_reason }}{% endif %}">
+					{{ pre_initiation.initiation_date|default_if_none:"" }} {% if pre_initiation.type == 'IIT' and pre_initiation.initiation_date %}
+					({% if pre_initiation.CTC_contract == True %}Y{% else %}N{% endif %}){% endif %}
+				</td>
+				<td style="white-space:pre-line;">{{ pre_initiation.memo }}</td>
+			</tr>
+			</tbody>
+		</table>
+	</div><!-- //table-responsive -->
+</div>
+
+<div class="row setup-list">
+	{% for study_category in study_categories %}
+	<div class="col-md-3 box">
+		<dl class="setup-data">
+			<dt>{{ study_category.name }}</dt>
+			<dd>
+				<table class="table custom-table">
+					{% for study_subcategory in study_category.study_subcategory.all|dictsort:"order" %}
+					<tr onClick="handleClickSetUp('{{ study_category.id }}', '{{ study_subcategory.id }}')">
+						<td>{{ study_subcategory.name }}</td>
+						<td>
+							{% for memo in pre_initiation.study_memo.all %}
+								{% if memo.sub_category_id == study_subcategory.id %}
+									{{ memo.start_date|default_if_none:""|date:'Y/m/d' }}
+									~ {{ memo.end_date|default_if_none:""|date:'Y/m/d' }}
+								{% endif %}
+							{% endfor %}
+						</td>
+					</tr>
+					{% endfor %}
+				</table>
+			</dd>
+		</dl>
+	</div>
+	{% endfor %}
+</div>

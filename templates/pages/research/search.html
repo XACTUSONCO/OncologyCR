@@ -1,0 +1,304 @@
+{% extends "bases/base_generic.html" %}
+{% load get_value_from_dict from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>임상 연구</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Studies</li>
+									<li class="breadcrumb-item"><a href="/research/search/">임상연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 studies_01">
+
+						<div class="info-box">
+							<div class="detailsearch-area">
+								<div class="detailsearch-box">
+									<h4><span>검색 조건</span></h4>
+									<form method="get" action="/research/search/" enctype="multipart/form-data">
+										<div class="search-items">
+											{% include 'pages/research/reserch_search_form.html' %}
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+
+						<div class="searchdata-header">
+							<h3 class="tables-title">연구목록</h3>
+							<div class="index-area">
+								<span class="index green">Recruiting</span>
+								<span class="index gray">Completed</span>
+								<span class="index red">Not yet recruiting</span>
+								<span class="index yellow">Holding</span>
+							</div>
+						</div>
+
+						<!-- 다중선택되는 select박스로 검색하기 -->
+						<div class="row row-cols-auto select-action">
+							<div class="col">
+								<select id="table-filter" class="form-select">
+									<option value="" selected="">Recruitment</option>
+									<option value="Recruiting">Recruiting</option>
+									<option value="Completed">Completed</option>
+									<option value="Not yet recruiting">Not yet recruiting</option>
+									<option value="Holding">Holding</option>
+								</select>
+							</div>
+							<div class="col">
+								<select id="table-filter2" class="form-select">
+									<option value="">CRC</option>
+								</select>
+							</div>
+							<div class="col">
+								<select id="table-filter3" class="form-select">
+									<option value="" selected="">Cancer</option>
+								</select>
+							</div>
+							<div class="col">
+								<select id="table-filter4" class="form-select">
+									<option value="" selected="">Phase</option>
+									<option value="Phase 1">Phase 1</option>
+									<option value="Phase 2">Phase 2</option>
+									<option value="Phase 3">Phase 3</option>
+									<option value="해당없음">해당없음</option>
+								</select>
+							</div>
+
+							<div class="col ms-auto">
+								<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/add/'"><i class="bi bi-plus-square"></i> <span>연구 등록</span></button>
+							</div>
+						</div>
+
+						<div class="table-responsive default-table">
+							<table class="table" id="researchTable01">
+								<thead>
+									<tr>
+										<th>No.</th>
+										<th>Recruitment</th>
+										<th>Study Name</th>
+										<th>CRC</th>
+										<th>Cancer</th>
+										<th>IIT/SIT</th>
+										<th>Phase</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for research in search %}
+									<tr class="table-link" data-link="/research/{{ research.id }}/">
+										<td>{{ research.id }}</td>
+										<td class="text-center">
+										  {% if research.is_recruiting == 'Recruiting' %}
+										    <span class="index green">Recruiting</span>
+										  {% elif research.is_recruiting == 'Completed' %}
+										    <span class="index gray">Completed</span>
+										  {% elif research.is_recruiting == 'Holding' %}
+										    <span class="index yellow">Holding</span>
+										  {% elif research.is_recruiting == 'Not yet recruiting' %}
+										    <span class="index red">Not yet recruiting</span>
+										  {% endif %}
+										</td>
+										<td>{{ research.research_name }}</td>
+										<td>
+											{% with count=research.crc.count %}{% for crc in research.crc.all %}{{ crc }}{% if forloop.counter < count %}, {% endif %}{% endfor %}{% endwith %}
+										</td>
+										<td>
+											{% with count=research.cancer.count %}{% for cancer in research.cancer.all %}{{ field_key_value.cancer|get_value_from_dict:cancer.value }}{% if forloop.counter < count %}, {% endif %}{% endfor %}{% endwith %}
+										</td>
+										<td>
+											{% with count=research.type.count %}
+											  {% for type in research.type.all %}
+												{{ field_key_value.type|get_value_from_dict:type.value }}
+												{% if forloop.counter < count %},{% endif %}
+											  {% endfor %}
+											{% endwith %}
+										</td>
+										<td>
+											{% with count=research.phase.count %}{% for phase in research.phase.all %}{{ field_key_value.phase|get_value_from_dict:phase.value }}{% if forloop.counter < count %}, {% endif %}{% endfor %}{% endwith %}
+										</td>
+									</tr>
+								    {% endfor %}
+								</tbody>
+							</table>
+						</div><!-- //table-responsive -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{% if 'cancer' in request.GET and 'phase' not in request.GET and 'type' not in request.GET %}
+		  <div class="row mt-3">
+			<div class="col-lg-12 grid-margin stretch-card">
+			  <div class="card">
+				<div class="card-header">
+				  <h4 class="card-title pt-1" style="margin:0;">{{ request.GET.cancer }} - Waiting List</h4>
+				</div>
+				<div class="card-body">
+				  <div class="table-responsive">
+					{% include "pages/waitinglist/waiting_list.html" %}
+					<div class="pt-3" style="float:right;">
+					  {% if c.value == cancer_parameter %}
+					  <a href="/research/waitinglist/add/{{ c.id }}/">
+						<button type="button" class="btn btn-success">Add</button>
+					  </a>
+					  {% endif %}
+					</div>
+				  </div>
+				</div>
+			  </div>
+			</div>
+		  </div>
+
+        {% elif 'phase' in request.GET and 'cancer' not in request.GET and 'type' not in request.GET %}
+		  <div class="row mt-3">
+			<div class="col-lg-12 grid-margin stretch-card">
+			  <div class="card">
+				<div class="card-header">
+				  <h4 class="card-title pt-1" style="margin:0;">{{ request.GET.phase }} - Waiting List</h4>
+				</div>
+				<div class="card-body">
+				  <div class="table-responsive">
+					{% include "pages/waitinglist/phase_waiting_list.html" %}
+					<div class="pt-3" style="float:right;">
+					  <a href="/research/waitinglist/add/phase/2/">
+						<button type="button" class="btn btn-success">Add</button>
+					  </a>
+					</div>
+				  </div>
+				</div>
+			  </div>
+			</div>
+		  </div>
+		{% else %}
+		{% endif %}
+	{% endblock %}
+
+{% block script %}
+<script>
+$(document).ready(function () {
+	// 연구 검색
+	var table = $('#researchTable01').DataTable({
+		"order": [[ 2, 'asc' ]], // 연구명 오름차순
+		"ordering": false,
+        dom: "Bfrltp",
+        buttons: ['excel'],
+		lengthMenu: [10, 20, 50, 100, 200, 500],
+		pageLength: 20
+    });
+
+    $('.dt-buttons').on('click', 'button.buttons-excel', function() {
+			// 서버로 다운로드 이력 저장 요청 보내기
+			$.ajax({
+				url: '/research/search/download/',
+				method: 'POST',
+				data: {
+					csrfmiddlewaretoken: '{{ csrf_token }}',
+				},
+				success:function (data){
+					console.log('다운로드 이력 저장 완료');
+				},
+				error : function(xhr,errmsg,err) {
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+			});
+	});
+
+    // Recruitment
+    $('#table-filter').on('change', function(){
+	    var selectedValue = this.value;
+	    if (selectedValue === '') {
+	        table.column(1).search('').draw();
+	    } else {
+	        table.column(1).search('^' + selectedValue + '$', true, false).draw();
+	    }
+    });
+
+    // 연구목록 - CRC 칼럼
+    /*
+    table.column(3).data().unique().sort().each(function(value, index) {
+        // 쉼표로 분리된 값을 배열로 변환
+        var values = value.split(', ');
+
+        // 배열의 각 항목을 순회하면서 셀렉트 박스에 옵션으로 추가
+        values.forEach(function(val) {
+            $('#table-filter2').append('<option value="' + val + '">' + val + '</option>');
+        });
+    });
+    */
+
+    // CRC
+    var table_column3 = table.column(3).data();
+    var uniqueValues = table_column3.toArray().join(', ').split(', ').filter(function (value, index, self) {
+        return self.indexOf(value) === index;
+    }).sort();
+    uniqueValues.forEach(function (val) {
+        $('#table-filter2').append('<option value="' + val + '">' + val + '</option>');
+    });
+    $('#table-filter2').on('change', function () {
+        table.column(3).search(this.value).draw();
+    });
+
+    // Cancer
+	var table_column4 = table.column(4).data();
+    var uniqueValues = table_column4.toArray().join(', ').split(', ').filter(function (value, index, self) {
+        return self.indexOf(value) === index;
+    }).sort();
+    uniqueValues.forEach(function (val) {
+        $('#table-filter3').append('<option value="' + val + '">' + val + '</option>');
+    });
+    $('#table-filter3').on('change', function () {
+        table.column(4).search(this.value).draw();
+    });
+
+    // Phase
+	$('#table-filter4').on('change', function(){
+        table.column(6).search(this.value).draw();
+    });
+
+    $('#waiting-list-table, #phase-waiting-list-table').DataTable( {
+        "ordering": false,
+        initComplete:function () {
+            this.api().columns([]).every( function () {
+                var column = this;
+                var colTitle = this.header().innerHTML;
+                var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                    .appendTo( $(column.header()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option>'+d+'</option>' )
+                } );
+            } );
+        }
+    } );
+} );
+</script>
+<!-- studies 페이지용 js -->
+<script src="{% static 'js/CRUD/research_search.js' %}"></script>
+{% endblock %}

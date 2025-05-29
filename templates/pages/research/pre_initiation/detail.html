@@ -1,0 +1,292 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load get_m2m_values from research_tag %}
+{% load get_my_team from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>개시 연구 - 연구 상세 정보</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="/">Studies</a></li>
+									<li class="breadcrumb-item"><a href="/research/pre_initiation">개시연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<div class="row row-cols-auto header-btns">
+							<div class="col text-danger">
+								<h3 class="tables-title">{{ pre_initiation.pre_research_name }}
+									<span class="badge bg-secondary">
+										{% if pre_initiation.type %}
+										  {% with count=pre_initiation.type.count %}
+											{% for type in pre_initiation.type.all %}
+											  {{ type }}{% if forloop.counter < count %},{% endif %}
+											{% endfor %}
+										  {% endwith %}
+										{% endif %}
+									</span>
+								</h3>
+							</div>
+							<div class="col ms-auto">
+								{% with my_team=request.user|get_my_team %}
+								  {% if user.id in onco and job_title == 'nurse' and my_team.team == 'CLUE' %}
+									<a href="/research/pre_initiation/?team=CLUE">
+									  <button type="button" class="btn btn-outline-secondary px-3" onclick="location.href='/research/pre_initiation/'">
+										  <i class="bi bi-file-earmark-text"></i> <span>개시 연구 리스트</span>
+									  </button>
+									</a>
+								  {% elif user.id in onco and job_title == 'nurse' and my_team.team == 'GSI' %}
+									<a href="/research/pre_initiation/?team=GSI">
+									  <button type="button" class="btn btn-outline-secondary px-3" onclick="location.href='/research/pre_initiation/'">
+										  <i class="bi bi-file-earmark-text"></i> <span>개시 연구 리스트</span>
+									  </button>
+									</a>
+								  {% elif user.id in onco and job_title == 'nurse' and my_team.team == 'etc' %}
+									<a href="/research/pre_initiation/?team=etc">
+									  <button type="button" class="btn btn-outline-secondary px-3" onclick="location.href='/research/pre_initiation/'">
+										  <i class="bi bi-file-earmark-text"></i> <span>개시 연구 리스트</span>
+									  </button>
+									</a>
+								  {% else %}
+									<a href="/research/pre_initiation/">
+									  <button type="button" class="btn btn-outline-secondary px-3" onclick="location.href='/research/pre_initiation/'">
+										  <i class="bi bi-file-earmark-text"></i> <span>개시 연구 리스트</span>
+									  </button>
+									</a>
+								  {% endif %}
+								{% endwith %}
+
+								<button type="button" class="btn btn-outline-danger px-3" data-toggle="modal" data-target="#remove_pre_initiation" id="pre-initiation-remove-button" pre-initiation-id="{{ pre_initiation.id }}">
+									<i class="bi bi-trash3"></i> <span>개시 연구 삭제</span>
+								</button>
+								<button type="button" class="btn btn-outline-success px-4" onclick="location.href='/research/pre_initiation/{{ pre_initiation.id }}/edit/'">
+									<i class="bi bi-pencil"></i> <span>개시 연구 수정</span>
+								</button>
+								{% if 'IIT' not in pre_initiation.type.all|get_m2m_values and sit_setup.count == 0 %} <!-- // IIT 아니면서 sit_setup 등록하지 않은 경우 -->
+									<button type="button" class="btn btn-success edit-btn px-4" data-bs-toggle="modal" data-bs-target="#add_SIT_setup">
+										<i class="bi bi-gear"></i> <span>Pre-initiation Set-up</span>
+									</button>
+								{% endif %}
+							</div>
+						</div>
+
+                        <!-- 유형별 Setup List -->
+                        {% if 'IIT' not in pre_initiation.type.all|get_m2m_values %}
+                          {% include "pages/research/pre_initiation/setup_list.html" %}
+                        {% elif 'IIT' in pre_initiation.type.all|get_m2m_values %}
+                          {% include "pages/research/pre_initiation/IIT/setup_list.html" %}
+                        {% endif %}
+
+						<!-- IIT Set Up 추가 Modal -->
+						<div class="modal fade" role="dialog" id="add_IIT_setup">
+							<div class="modal-dialog modal-dialog-centered modal-md">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">Pre-initiation Set-up</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<form class="forms-sample" method="post" action="/research/pre_initiation/IIT/memo/" enctype="multipart/form-data">
+										<input type="hidden" name="pre_initiation_id" value="{{ pre_initiation.id }}">
+										<div class="modal-body">
+											{% csrf_token %}
+											{% include 'pages/research/pre_initiation/IIT/IIT_add_edit_form.html' %}
+											<div class="modal-footer">
+												<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+													<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+												</button>
+												<button type="submit" class="btn btn-success edit-btn px-4">
+													<i class="bi bi-pencil"></i> <span>Save</span>
+												</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+
+						<!-- IIT Set Up 수정 Modal -->
+						<div class="modal fade" role="dialog">
+							<div class="modal-dialog modal-dialog-centered modal-md">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">Pre-initiation Set-up</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<form id="IIT-setup-edit-form-{{ setup.id }}" class="forms-sample" method="post" enctype="multipart/form-data">
+										<div class="modal-body">
+											{% csrf_token %}
+											{% include 'pages/research/pre_initiation/IIT/IIT_add_edit_form.html' %}
+											<div class="modal-footer">
+												<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+													<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+												</button>
+												<button type="button" class="btn btn-outline-danger IIT-setup-remove-button" IIT-setup-id="{{ setup.id }}">
+													<i class="bi bi-trash3"></i> <span>Remove</span>
+												</button>
+												<button type="button" class="btn btn-success edit-btn px-4 IIT-setup-edit-button" pre-initiation-id="{{ pre_initiation.id }}" IIT-setup-id="{{ setup.id }}">
+													<i class="bi bi-pencil"></i> <span>Save changes</span>
+												</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+
+						<!-- SIT Set Up 추가 Modal -->
+						<div class="modal fade" id="add_SIT_setup" role="dialog" aria-hidden="true">
+						  <div class="modal-dialog modal-dialog-centered modal-md">
+							<div class="modal-content">
+							    <div class="modal-header">
+								  <h4 class="modal-title">Pre-initiation Set-up</h4>
+								  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+							    </div>
+								<form class="setup-add-form forms-sample" method="post" enctype="multipart/form-data">
+									<div class="modal-body">
+										{% csrf_token %}
+										{% include 'pages/research/pre_initiation/SIT_add_edit_form.html' %}
+										<div class="modal-footer">
+											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+												<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+											</button>
+											<button type="submit" class="btn btn-success edit-btn px-4" id="add-SIT-setup-button"  pre-initiation-id="{{ pre_initiation.id }}">
+												<i class="bi bi-pencil"></i> <span>Save</span>
+											</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						  </div>
+						</div>
+
+						<!-- SIT Set Up 수정 Modal -->
+						{% for setup in sit_setup %}
+						<div class="modal fade" role="dialog" id="edit_SIT_setup_{{ setup.id }}">
+							<div class="modal-dialog modal-dialog-centered modal-md">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">Pre-initiation Set-up</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<form id="SIT-setup-edit-form-{{ setup.id }}" class="forms-sample" method="post" enctype="multipart/form-data">
+										<div class="modal-body">
+											{% csrf_token %}
+											{% include 'pages/research/pre_initiation/SIT_add_edit_form.html' %}
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+												<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+											</button>
+											<button type="button" class="btn btn-outline-danger SIT-setup-remove-button" SIT-setup-id="{{ setup.id }}">
+												<i class="bi bi-trash3"></i> <span>Remove</span>
+											</button>
+											<button type="button" class="btn btn-success edit-btn px-4 SIT-setup-edit-button" pre-initiation-id="{{ pre_initiation.id }}" SIT-setup-id="{{ setup.id }}">
+												<i class="bi bi-pencil"></i> <span>Save changes</span>
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+                    </div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- 커스텀 js -->
+<script src="{% static 'js/CRUD/pre_initiation_detail.js' %}"></script>
+<script>
+	var studyMemo = JSON.parse(`{{study_memo | safe}}`);
+
+    $(function() {
+        $( ".feasibility, .budgeting_from, .budgeting_to, .IRB_new_review, .IRB_qualified_permission, .IRB_finalization, .contract, .from_date, .to_date, .SIV" ).datepicker({
+            todayHighlight : true,
+        });
+         $( ".PSV" ).datetimepicker({
+             todayHighlight : true,
+        });
+
+         setSubCategory($("#category").val())
+
+         $("#category").on('change', function (e) {
+             setSubCategory(e.target.value)
+         })
+
+         $("#subcategory").on('change', function (e) {
+             setMemo(e.target.value)
+         })
+    });
+
+    $('.modal-dialog').draggable({
+        "handle": ".modal-header"
+    });
+
+    function setSubCategory(categoryId) {
+    let first = true;
+        $("#subcategory option").each(function (_, el) {
+            if ($(el).attr("data-category") === categoryId) {
+                $(el).removeAttr('hidden');
+                if (first) {
+                    $(el).prop('selected', true)
+                    setMemo(el.value)
+                    first = false;
+                }
+            } else {
+                $(el).prop('hidden', true);
+            }
+        });
+    }
+
+    function setMemo(subCategoryId) {
+    const memo = studyMemo.find(a => Number(a.fields.sub_category) === Number(subCategoryId));
+        if (memo) {
+            $("#memo-id").val(memo.pk)
+            $("#from_date").val(getDateFormat(memo.fields.start_date))
+            $("#to_date").val(getDateFormat(memo.fields.end_date))
+            $("#memo").val(memo.fields.memo)
+        } else {
+            $("#from_date").val("")
+            $("#to_date").val("")
+            $("#memo").val("")
+            $("#memo-id").val("")
+            }
+        }
+
+    function handleClickSetUp(categoryId, subCategoryId) {
+        $(`#category option[value="${categoryId}"]`).prop('selected', true);
+        $(`#subcategory option[value="${subCategoryId}"]`).prop('selected', true);
+        setMemo(subCategoryId)
+        $("#add_IIT_setup").modal('toggle');
+    }
+
+    function getDateFormat(dateStr) {
+        if (!dateStr) return ""
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("en-US", {year: "numeric", month: "2-digit", day: "2-digit"});
+    }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/studies_view.js' %}"></script>
+{% endblock %}

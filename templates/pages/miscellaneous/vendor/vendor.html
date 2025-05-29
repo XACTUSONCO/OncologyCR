@@ -1,0 +1,69 @@
+{% load get_value_from_dict from research_tag %}
+
+<div class="card" style="z-index: 1">
+  <div class="card-header">
+     <h4 class="card-title pt-1" style="margin:0;">{{research.research_name}}</h4>
+  </div>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+          <tr>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom" colspan="6">CRO</th>
+          </tr>
+      </thead>
+
+      <tbody>
+        {% for r_management in research_management %}
+          <tr>
+            {% if not r_management.cro or research.research_management_set.all|length == 0 %}
+              <td class="text-black text-center assignment-info striped pre-wrap" colspan="6">등록된 정보가 없습니다.</td>
+            {% else %}
+              {% if r_management.research_id == research.id %}
+              <td class="text-black text-center assignment-info striped pre-wrap" colspan="6">{{ r_management.cro }}</td>
+              {% endif %}
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+
+      <thead>
+          <tr>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom"></th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Name</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">information</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Link</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">ID</th>
+            <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">PW</th>
+          </tr>
+      </thead>
+
+      <tbody>
+        {% for r_management in research_management %}
+          {% if r_management.research_id == research.id %}
+          {% for vendor in r_management.vendor.all %}
+          <tr>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ forloop.counter }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ research_management_field_key_value.vendor|get_value_from_dict:vendor.value }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap" style="line-height:1.3em">{{ vendor.information }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap"><a href="{{ vendor.link }}">{{ vendor.link }}</a></td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ vendor.vendor_id }}</td>
+            <td class="text-black text-center assignment-info striped pre-wrap">{{ vendor.vendor_pw }}</td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="pt-3" style="float:left;">
+  <a class="btn btn-secondary" href="/miscellaneous/vendor/{{ research.id }}/edit/">
+    Add or Edit
+  </a>
+</div>
+<div class="pt-3" style="float:right;">
+  <a class="btn btn-secondary" href="/miscellaneous/vendor/download/{{ research.id }}/">
+    Download
+  </a>
+</div>

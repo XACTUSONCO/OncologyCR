@@ -1,0 +1,656 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load get_value_from_dict from research_tag %}
+{% load split from research_tag %}
+{% load change_korean from research_tag %}
+
+    {% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>연구 상세</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="/research/search/">Studies</a></li>
+									<li class="breadcrumb-item"><a href="">임상연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<!-- 연구 정보 -->
+						<div class="card maindata-card shadow mb-5">
+							<!-- Card Header - Dropdown -->
+							<div class="card-header py-3">
+								<h3 class="m-0"><span class="tit">{{ research.research_name }}{% if research.is_deleted %}(삭제됨){% endif %}</span> <span class="badge bg-light rounded-pill py-2 px-3">{{ research.medicine_name }}</span></h3>
+								<p class="exp">{{ research.research_explanation }}</p>
+							</div>
+                            <!-- Card Body -->
+							<div class="card-body">
+								<div class="default-forms">
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Study Name</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">{{ research.research_name }}</div>
+										</div>
+										<label class="col-lg-1 col-form-label">Team</label>
+										<div class="col-lg-5 col-form-data">
+											<div class="data-con">{{ research.team }}</div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Recruitment</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">
+                                              {% if research.is_recruiting == 'Recruiting' %}
+                                                <span class="index green">Recruiting</span>
+                                              {% elif research.is_recruiting == 'Not yet recruiting' %}
+                                                <span class="index red">Not yet recruiting</span>
+                                              {% elif research.is_recruiting == 'Holding' %}
+                                                <span class="index yellow">Holding</span>
+                                              {% elif research.is_recruiting == 'Completed' %}
+                                                <span class="index gray">Completed</span>
+                                              {% endif %}
+                                            </div>
+										</div>
+										<label class="col-lg-1 col-form-label">Pre-Screening</label>
+										<div class="col-lg-5 col-form-data">
+											<div class="data-con">
+                                              {% if research.is_pre_screening == 'Y' %}
+                                                Yes
+                                              {% elif research.is_pre_screening == 'N' %}
+                                                No
+                                              {% endif %}
+                                            </div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Project No.</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">{{ research.study_code|default_if_none:"" }}</div>
+										</div>
+										<label class="col-lg-1 col-form-label">IIT/SIT</label>
+										<div class="col-lg-5 col-form-data">
+											<div class="data-con">
+                                              {% for inst in research.type.all %}
+                                                <span class="badge green">{{ inst }}</span>
+                                              {% endfor %}
+                                            </div>
+										</div>
+									</div>
+                                    <div class="form-group row">
+										<label class="col-lg-2 col-form-label">IRB No.</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">{{ research.irb_number|default_if_none:"" }}</div>
+										</div>
+										<label class="col-lg-1 col-form-label">CRIS No.</label>
+										<div class="col-lg-5 col-form-data">
+											<div class="data-con">{{ research.cris_number|default_if_none:"" }}</div>
+										</div>
+									</div>
+                                    <div class="form-group row">
+										<label class="col-lg-2 col-form-label">CRO</label>
+										<div class="col-lg-4 col-form-data">
+										    <div class="data-con">{% if research.CRO %}{{ research.CRO.name_kor|default_if_none:"" }} | {{ research.CRO.name_eng|default_if_none:"" }}{% else %}{% endif %}</div>
+										</div>
+										<label class="col-lg-1 col-form-label">CRA</label>
+										<div class="col-lg-2 col-form-data">
+											<div class="data-con">{{ research.CRA_name|default_if_none:"" }}</div>
+										</div>
+                                        <label class="col-lg-1 col-form-label">CRA Contact</label>
+										<div class="col-lg-2 col-form-data">
+											<div class="data-con">{{ research.CRA_phoneNumber|default_if_none:"" }}</div>
+										</div>
+									</div>
+                                    <div class="form-group row">
+										<label class="col-lg-2 col-form-label">IP</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con" style="white-space:pre-line;">{{ research.medicine_name }}</div>
+										</div>
+										<label class="col-lg-1 col-form-label">PI</label>
+										<div class="col-lg-5 col-form-data">
+											<div class="data-con">{{ research.PI }}</div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Route of Administration</label>
+										<div class="col-lg-10 col-form-data">
+											<div class="data-con">
+												{% for inst in research.route_of_administration.all %}
+													<span class="badge green">{{ inst }}</span>
+											    {% endfor %}
+											</div>
+										</div>
+									</div>
+                                    <div class="form-group row">
+										<label class="col-lg-2 col-form-label">ARM Name</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">{{ research.arm_name|default_if_none:"" }}</div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Target</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">{% with count=onco_cr_counts.count %}{% for onco_cr_count in onco_cr_counts %}{{ onco_cr_count.r_target|default_if_none:"" }}{% if forloop.counter < count %},{% endif%}{% endfor %}{% endwith %}</div>
+										</div>
+									</div>
+                                    <div class="form-group row">
+										<label class="col-lg-2 col-form-label">CRC</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">
+												{% for inst in research.crc.all %}
+													<span class="badge green">{{ inst }}</span>
+												{% endfor %}
+											</div>
+										</div>
+										<label class="col-lg-1 col-form-label">Contact Number</label>
+										<div class="col-lg-5 col-form-data">
+											<div class="data-con">{{ research.contact }}</div>
+										</div>
+									</div>
+                                    <div class="form-group row">
+										<label class="col-lg-2 col-form-label">Cancer</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">
+												{% for inst in research.cancer.all %}
+													<span class="badge green">{{ inst }}</span>
+											    {% endfor %}
+											</div>
+										</div>
+										<label class="col-lg-1 col-form-label">Phase</label>
+										<div class="col-lg-5 col-form-data">
+											<div class="data-con">
+												{% for inst in research.phase.all %}
+													<span class="badge green">{{ inst }}</span>
+											    {% endfor %}
+											</div>
+										</div>
+									</div>
+                                    <div class="form-group row">
+										<label class="col-lg-2 col-form-label">Comment</label>
+										<div class="col-lg-10 col-form-data">
+											<div class="data-con" style="white-space: pre-line">{% if research.remark %}{{ research.remark| escape }}{% else %}{% endif %}</div>
+										</div>
+									</div>
+                                    <div class="form-group row">
+                                          <label class="col-lg-2 col-form-label">Backup1</label>
+                                          <div class="col-lg-4 col-form-data">
+                                              <div class="data-con">{{ research.first_backup }}</div>
+                                          </div>
+                                          <label class="col-lg-1 col-form-label">Backup2</label>
+                                          <div class="col-lg-5 col-form-data">
+                                              <div class="data-con">{{ research.second_backup }}</div>
+                                          </div>
+                                    </div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Status</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">
+												{% if research.status == '종료보고완료' %}
+												  종료 보고 완료
+												{% elif research.status == '결과보고완료' %}
+												  결과 보고 완료
+												{% elif research.status == '장기보관예정' %}
+												  장기 보관 예정
+												{% elif research.status == '장기보관완료' %}
+												  장기 보관 완료
+												{% endif %}
+											</div>
+										</div>
+										<label class="col-lg-1 col-form-label">종료보고일</label>
+										<div class="col-lg-1 col-form-data">
+											<div class="data-con">{{ research.end_brief|date:"Y-m-d" }}</div>
+										</div>
+										<label class="col-lg-1 col-form-label">결과보고일</label>
+										<div class="col-lg-1 col-form-data">
+											<div class="data-con">{{ research.result_brief|date:"Y-m-d" }}</div>
+										</div>
+										<label class="col-lg-1 col-form-label">장기 보관 날짜</label>
+										<div class="col-lg-1 col-form-data">
+											<div class="data-con">{{ research.storage_date|date:"Y-m-d" }}</div>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Binder Location</label>
+										<div class="col-lg-4 col-form-data">
+											<div class="data-con">{{ research.binder_location }}</div>
+										</div>
+                                        <label class="col-lg-1 col-form-label">Study Coordinator</label>
+										<div class="col-lg-3 col-form-data">
+											<div class="data-con">{{ research.study_coordinator|default_if_none:"" }}</div>
+										</div>
+										<label class="col-lg-1 col-form-label">장기 보관 문서</label>
+										<div class="col-lg-1 col-form-data">
+											{% if not research_archives %}
+											{% else %}
+												<div class="data-con">
+													<ul class="position-relative" style="top:-5px;">
+													{% for archive in research_archives %}
+													  <li><a href="{{ archive.file.url }}" target="_blank" download>{{ archive.filename }}</a></li>
+													{% endfor %}
+													</ul>
+												</div>
+											{% endif %}
+										</div>
+									</div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-2 col-form-label">Image of Binder Location</label>
+										<div class="col-lg-4 col-form-data">
+											{% if not upload_images %}
+											{% else %}
+												<div class="data-con">
+													<ul>
+														{% for image in upload_images %}
+														  <li><a href="{{ image.image.url }}" target="_blank" download>{{ image.imagename }}</a></li>
+														{% endfor %}
+													</ul>
+												</div>
+											{% endif %}
+										</div>
+                                    </div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">프로토콜 파일 (국문)</label>
+										<div class="col-lg-4 col-form-data">
+											{% if job_title == 'doctor' or job_title == 'QC' or request.user.id == 213 %}
+											  {% if not upload_files %}
+											  {% else %}
+												<div class="data-con">
+													<ul>
+														{% for file in upload_files %}
+														<li>
+															<a href="{{ file.file.url }}" target="_blank" download>{{ file.filename }}</a>
+														</li>
+														{% endfor %}
+													</ul>
+												</div>
+											  {% endif %}
+											{% else %}
+												<div class="data-con">
+													<a onclick="alert('접근 권한이 없습니다. ');" style="cursor:pointer">Download</a>
+												</div>
+											{% endif %}
+										</div>
+										<label class="col-lg-1 col-form-label">프로토콜 파일 (영문)</label>
+										<div class="col-lg-5 col-form-data">
+											{% if job_title == 'doctor' or job_title == 'QC' or request.user.id == 213 %}
+											  {% if not upload_engfiles %}
+											  {% else %}
+												<div class="data-con">
+													<ul>
+														{% for file in upload_engfiles %}
+														<li>
+															<a href="{{ file.file.url }}" target="_blank" download>{{ file.filename }}</a>
+														</li>
+														{% endfor %}
+													</ul>
+												</div>
+											  {% endif %}
+											{% else %}
+												<div class="data-con">
+													<a onclick="alert('접근 권한이 없습니다. ');" style="cursor:pointer">Download</a>
+												</div>
+											{% endif %}
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">선정기준 이미지</label>
+										<div class="col-lg-4 col-form-data">
+											{% if not upload_inclusions %}
+											{% else %}
+											    <div class="data-con">
+												{% for file in upload_inclusions %}
+												    <a href="/dataroom/det/{{ research.id }}/">{{ file.filename }}</a>
+												{% endfor %}
+											    </div>
+											{% endif %}
+										</div>
+										<label class="col-lg-1 col-form-label">제외기준 이미지</label>
+										<div class="col-lg-5 col-form-data">
+											{% if not upload_exclusions %}
+											{% else %}
+											    <div class="data-con">
+												{% for file in upload_exclusions %}
+												    <a href="/dataroom/det/{{ research.id }}/">{{ file.filename }}</a>
+												{% endfor %}
+											    </div>
+											{% endif %}
+										</div>
+									</div>
+									<div class="form-group row">
+										<label class="col-lg-2 col-form-label">Reference</label>
+										<div class="col-lg-4 col-form-data">
+											{% if not upload_references %}
+											{% else %}
+												<div class="data-con">
+													<ul>
+														{% for file in upload_references %}
+														<li>
+															<a href="{{ file.file.url }}" target="_blank" download>{{ file.filename }}</a>
+														</li>
+														{% endfor %}
+													</ul>
+												</div>
+											{% endif %}
+										</div>
+									</div>
+
+									<div class="row row-cols-auto py-3 px-3">
+										<div class="col">
+											<button type="button" onclick="location.href='/research/{{ research.id }}/update_target/'" class="btn btn-outline-success px-3">
+												<i class="bi pencil"></i> <span>Target 관리</span>
+											</button>
+										</div>
+
+										<div class="col ms-auto">
+											{% if request.user.is_staff %}
+												<button type="button" data-bs-toggle="modal" data-bs-target="#audit_trail" class="btn btn-outline-info px-3">
+													<i class="bi"></i> <span>Audit Trail</span>
+												</button>
+											{% endif %}
+											{% if not research.is_deleted %}
+												<button type="button" id="research-remove-button" research-id="{{ research.id }}" class="btn btn-outline-danger px-3">
+													<i class="bi bi-trash3"></i> <span>Delete</span>
+												</button>
+												<button type="button" class="btn btn-outline-success px-4" onclick="location.href='/research/{{ research.id }}/edit/'">
+													<i class="bi bi-pencil"></i> <span>Edit</span>
+												</button>
+											{% endif %}
+										</div>
+									</div>
+
+								</div><!-- //default-forms -->
+							</div>
+						</div><!-- //maindata-card -->
+
+						<!-- 임상 정보 -->
+						<div class="subtable-cons clinicalTable_01">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Enrollment List</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<!-- 다중선택되는 select박스로 검색하기 -->
+							<div class="row row-cols-auto select-action">
+								<div class="col">
+									<select id="table-filter" class="form-select">
+										<option value="" selected="">Status</option>
+										<option value="Off">Off</option>
+										<option value="On going">On going</option>
+										<option value="Screening">Screening</option>
+										<option value="Screening fail">Screening fail</option>
+										<option value="FU">FU</option>
+									</select>
+								</div>
+								<div class="col">
+									<select id="table-filter2" class="form-select">
+										<option value="" selected="">Target</option>
+											{% if research.onco_cr_count_set.all|length == 1 %}
+													<option value="-">-</option>
+											{% else %}
+												{% for onco_cr_count in research.onco_cr_count_set.all %}
+													<option value="{{ onco_cr_count.r_target }}">{{ onco_cr_count.r_target }}</option>
+												{% endfor %}
+											{% endif %}
+									</select>
+								</div>
+								<div class="col">
+									<select id="table-filter5" class="form-select">
+										<option value="" selected="">CRC</option>
+										{% for crc in research.crc.all %}
+										<option value="{{ crc }}">{{ crc }}</option>
+										{% endfor %}
+									</select>
+								</div>
+
+								<div class="col ms-auto">
+									<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/{{ research.id }}/download/'">
+										<span>Download</span>
+									</button>
+									<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/{{ research.id }}/new_assignment/'">
+										<i class="bi bi-plus-square"></i><span> New Assignment</span>
+									</button>
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="clinicalTable01">
+									{% include "pages/research/partials/assignment_list.html" %}
+								</table>
+							</div><!-- //table-responsive -->
+						</div><!-- //subtable-cons -->
+
+						<!-- Pre screening List -->
+						{% if research.is_pre_screening == 'Y' %}
+						<div class="subtable-cons waitinglist_01">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Pre screening List</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<!-- 다중선택되는 select박스로 검색하기 -->
+							<div class="row row-cols-auto select-action">
+								<div class="col">
+									<select id="table-filter3" class="form-select">
+										<option value="" selected="">Status</option>
+										<option value="Pre-screening">Pre-screening</option>
+										<option value="Pre-screening fail">Pre-screening fail</option>
+									</select>
+								</div>
+								<div class="col">
+									<select id="table-filter4" class="form-select">
+										<option value="" selected="">Target</option>
+											{% if research.onco_cr_count_set.all|length == 1 %}
+													<option value="-">-</option>
+											{% else %}
+												{% for onco_cr_count in research.onco_cr_count_set.all %}
+													<option value="{{ onco_cr_count.r_target }}">{{ onco_cr_count.r_target }}</option>
+												{% endfor %}
+											{% endif %}
+									</select>
+								</div>
+
+								<div class="col text-danger">
+									※ Pre screening에서 조건 충족되어 Main Screening 진행하는 경우, Add(환자 등록) 클릭하여 새로 생성
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="prescreeninglistTable01" >
+									{% include "pages/research/partials/pre_screening_list.html" %}
+								</table>
+							</div>
+						</div>
+						{% endif %}
+
+						<!-- Waiting List -->
+						<div class="subtable-cons waitinglist_01">
+							<h4 class="sub-title d-flex align-items-center"><span class="tit me-3">Waiting List</span> <span class="flex-grow-1 border-top line"></span></h4>
+
+							<!-- 상단 ADD버튼 -->
+							<div class="row row-cols-auto header-btns">
+								<div class="col text-danger">
+									※ Main Screening 진행하는 경우, 해당 환자 Edit 화면에서 "환자 등록" Button Click
+								</div>
+								<div class="col ms-auto">
+									<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/waitinglist/add/research/{{ research.id }}/'">
+										<i class="bi bi-plus-square"></i> <span>Add</span></button>
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="waitinglistTable01" >
+									{% include "pages/waitinglist/waiting_list_research.html" %}
+								</table>
+							</div>
+						</div><!-- //subtable-cons -->
+
+						<div class="py-4 px-3 text-center">
+							<button type="button" class="btn btn-outline-secondary" onclick="history.back()"><i class="bi bi-arrow-left-square"></i> <span>Cancel</span></button>
+							<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/add/'"><i class="bi bi-plus-square"></i> <span>연구 등록</span></button>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="audit_trail" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Audit Trail</h4>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="table-responsive default-table" id="history-table">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Editor</th>
+									<th>Type</th>
+									<th>Content</th>
+									<th>Date</th>
+								</tr>
+							</thead>
+							<tbody>
+							  {% ifequal research.history|length 0 %}
+							    <tr>
+								  <td colspan="4"><div class="text-center">히스토리가 없습니다.</div></td>
+								</tr>
+							  {% endifequal %}
+
+							  {% for h in research.history %}
+							    <tr>
+									<td>{{ h.user.username }}</td>
+									<td>{{ history_key_value|get_value_from_dict:h.history_type }}</td>
+									<td style="white-space: normal;">
+										{% if h.history_type == 'create_research' %}
+										  <a href="/research/{{ h.research.id }}/">
+											{{ h.research.research_name }} ({{ h.research.medicine_name }})
+										  </a> 생성 <br>
+										  필드 변경:
+										  {% if h.summary_json.field_summary %}
+											{{ h.summary_json.field_summary }}
+										  {% else %}
+											(없음)
+										  {% endif %}<br>
+										  파일 변경:
+										  {% if h.summary_json.file_summary %}
+											{% for f in h.summary_json.file_summary.prev %}
+											  (<a href="{{ f.url }}" target="_blank" download>{{ f.filename }}</a> 삭제)
+											{% endfor %}
+											{% for f in h.summary_json.file_summary.curr %}
+											  (<a href="{{ f.url }}" target="_blank" download>{{ f.filename }}</a> 생성)
+											{% endfor %}
+										  {% else %}
+											(없음)
+										  {% endif %}
+										{% elif h.history_type == 'edit_research' %}
+										  필드 변경:
+										  {% if h.summary_json.field_summary %}
+											{{ h.summary_json.field_summary }}
+										  {% else %}
+											(없음)
+										  {% endif %}<br>
+										  파일 변경:
+										  {% if h.summary_json.file_summary %}
+											{% for f in h.summary_json.file_summary.prev %}
+											  (<a href="{{ f.url }}" target="_blank" download>{{ f.filename }}</a> 삭제)
+											{% endfor %}
+											{% for f in h.summary_json.file_summary.curr %}
+											  (<a href="{{ f.url }}" target="_blank" download>{{ f.filename }}</a> 생성)
+											{% endfor %}
+										  {% else %}
+											(없음)
+										  {% endif %}
+										{% elif h.history_type == 'remove_research' %}
+										  <a href="/research/{{ h.research.id }}/">
+											{{ h.research.research_name }} ({{ h.research.medicine_name }})
+										  </a> 삭제
+										{% elif h.history_type == 'assign_patient' %}
+										  환자 <a href="/patient/{{ h.patient.id }}/">
+											({{ h.patient.patient_id }}) {{ h.patient.patient_name }}
+										  </a> 배정
+										{% elif h.history_type == 'remove_patient' %}
+										  환자 <a href="/patient/{{ h.patient.id }}/">
+											({{ h.patient.patient_id }}) {{ h.patient.patient_name }}
+										  </a> 삭제
+										{% endif %}
+									</td>
+									<td>{{ h.create_date }}</td>
+								</tr>
+							  {% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<!-- <script src="{% static 'assets/js/pages/studies_view.js' %}"></script> -->
+<script src="{% static 'js/CRUD/research_detail.js' %}"></script>
+<script>
+  $(function() {
+    var table = $('#clinicalTable01').DataTable({
+		"order": [[ 2, 'asc' ]],
+        dom: "Bfrltp",
+        buttons: ['']
+		//lengthMenu: [10, 20, 50, 100, 200, 500]
+    } );
+	$('#table-filter').on('change', function(){
+	    var selectedValue = this.value;
+	    if (selectedValue === '') {
+	        table.column(0).search('').draw();
+	    } else {
+	        table.column(0).search('^' + selectedValue + '$', true, false).draw();
+	    }
+    });
+	$('#table-filter2').on('change', function(){
+    	table.column(1).search(this.value).draw();
+    });
+	$('#table-filter5').on('change', function(){
+    	table.column(11).search(this.value).draw();
+    });
+
+    var table3 = $('#prescreeninglistTable01').DataTable({
+        "order": [[ 2, 'asc' ]],
+    } );
+    $('#table-filter3').on('change', function(){
+	    var selectedValue = this.value;
+	    if (selectedValue === '') {
+	        table3.column(0).search('').draw();
+	    } else {
+	        table3.column(0).search('^' + selectedValue + '$', true, false).draw();
+	    }
+    });
+
+    $('.goNewAssignment').click(function (e) {
+    	event.stopPropagation();
+        let researchID = $(this).attr('research-id');
+  		let PreScreeningID = $(this).attr('pre-screening-id');
+        if (researchID && PreScreeningID) {
+        	location.href = '/research/' + researchID + '/update_pre_scr_assignment/' + PreScreeningID + '/';
+        }
+    });
+	  
+    $('#waitinglistTable01').DataTable({
+	"order": [[ 6, 'asc' ]],
+    });	  
+  });
+
+  $('.modal-dialog').draggable({
+      "handle":".modal-header"
+  });
+
+</script>
+{% endblock %}

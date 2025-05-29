@@ -1,0 +1,16 @@
+[
+    {
+        "model": "feedback.FU",
+        "pk": 1,
+        "fields": {
+            "value": "image"
+        }
+    },
+    {
+        "model": "feedback.FU",
+        "pk": 2,
+        "fields": {
+            "value": "survival"
+        }
+    }
+]

@@ -1,0 +1,729 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load get_m2m_values from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>개시 연구</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Studies</li>
+									<li class="breadcrumb-item"><a href="/research/pre_initiation/">개시 연구</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 preinitiation_area">
+
+						<div class="status-overview">
+							<div class="item">
+								<div class="box green shadow" data-toggle="tooltip" data-placement="bottom" title="현재 개시하지 않은 연구 수입니다. (개시일 항목이 등록된 모든 연구 기준)">
+									<h4>개시 예정</h4>
+									<h3 class="text-white">{% for dashboard in dashboard %}{{ dashboard.scheduled_to_start_SIT|add:dashboard.scheduled_to_start_IIT }}{% endfor %}</h3>
+									<p>ALL</p>
+									<i class="bi bi-box-seam display-3"></i>
+								</div>
+							</div>
+							<div class="item">
+								<div class="box green2 shadow" data-toggle="tooltip" data-placement="bottom" title="현재 개시하지 않은 연구 수입니다. (개시일 항목이 등록된 SIT, EAP, PMS, 완화연구, 혈액/조직연구 기준)">
+									<h4>개시 예정</h4>
+									<h3 class="text-success">
+										{% for dashboard in dashboard %}{{ dashboard.scheduled_to_start_SIT }}{% endfor %}
+									</h3>
+									<p>SIT, EAP, PMS, 완화 연구, etc</p>
+									<i class="bi bi-box-seam display-3"></i>
+								</div>
+							</div>
+							<div class="item" data-toggle="tooltip" data-placement="bottom" title="현재 개시하지 않은 연구 수입니다. (개시일 항목이 등록된 IIT 연구 기준)">
+								<div class="box green2 shadow">
+									<h4>개시 예정</h4>
+									<h3 class="text-success">
+										{% for dashboard in dashboard %}{{ dashboard.scheduled_to_start_IIT }}{% endfor %}
+									</h3>
+									<p>IIT</p>
+									<i class="bi bi-box-seam display-3"></i>
+								</div>
+							</div>
+							<div class="item">
+								<div class="box red shadow" data-toggle="tooltip" data-placement="bottom" title="진행 보류 항목이 'Y'인 연구 수입니다.">
+									<h4>진행 보류</h4>
+									<h3 class="text-white">
+										{% for dashboard in dashboard %}{{ dashboard.withhold }}{% endfor %}
+									</h3>
+									<i class="bi bi-exclamation-triangle display-3"></i>
+								</div>
+							</div>
+							<div class="item">
+								<div class="box sky shadow" data-toggle="tooltip" data-placement="bottom" title="{{the_first_day_of_the_year|date:'Y-m-d'}} 이후 개시한 연구 수입니다.">
+									<h4>개시 완료</h4>
+									<h3 class="text-white">
+										{% for dashboard in dashboard %}{{ dashboard.start_completion }}{% endfor %}
+									</h3>
+									<i class="bi bi-check-square display-3"></i>
+								</div>
+							</div>
+						</div>
+
+
+						<div class="preinitiation-header">
+							<div class="index-area">
+								<span class="index orange">당월 개시</span>
+								<span class="index yellow">개시 확정</span>
+								<span class="index lightgreen">IRB 신청 전</span>
+							</div>
+						</div>
+
+						{% for team in teams %}
+						{% if request.GET.team == team.name or not request.GET.team or request.GET.team == '' %} <!-- team parameter 가 team.name 이거나 team parameter 가 없거나 team parameter 가 빈 값일 때 -->
+						<div class="card shadow mb-4">
+							<!-- Card Header - Dropdown -->
+							<div class="card-header py-3 u-bg-red">
+								<h3 class="m-0 fs-5">{{ team.name }}</h3>
+							</div>
+							<!-- Card Body -->
+							<div class="card-body">
+
+								<div class="table-cons">
+									<!-- 상단 ADD버튼 -->
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit">SIT, EAP, PMS, 완화 연구, etc</span></h4>
+										<div class="col ms-auto">
+											<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/pre_initiation/add/?team={{ team.name }}&type=SIT'">
+												<i class="bi bi-plus-square"></i> <span>Add</span>
+											</button>
+										</div>
+									</div>
+									<div class="table-responsive">
+										<table class="table table-bordered pre-initiation">
+											<thead>
+												<tr>
+													<th rowspan="2">Status</th>
+													<th rowspan="2">Project No.</th>
+													<th rowspan="2">Sponsor</th>
+													<th rowspan="2">CRO</th>
+													<th rowspan="2">Study Name</th>
+													<th rowspan="2">Tx</th>
+													<th rowspan="2">IIT/SIT</th>
+													<th rowspan="2">Cancer</th>
+													<th rowspan="2">PI</th>
+													<th rowspan="2">Setup</th>
+													<th rowspan="2">CRC</th>
+													<th rowspan="2">Feasibility</th>
+													<th rowspan="2">PSV</th>
+													<th rowspan="2">SIV</th>
+													<th rowspan="2">Budgeting</th>
+													<th colspan="3" class="text-center">IRB</th>
+													<th class="text-center">Contract</th>
+													<th rowspan="2" class="text-center">Initiation Date<br>(CTC 주사실 계약 여부)</th>
+													<th rowspan="2">Comment</th>
+													<th rowspan="2" class="text-center">Register</th>
+												</tr>
+												<tr>
+													<th class="brdL-no">신규 심의</th>
+													<th>시정승인</th>
+													<th>최종 승인</th>
+													<th>계약서 발송</th>
+												</tr>
+											</thead>
+											<tbody>
+											  {% for pre in pre_initiation %}
+              								  {% if pre.team == team.name and 'IIT' not in pre.type.all|get_m2m_values and pre.is_withhold == 'N' and pre.initiation_date|date:'Y-m-d' > today or pre.team == team.name and 'IIT' not in pre.type.all|get_m2m_values and pre.is_withhold == 'N' and pre.initiation_date == NULL %}
+												<tr class="table-link" data-link="/research/pre_initiation/{{ pre.id }}/">
+													<td class="text-center">
+														{% if pre.initiation_date|date:'Y' == date_year and pre.initiation_date|date:'m' == date_month %} <!-- 당월 개시 -->
+															<span class="index orange"></span>
+														{% elif pre.is_commence == 'Y' %} <!-- 개시 확정 -->
+															<span class="index yellow"></span>
+														{% elif pre.study_code == '' or pre.study_code == NULL %} <!-- 과제번호 빈 값 => IRB 신청 전 -->
+															<span class="index lightgreen">IRB 신청 전</span>
+														{% else %}
+														{% endif %}
+													</td>
+													<td>{{ pre.study_code|default_if_none:"" }}</td>
+												    <td>{{ pre.sponsor|default_if_none:"" }}</td>
+												    <td>{{ pre.CRO|default_if_none:"" }}</td>
+													<td data-toggle="tooltip" data-placement="right" title="{{ pre.study_explanation|default_if_none:'' }}">{{ pre.pre_research_name }}</td>
+													<td>{{ pre.tx|default_if_none:"" }}</td>
+													<td>
+														<span class="badge bg-secondary">
+															{% if pre.type %}
+															  {% with count=pre.type.count %}
+																{% for type in pre.type.all %}
+																  {{ type }}{% if forloop.counter < count %},{% endif %}
+																{% endfor %}
+															  {% endwith %}
+															{% endif %}
+														</span>
+													</td>
+													<td>
+														{% with count=pre.cancer.count %}{% for inst in pre.cancer.all %}{{ inst }}{% if forloop.counter < count %}, {% endif %}{% endfor %}{% endwith %}
+													</td>
+													<td>{{ pre.PI }}</td>
+													<td>
+													  {% with count=pre.set_up.count %}
+														{% for inst in pre.set_up.all %}
+														  {{ inst }}{% if forloop.counter < count %},{% endif %}
+														{% endfor %}
+													  {% endwith %}
+													</td>
+													<td>{{ pre.crc }}</td>
+													<td>{% for setup in pre.pre_initiation_sit_set.all %}{{ setup.feasibility|date:'y-m-d' }}{% endfor %}</td>
+													<td>
+													  {% for setup in pre.pre_initiation_sit_set.all %}
+													  {% if setup.PSV == NULL %}
+														N/A
+													  {% else %}
+														{% if setup.PSV|time:"H" == '00' %}
+														  {{ setup.PSV|default_if_none:""|date:'y-m-d' }}
+														{% else %}
+														  {{ setup.PSV|default_if_none:""|date:'y-m-d H:i' }}
+														{% endif %}
+													  {% endif %}
+													  {% endfor %}
+													</td>
+													<td>{% for setup in pre.pre_initiation_sit_set.all %}{{ setup.SIV|date:'y-m-d' }}{% endfor %}</td>
+													<td>{% for setup in pre.pre_initiation_sit_set.all %}{{ setup.budgeting_from|date:'y-m-d' }}~{{ setup.budgeting_to|date:'y-m-d' }}{% endfor %}</td>
+													<td>{% for setup in pre.pre_initiation_sit_set.all %}{{ setup.IRB_new_review|date:'y-m-d' }}{% endfor %}</td>
+													<td>{% for setup in pre.pre_initiation_sit_set.all %}{{ setup.IRB_qualified_permission|date:'y-m-d' }}{% endfor %}</td>
+													<td>{% for setup in pre.pre_initiation_sit_set.all %}{{ setup.IRB_finalization|date:'y-m-d' }}{% endfor %}</td>
+													<td>{% for setup in pre.pre_initiation_sit_set.all %}{{ setup.contract|date:'y-m-d' }}{% endfor %}</td>
+													<td>{{ pre.initiation_date|default_if_none:"" }}</td>
+													<td style="white-space: pre-line; width:60%;">{{ pre.memo }}</td>
+													<td class="text-center">
+														<button type="button" class="btn btn-outline-success btn-sm text-nowrap goNewResearch" pre-id="{{ pre.id }}">
+															<i class="bi bi-pencil"></i> <span class="sr-only">Register</span>
+														</button>
+													</td>
+												</tr>
+											  {% endif %}
+											  {% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+
+								<div class="table-cons">
+									<!-- 상단 ADD버튼 -->
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit">IIT</span></h4>
+										<div class="col ms-auto">
+											<button type="button" class="btn btn-success edit-btn px-4" onclick="location.href='/research/pre_initiation/add/?team={{ team.name }}&type=IIT'">
+												<i class="bi bi-plus-square"></i> <span>Add</span>
+											</button>
+										</div>
+									</div>
+									<div class="table-responsive">
+										<table class="table table-bordered pre-initiation-IIT">
+											<thead>
+												<tr>
+													<th>Status</th>
+													<th>Project No.</th>
+													<th>Study Name</th>
+													<th>Tx</th>
+               										<th>IIT/SIT</th>
+													<th>PI/MD</th>
+													<th>Cancer</th>
+													<th>Company or<br>CI(타기관 경우)</th>
+													<th>Setup</th>
+               										<th>CRC</th>
+													<th>Initiation Date<br>(CTC 주사실 계약 여부)</th>
+													<th>Comment</th>
+													<th class="text-center">Register</th>
+												</tr>
+											</thead>
+											<tbody>
+											  {% for pre in pre_initiation %}
+											  {% if pre.team == team.name and 'IIT' in pre.type.all|get_m2m_values and pre.is_withhold == 'N' and pre.initiation_date|date:'Y-m-d' > today or pre.team == team.name and 'IIT' in pre.type.all|get_m2m_values and pre.is_withhold == 'N' and pre.initiation_date == NULL %}
+											    <tr class="table-link" data-link="/research/pre_initiation/{{ pre.id }}/">
+													<td class="text-center">
+														{% if pre.initiation_date|date:'Y' == date_year and pre.initiation_date|date:'m' == date_month %} <!-- 당월 개시 -->
+															<span class="index orange"></span>
+														{% elif pre.is_commence == 'Y' %} <!-- 개시 확정 -->
+															<span class="index yellow"></span>
+														{% elif pre.study_code == '' or pre.study_code == NULL %} <!-- 과제번호 빈 값 => IRB 신청 전 -->
+															<span class="index lightgreen">IRB 신청 전</span>
+														{% else %}
+														{% endif %}
+													</td>
+													<td>{{ pre.study_code|default_if_none:"" }}</td>
+													<td data-toggle="tooltip" data-placement="right" title="{{ pre.study_explanation|default_if_none:'' }}">{{ pre.pre_research_name }}</td>
+													<td>{{ pre.tx|default_if_none:"" }}</td>
+													<td>
+														<span class="badge bg-secondary">
+															{% if pre.type %}
+															  {% with count=pre.type.count %}
+																{% for type in pre.type.all %}
+																  {{ type }}{% if forloop.counter < count %},{% endif %}
+																{% endfor %}
+															  {% endwith %}
+															{% endif %}
+														</span>
+													</td>
+													<td>{{ pre.PI|default_if_none:"" }}</td>
+													<td>
+													  {% with count=pre.cancer.count %}{% for inst in pre.cancer.all %}{{ inst }}{% if forloop.counter < count %}, {% endif %}{% endfor %}{% endwith %}
+													</td>
+													<td>{{ pre.sponsor }}</td>
+													<td>
+													  {% with count=pre.set_up.count %}
+														{% for inst in pre.set_up.all %}
+														  {{ inst }}{% if forloop.counter < count %},{% endif %}
+														{% endfor %}
+													  {% endwith %}
+													</td>
+													<td>{{ pre.crc }}</td>
+													<td>{{ pre.initiation_date|default_if_none:"" }}</td>
+													<td style="white-space: pre-line; width:60%;">{{ pre.memo }}</td>
+													<td class="text-center">
+														<button type="button" class="btn btn-outline-success btn-sm text-nowrap goNewResearch" pre-id="{{ pre.id }}">
+															<i class="bi bi-pencil"></i> <span class="sr-only">Register</span>
+														</button>
+													</td>
+												</tr>
+											  {% endif %}
+											  {% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+
+								<div class="table-cons border-bottom-0 mb-0">
+									<!-- 상단 ADD버튼 -->
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit">진행 보류 연구</span></h4>
+									</div>
+									<div class="table-responsive">
+										<table class="table table-bordered withhold-pre-initiation">
+											<thead>
+												<tr>
+													<th>Status</th>
+													<th>Project No.</th>
+													<th>Study Name</th>
+													<th>Tx</th>
+                									<th>IIT/SIT</th>
+													<th>Cancer</th>
+													<th>PI</th>
+													<th>Setup</th>
+													<th>CRC</th>
+													<th>Initiation Date<br>(CTC 주사실 계약 여부)</th>
+													<th>Comment</th>
+												</tr>
+											</thead>
+											<tbody>
+											  {% for pre in pre_initiation %}
+											  {% if pre.team == team.name and pre.is_withhold == 'Y' %}
+											    <tr class="table-link" data-link="/research/pre_initiation/{{ pre.id }}/">
+												  <td class="text-center">
+													{% if pre.initiation_date|date:'Y' == date_year and pre.initiation_date|date:'m' == date_month %} <!-- 당월 개시 -->
+														<span class="index orange"></span>
+													{% elif pre.is_commence == 'Y' %} <!-- 개시 확정 -->
+														<span class="index yellow"></span>
+													{% elif pre.study_code == '' or pre.study_code == NULL %} <!-- 과제번호 빈 값 => IRB 신청 전 -->
+														<span class="index lightgreen">IRB 신청 전</span>
+													{% else %}
+													{% endif %}
+												  </td>
+											      <td>{{ pre.study_code|default_if_none:"" }}</td>
+											  	  <td data-toggle="tooltip" data-placement="right" title="{{ pre.study_explanation|default_if_none:'' }}">{{ pre.pre_research_name }}</td>
+											      <td>{{ pre.tx|default_if_none:"" }}</td>
+											      <td>
+													  <span class="badge bg-secondary">
+														{% if pre.type %}
+														  {% with count=pre.type.count %}
+															{% for type in pre.type.all %}
+															  {{ type }}{% if forloop.counter < count %},{% endif %}
+															{% endfor %}
+														  {% endwith %}
+														{% endif %}
+													  </span>
+												  </td>
+												  <td>
+												  {% with count=pre.cancer.count %}{% for inst in pre.cancer.all %}{{ inst }}{% if forloop.counter < count %}, {% endif %}{% endfor %}{% endwith %}
+												  </td>
+												  <td>{{ pre.PI }}</td>
+												  <td>
+												  {% with count=pre.set_up.count %}
+													{% for inst in pre.set_up.all %}
+													  {{ inst }}{% if forloop.counter < count %},{% endif %}
+													{% endfor %}
+												  {% endwith %}
+												  </td>
+												  <td>{{ pre.crc }}</td>
+												  <td>{{ pre.initiation_date|default_if_none:"" }}</td>
+												  <td style="white-space: pre-line; width:60%;">{{ pre.memo }}</td>
+												</tr>
+											  {% endif %}
+											  {% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+
+							</div>
+						</div>
+						{% endif %}
+						{% endfor %}
+
+						<div class="card shadow mb-4">
+							<!-- Card Header - Dropdown -->
+							<div class="card-header py-3 u-bg-gray">
+								<h3 class="m-0 fs-5">개시 완료</h3>
+							</div>
+							<!-- Card Body -->
+							<div class="card-body">
+
+								<div class="table-cons select-fitter">
+									<!-- 상단 ADD버튼 -->
+									<div class="text-danger text-center mb-2">※ CTC 주사실 계약 여부 N인 경우, 마우스 오버 시 사유가 보입니다. (SIT 해당)</div>
+
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit"> SIT, EAP, PMS, 완화 연구, etc</span></h4>
+										<!-- 다중선택되는 select박스로 검색하기 -->
+										<div class="row row-cols-auto select-action ms-auto pb-0">
+											<div class="col">
+												<select id="COMPLETE-pre-initiation-SIT-filter" class="form-select">
+													<option value="">Team</option>
+													<option value="CLUE">CLUE</option>
+													<option value="GSI">GSI</option>
+												</select>
+											</div>
+											<div class="col">
+												<select id="COMPLETE-pre-initiation-SIT-filter2" class="form-select">
+													<option value="" selected="">PI</option>
+												</select>
+											</div>
+											<div class="col">
+												<select id="COMPLETE-pre-initiation-SIT-filter3" class="form-select">
+													<option value="" selected="">Cancer</option>
+												</select>
+											</div>
+										</div>
+									</div>
+
+									<div class="table-responsive">
+										<table class="table table-bordered" id="COMPLETE-pre-initiation-SIT">
+											<thead>
+												<tr>
+													<th rowspan="2">Team</th>
+													<th rowspan="2">Project No.</th>
+													<th rowspan="2">Sponsor</th>
+													<th rowspan="2">CRO</th>
+													<th rowspan="2">Study Name</th>
+													<th rowspan="2">Tx</th>
+                									<th rowspan="2">IIT/SIT</th>
+													<th rowspan="2">Cancer</th>
+													<th rowspan="2">PI</th>
+													<th rowspan="2">Setup</th>
+													<th rowspan="2">CRC</th>
+													<th rowspan="2">Feasibility</th>
+													<th rowspan="2">PSV</th>
+													<th rowspan="2">SIV</th>
+													<th rowspan="2">Budgeting</th>
+													<th colspan="3" class="text-center">IRB</th>
+													<th class="text-center">Contract</th>
+													<th rowspan="2">Initiation Date<br>(CTC 주사실 계약 여부)</th>
+													<th rowspan="2">Comment</th>
+													<th rowspan="2" class="text-center">Register</th>
+												</tr>
+												<tr>
+													<th class="brdL-no">신규 심의</th>
+													<th>시정승인</th>
+													<th>최종 승인</th>
+													<th>계약서 발송</th>
+												</tr>
+											</thead>
+											<tbody>
+											  {% for pre in pre_initiation %}
+											  {% if pre.initiation_date|date:'Y-m-d' <= today and pre.initiation_date != NULL and 'IIT' not in pre.type.all|get_m2m_values %}
+												  <tr class="table-link" data-link="/research/pre_initiation/{{ pre.id }}/">
+													<td>{{ pre.team }}</td>
+													<td>{{ pre.study_code|default_if_none:"" }}</td>
+													<td>{{ pre.sponsor|default_if_none:"" }}</td>
+													<td>{{ pre.CRO|default_if_none:"" }}</td>
+													<td data-toggle="tooltip" data-placement="right" title="{{ pre.study_explanation|default_if_none:'' }}">{{ pre.pre_research_name }}</td>
+													<td>{{ pre.tx|default_if_none:"" }}</td>
+													<td>
+														<span class="badge bg-secondary">
+															{% if pre.type %}
+															  {% with count=pre.type.count %}
+																{% for type in pre.type.all %}
+																  {{ type }}{% if forloop.counter < count %},{% endif %}
+																{% endfor %}
+															  {% endwith %}
+															{% endif %}
+														</span>
+													</td>
+													<td>
+													  {% with count=pre.cancer.count %}{% for inst in pre.cancer.all %}{{ inst }}{% if forloop.counter < count %}, {% endif %}{% endfor %}{% endwith %}
+													</td>
+													<td>{{ pre.PI }}</td>
+													<td>
+													  {% with count=pre.set_up.count %}
+														{% for inst in pre.set_up.all %}
+														  {{ inst }}{% if forloop.counter < count %},{% endif %}
+														{% endfor %}
+													  {% endwith %}
+													</td>
+													<td>{{ pre.crc }}</td>
+													<td>{{ pre.feasibility|default_if_none:"" }}</td>
+													<td>
+													  {% if pre.PSV == NULL %}
+														N/A
+													  {% else %}
+														{% if pre.PSV|time:"H" == '00' %}
+														  {{ pre.PSV|default_if_none:""|date:'y-m-d' }}
+														{% else %}
+														  {{ pre.PSV|default_if_none:""|date:'y-m-d H:i' }}
+														{% endif %}
+													  {% endif %}
+													</td>
+													<td>{{ pre.SIV|default_if_none:""|date:'y-m-d' }}</td>
+													<td>{{ pre.budgeting|default_if_none:"" }}</td>
+													<td>{{ pre.IRB_new_review|default_if_none:""|date:'y-m-d' }}</td>
+													<td>{{ pre.IRB_qualified_permission|default_if_none:""|date:'y-m-d' }}</td>
+													<td>{{ pre.IRB_finalization|default_if_none:""|date:'y-m-d' }}</td>
+													<td>{{ pre.contract|default_if_none:""|date:'y-m-d' }}</td>
+													<td data-toggle="tooltip" data-placement="right" title="{% if pre.CTC_non_contract_reason %}{{ pre.CTC_non_contract_reason }}{% endif %}">
+													  {{ pre.initiation_date|default_if_none:"" }} {% if 'SIT' in pre.type.all|get_m2m_values and pre.initiation_date %}({% if pre.CTC_contract == True %}Y{% else %}N{% endif %}){% endif %}</td>
+													<td style="white-space: pre-line; width:60%;">{{ pre.memo }}</td>
+													<td class="text-center">
+														<button type="button" class="btn btn-outline-success btn-sm text-nowrap goNewResearch" pre-id="{{ pre.id }}">
+															<i class="bi bi-pencil"></i> <span class="sr-only">Register</span>
+														</button>
+													</td>
+												  </tr>
+											  {% endif %}
+											  {% endfor %}
+
+											</tbody>
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+
+								<div class="table-cons border-bottom-0 mb-0 ">
+									<!-- 상단 ADD버튼 -->
+									<div class="row row-cols-auto align-items-center header-btns">
+										<h4 class="col sub-title mb-0"><span class="tit">IIT</span></h4>
+										<!-- 다중선택되는 select박스로 검색하기 -->
+										<div class="row row-cols-auto select-action pb-0 ms-auto">
+											<div class="col">
+												<select id="COMPLETE-pre-initiation-IIT-filter" class="form-select">
+													<option value="">Team</option>
+													<option value="CLUE">CLUE</option>
+													<option value="GSI">GSI</option>
+												</select>
+											</div>
+											<div class="col">
+												<select id="COMPLETE-pre-initiation-IIT-filter2" class="form-select">
+													<option value="" selected>PI/MD</option>
+												</select>
+											</div>
+											<div class="col">
+												<select id="COMPLETE-pre-initiation-IIT-filter3" class="form-select">
+													<option value="" selected>Cancer</option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="table-responsive">
+										<table class="table table-bordered" id="COMPLETE-pre-initiation-IIT">
+											<thead>
+												<tr>
+													<th>Team</th>
+													<th>Project No.</th>
+													<th>Study Name</th>
+													<th>Tx</th>
+													<th>IIT/SIT</th>
+													<th>PI/MD</th>
+													<th>Cancer</th>
+													<th>Company or<br/>CI(타기관 경우)</th>
+													<th>Setup</th>
+													<th>CRC</th>
+													<th>Initiation Date<br/>(CTC 주사실 계약 여부)</th></th>
+													<th>Comment</th>
+													<th>Register</th>
+											   	</tr>
+											</thead>
+											<tbody>
+											  {% for pre in pre_initiation %}
+											  {% if pre.initiation_date|date:'Y-m-d' <= today and pre.initiation_date != NULL and 'IIT' in pre.type.all|get_m2m_values %}
+											    <tr class="table-link" data-link="/research/pre_initiation/{{ pre.id }}/">
+													<td>{{ pre.team }}</td>
+													<td>{{ pre.study_code|default_if_none:"" }}</td>
+													<td data-toggle="tooltip" data-placement="right" title="{{ pre.study_explanation|default_if_none:'' }}">{{ pre.pre_research_name }}</td>
+													<td>{{ pre.tx|default_if_none:"" }}</td>
+													<td>
+														<span class="badge bg-secondary">
+
+															{% if pre.type %}
+															  {% with count=pre.type.count %}
+																{% for type in pre.type.all %}
+																  {{ type }}{% if forloop.counter < count %},{% endif %}
+																{% endfor %}
+															  {% endwith %}
+															{% endif %}
+														</span>
+													</td>
+													<td>{{ pre.PI }}</td>
+													<td>
+													  {% with count=pre.cancer.count %}{% for inst in pre.cancer.all %}{{ inst }}{% if forloop.counter < count %}, {% endif %}{% endfor %}{% endwith %}
+													</td>
+													<td>{{ pre.sponsor }}</td>
+													<td>
+													  {% with count=pre.set_up.count %}
+														{% for inst in pre.set_up.all %}
+														  {{ inst }}{% if forloop.counter < count %},{% endif %}
+														{% endfor %}
+													  {% endwith %}
+													</td>
+													<td>{{ pre.crc }}</td>
+													<td>{{ pre.initiation_date|default_if_none:"" }}</td>
+													<td style="white-space: pre-line; width:60%;">{{ pre.memo }}</td>
+													<td class="text-center">
+														<button type="button" class="btn btn-outline-success btn-sm text-nowrap goNewResearch" pre-id="{{ pre.id }}">
+															<i class="bi bi-pencil"></i> <span class="sr-only">Register</span>
+														</button>
+													</td>
+												  </tr>
+												{% endif %}
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div><!-- //table-cons -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/studies.js' %}"></script>
+<script src="{% static 'js/CRUD/pre_initiation_detail.js' %}"></script>
+<script src="{% static 'js/CRUD/file-upload.js' %}"></script>
+<script>
+      $(function () {
+        $(".initiationdate").datepicker({
+            todayHighlight: true
+        });
+      });
+
+      $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('.pre-initiation').DataTable({
+			dom: "frltp",
+			columnDefs: [
+				{ orderable: false, targets: [17, 18] }
+			]
+		});
+		$('.pre-initiation-IIT').DataTable({
+			dom: "frltp",
+			columnDefs: [
+				{ orderable: false, targets: [8, 9] }
+			]
+		});
+		$('.withhold-pre-initiation').DataTable({
+			dom: "frltp",
+			columnDefs: [
+				{ orderable: false, targets: [7] }
+			]
+		});
+
+		//$('#COMPLETE-pre-initiation-SIT').DataTable();
+		var table2 = $('#COMPLETE-pre-initiation-SIT').DataTable({
+			dom: "frltp",
+			columnDefs: [
+				{ orderable: false, targets: [18] }
+			]
+		} );
+
+		$('#COMPLETE-pre-initiation-SIT-filter').on('change', function(){
+		   table2.search(this.value).draw();
+		});
+
+		table2.column(7).data().unique().sort().each(function(value, index) {
+			$('#COMPLETE-pre-initiation-SIT-filter2').append('<option value="' + value + '">' + value + '</option>');
+		});
+		$('#COMPLETE-pre-initiation-SIT-filter2').on('change', function(){
+			table2.column(7).search(this.value).draw();
+		});
+
+		// 원래 데이터에서 값을 가져옵니다.
+		var table2_column6 = table2.column(6).data();
+
+		// 모든 값을 쉼표로 분리하고 중복을 제거한 후 정렬합니다.
+		var uniqueValues = table2_column6.toArray().join(', ').split(', ').filter(function (value, index, self) {
+			return self.indexOf(value) === index;
+		}).sort();
+
+		// 셀렉트 박스에 옵션으로 추가합니다.
+		uniqueValues.forEach(function (val) {
+			$('#COMPLETE-pre-initiation-SIT-filter3').append('<option value="' + val + '">' + val + '</option>');
+		});
+
+		// 셀렉트 박스의 변경 이벤트를 처리합니다.
+		$('#COMPLETE-pre-initiation-SIT-filter3').on('change', function () {
+			// 선택한 값으로 열 필터링을 적용하고 다시 그립니다.
+			table2.column(6).search(this.value).draw();
+		});
+
+
+		//$('#COMPLETE-pre-initiation-IIT').DataTable();
+		var table3 = $('#COMPLETE-pre-initiation-IIT').DataTable({
+			dom: "frltp",
+			columnDefs: [
+				{ orderable: false, targets: [9] }
+			]
+		} );
+		$('#COMPLETE-pre-initiation-IIT-filter').on('change', function(){
+		   table3.search(this.value).draw();
+		});
+
+		table3.column(4).data().unique().sort().each(function(value, index) {
+			$('#COMPLETE-pre-initiation-IIT-filter2').append('<option value="' + value + '">' + value + '</option>');
+		});
+		$('#COMPLETE-pre-initiation-IIT-filter2').on('change', function(){
+			table3.column(4).search(this.value).draw();
+		});
+
+
+		var table3_column5 = table3.column(5).data();
+		var uniqueValues = table3_column5.toArray().join(', ').split(', ').filter(function (value, index, self) {
+			return self.indexOf(value) === index;
+		}).sort();
+		uniqueValues.forEach(function (val) {
+			$('#COMPLETE-pre-initiation-IIT-filter3').append('<option value="' + val + '">' + val + '</option>');
+		});
+		$('#COMPLETE-pre-initiation-IIT-filter3').on('change', function () {
+			table3.column(5).search(this.value).draw();
+		});
+
+		$('.goNewResearch').click(function (e) {
+			event.stopPropagation();
+			let PreInitiationID = $(this).attr('pre-id');
+			if (PreInitiationID) {
+				location.href = '/research/pre_initiation/update_research/' + PreInitiationID + '/'
+			}
+		});
+      });
+</script>
+{% endblock %}

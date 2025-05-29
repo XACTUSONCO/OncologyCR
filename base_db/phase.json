@@ -1,0 +1,37 @@
+[
+    {
+        "model": "research.Phase",
+        "pk": 1,
+        "fields": {
+            "value": "na"
+        }
+    },
+    {
+        "model": "research.Phase",
+        "pk": 2,
+        "fields": {
+            "value": "phase1"
+        }
+    },
+    {
+        "model": "research.Phase",
+        "pk": 3,
+        "fields": {
+            "value": "phase2"
+        }
+    },
+    {
+        "model": "research.Phase",
+        "pk": 4,
+        "fields": {
+            "value": "phase3"
+        }
+    },
+    {
+        "model": "research.Phase",
+        "pk": 5,
+        "fields": {
+            "value": "phase4"
+        }
+    }
+]

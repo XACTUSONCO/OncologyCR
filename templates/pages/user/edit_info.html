@@ -1,0 +1,130 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>사용자 정보 수정</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<ul id="submenu-tab">
+								<li class="nav-item"><a href="/user/profile/overview/">Overview</a></li>
+								<li class="nav-item"><a href="/user/profile/edit/info/">Edit Profile</a></li>
+								<li class="nav-item"><a href="/user/profile/edit/password/">Change Password</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<div class="info-box">
+							<div class="default-forms">
+								<form method="post" action="/user/profile/edit/info/" enctype="multipart/form-data">
+								{% csrf_token %}
+									<input id="user-id" type="hidden" name="user_id" value="{{ user.id }}"/>
+									<div class="modal-body">
+										<div class="form-group row">
+											<label for="username" class="col-lg-2 col-form-label">아이디</label>
+											<div class="col-lg-10 col-form-data">
+												<input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" readonly>
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="name" class="col-lg-2 col-form-label">이름(Kor)</label>
+											<div class="col-lg-10 col-form-data">
+												<input type="text" class="form-control" id="name" name="name" maxlength="50" value="{{ user.contact.name|default_if_none:"" }}">
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="eng_name" class="col-lg-2 col-form-label">이름(Eng)</label>
+											<div class="col-lg-10 col-form-data">
+												<input type="text" class="form-control" id="eng_name" name="eng_name"
+													   maxlength="50" value="{{ user.contact.eng_name|default_if_none:"" }}">
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="email" class="col-lg-2 col-form-label">E-mail</label>
+											<div class="col-lg-10 col-form-data">
+												<input type="email" class="form-control" id="email" name="email" maxlength="100" value="{{ user.email|default_if_none:"" }}">
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="group" class="col-lg-2 col-form-label">Group</label>
+											<div class="col-lg-10 col-form-data">
+												<select class="form-control custom-select" id="group" name="groups" multiple>
+													{% for group in groups %}
+														<option value="{{ group }}" {% if group.name in user.contact.group_str %}selected{% endif %}>{{ group }}</option>
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="team" class="col-lg-2 col-form-label">Team</label>
+											<div class="col-lg-10 col-form-data">
+												<select class="form-control custom-select" id="team" name="team">
+													{% for team in teams %}
+														<option value="{{ team.name }}" {% if team.name in user.contact.team.name %}selected{% endif %}>{{ team.name }}</option>
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="phone" class="col-lg-2 col-form-label">Phone</label>
+											<div class="col-lg-10 col-form-data">
+												<input type="text" class="form-control" id="phone" name="phone" maxlength="50" value="{{ user.contact.phone|default_if_none:"" }}">
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="work_phone" class="col-lg-2 col-form-label">Work Phone</label>
+											<div class="col-lg-10 col-form-data">
+												<input type="text" class="form-control" id="work_phone" name="work_phone"
+													   maxlength="50" value="{{ user.contact.work_phone|default_if_none:"" }}">
+											</div>
+										</div>
+										<div class="form-group row">
+											<label for="loca" class="col-lg-2 col-form-label">Location</label>
+											<div class="col-lg-10 col-form-data">
+												<select class="form-control custom-select" id="loca" name="location">
+													{% for location in locations %}
+														<option value="{{ location.name }}" {% if location.name in user.contact.location.name %}selected{% endif %}>{{ location.name }}</option>
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="py-4 px-3 text-end">
+										<button type="submit" class="btn btn-success add-btn px-4">
+											<i class="bi bi-pencil"></i> <span>Save</span>
+										</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- 커스텀 js -->
+<script src="{% static 'js/CRUD/research_add.js' %}"></script>
+{% endblock %}

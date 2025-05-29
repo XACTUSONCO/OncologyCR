@@ -1,0 +1,45 @@
+  <thead>
+     <tr>
+         <th>Status</th>
+         <th>Target</th>
+         <th>No</th>
+         <th>Reg No.</th>
+         <th>Name</th>
+         <th>Sex</th>
+         <th>Age</th>
+         <th>Dx</th>
+         <th>Previous Tx</th>
+         <th>Last response</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for pre in pre_assignments %}
+    <tr class="tr-hover">
+      <td class="nowrap detail-assignment" assignment-id="{{ pre.id }}">{{ pre.get_status_display }}</td>
+      <td class="nowrap detail-assignment" assignment-id="{{ pre.id }}">
+        {% if pre.research.onco_cr_count_set.all|length == 1 %}
+          -
+        {% else %}
+          {{ pre.phase }}
+        {% endif %}
+      </td>
+      <td class="detail_assignment" assignment-id="{{ pre.id }}">{{ pre.no|default_if_none:"" }}</td>
+      <td class="detail-assignment" assignment-id="{{ pre.id }}">{{ pre.register_number }}</td>
+      <td class="nowrap detail-assignment" assignment-id="{{ pre.id }}">{{ pre.name }}</td>
+      <td class="detail-assignment" assignment-id="{{ pre.id }}">{{ pre.get_sex_display|default_if_none:"" }}</td>
+      <td class="detail-assignment" assignment-id="{{ pre.id }}">{{ pre.age|default_if_none:"" }}</td>
+      <td class="detail-assignment" assignment-id="{{ pre.id }}">{{ pre.get_dx_display|default_if_none:"" }}</td>
+      <td class="pre-wrap detail-assignment" assignment-id="{{ pre.id }}">{{ pre.previous_tx|default_if_none:"" }}</td>
+      <td class="nowrap detail-assignment" assignment-id="{{ pre.id }}">
+        {% ifequal pre.feedback_set.count 0 %}
+          (empty)
+        {% else %}
+          {% with last_pre_screening=pre.feedback_set.all.last %}
+            {{ last_pre_screening.photo_date|date:"m/d/Y" }}
+            ({{ last_pre_screening.response }})
+          {% endwith %}
+        {% endifequal %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>

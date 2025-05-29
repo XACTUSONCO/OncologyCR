@@ -1,0 +1,769 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load get_value_from_dict from research_tag %}
+{% load split from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>CRC</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+								{% if user.id in onco %}
+								  <button type="button" class="btn btn-warning" onclick="location.href='/leave/patient/calendar/'">
+									  <i class="bi bi-calendar"></i> <span>환자 일정</span>
+								  </button>
+								{% endif %}
+								</ul>
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="/research/CRC/list">CRC</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<div class="info-box mb-5">
+							<div class="mb-4">
+								<div class="row">
+									<div class="col-md-6">
+										<div class="fulldetalil-search">
+										  <form action="/research/CRC/list" method="GET">
+										  	<div class="form-group">
+												<div class="form-cons">
+													<div class="form-check-area">
+														<div class="item ps-0">
+															<div class="form-check form-check-success">
+																<label class="form-check-label">
+																	<input type="radio" class="form-check-input" name="optionRadios" value="total" {% if option_radio != 'period' %} checked {% endif %}/><i class="input-helper"></i>
+																	<span class="form-check-sign">전체</span>
+																</label>
+															</div>
+														</div>
+														<div class="item">
+															<div class="form-check form-check-success">
+																<label class="form-check-label">
+																	<input type="radio" class="form-check-input" name="optionRadios" value="period" {% if option_radio == 'period' %} checked {% endif %}/><i class="input-helper"></i>
+																	<span class="form-check-sign">기간</span>
+																</label>
+															</div>
+														</div>
+													</div>
+
+													<div class="input-group">
+														<input type="text" id="fromDate" name="from_date" class="form-control period_datepicker" z-index="-1"
+															   autocomplete="off" value={{from_date|default_if_none:''}}>
+														<label for="fromDate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+													</div>
+													<div class="dash px-2"><span> ~ </span></div>
+													<div class="input-group">
+														<input type="text" id="toDate" name="to_date" class="form-control period_datepicker"
+															   autocomplete="off" value={{to_date|default_if_none:''}}>
+														<label for="toDate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+													</div>
+													<button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 ms-1 search-btn"><i class="bi bi-search"></i> <span class="sr-only-">조회</span></button>
+												</div>
+											</div>
+										  </form>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<ul>
+											<li>전체 설정 시, 1개월 단위로 출력되며 현재 날짜가 속한 달의 한 달간 변화를 보여줍니다.<br>
+											ex) today : {{ today }} -> {{ first_day }} ~ {{ last_day }}
+											</li>
+											<li>기간 설정 시, 사용자가 입력한 기간에 해당하는 결과를 보여줍니다.</li>
+											<li><strong class="text-danger">1month</strong> : 한 달간 변화</li>
+											<li><strong class="text-danger">CRC</strong> : 담당 CRC가 진행한 scr/scr_fail/ongo/enroll 수</li>
+											<li><strong class="text-danger">Total</strong> : 해당 연구의 전체 scr/scr_fail/ongo/enroll 수</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+
+							<h3 class="tables-title">검색 결과</h3>
+
+							<!-- 다중선택되는 select박스로 검색하기 -->
+							<div class="row row-cols-auto select-action">
+								<div class="col">
+									<select id="table-filter" class="form-select">
+										<option value="" selected="">Recruitment</option>
+										<option value="Recruiting">Recruiting</option>
+										<option value="Completed">Completed</option>
+										<option value="Not yet recruiting">Not yet recruiting</option>
+										<option value="Holding">Holding</option>
+									</select>
+								</div>
+								<div class="col">
+									<select id="table-filter2" class="form-select">
+										<option value="" selected="">Study Name</option>
+									</select>
+								</div>
+								<div class="col">
+									<select id="table-filter5" class="form-select">
+										<option value="" selected="">Cancer</option>
+									</select>
+								</div>
+								<div class="col">
+									<select id="table-filter3" class="form-select">
+										<option value="" selected="">Team</option>
+										{% for team in teams %}
+										<option value="{{ team.name }}">{{ team.name }}</option>
+										{% endfor %}
+									</select>
+								</div>
+								<div class="col">
+									<select id="table-filter4" class="form-select">
+										<option value="" selected="">CRC</option>
+									</select>
+								</div>
+								<div class="col index-area ms-auto me-2">
+									<span class="index green">Recruiting</span>
+									<span class="index gray">Completed</span>
+									<span class="index red">Not yet recruiting</span>
+									<span class="index yellow">Holding</span>
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="CRCresearchTable01">
+								  {% if option_radio != 'period' %}
+									<thead>
+										<tr>
+											<th>Recruitment</th>
+											<th>Study Name</th>
+											<th>Cancer</th>
+											<th>Team</th>
+											<th>CRC</th>
+											<th>Screening<br>1month/CRC (Total)</th>
+											<th>Pre-Screening<br>(Pre Screening fail)</th>
+											<th>Screening fail<br>1month/CRC (Total)</th>
+											<th>Ongoing<br>1month/Total</th>
+											<th>Enrollment<br>CRC (Total)</th>
+											<th>Follow Up</th>
+											<th>Target</th>
+										</tr>
+									</thead>
+									<tbody>
+									  {% for onco in oncology %}
+										<tr class="table-link" data-link="/research/{{ onco.research.id }}/">
+											<td class="text-center">
+											  {% if onco.research.is_recruiting == 'Recruiting' %}
+												<span class="index green">Recruiting</span>
+											  {% elif onco.research.is_recruiting == 'Completed' %}
+												<span class="index gray">Completed</span>
+											  {% elif onco.research.is_recruiting == 'Holding' %}
+												<span class="index yellow">Holding</span>
+											  {% elif onco.research.is_recruiting == 'Not yet recruiting' %}
+												<span class="index red">Not yet recruiting</span>
+											  {% endif %}
+											</td>
+											<td>{{ onco.research.research_name }}</td>
+											<td>
+												{% with count=onco.research.cancer.count %}{% for cancer in onco.research.cancer.all %}{{ cancer|default_if_none:'' }}{% if forloop.counter < count %}, {% endif%}{% endfor %}{% endwith %}
+											</td>
+											<td>{{ onco.research.team }}</td>
+											<td>
+											  {% with count=onco.research.crc.count %}{% for crc in onco.research.crc.all %}{{ crc|default_if_none:'' }}{% if forloop.counter < count %}, {% endif%}{% endfor %}{% endwith %}
+											</td>
+											<td>{{ onco.screening_month_filter }}/{{ onco.screening_filter }} ({{ onco.screening_total_filter }})</td>
+											<td>{{ onco.pre_screening_filter }} ({{ onco.pre_screening_fail_filter }})</td>
+											<td>{{ onco.scr_fail_month_filter}}/{{ onco.scr_fail_filter }} ({{ onco.scr_fail_total_filter }})</td>
+											<td>{{ onco.ongoing_month_filter }}/{{ onco.ongoing_filter }}</td>
+											<td>{{ onco.enroll_filter }} ({{ onco.enroll_total_filter }})</td>
+											<td>{{ onco.FU_filter }}</td>
+											<td>{{ onco.r_target }}</td>
+										</tr>
+									  {% endfor %}
+									</tbody>
+								  {% elif option_radio == 'period' %}
+									<thead>
+										<tr>
+											<th>Status</th>
+										    <th>Study Name</th>
+											<th>Cancer</th>
+										    <th>Team</th>
+										    <th>CRC</th>
+										    <th>Screening</th>
+										    <th>Pre-Screening<br />(Pre Screening fail)</th>
+										    <th>Screening fail</th>
+										    <th>Ongoing</th>
+										    <th>Enrollment</th>
+										    <th>Follow Up</th>
+										    <th>Target</th>
+										</tr>
+									</thead>
+									<tbody>
+									{% for onco in period_onco %}
+									  <tr class="text-center">
+										<td class="text-center">
+											{% if onco.research.is_recruiting == 'Recruiting' %}
+												<span class="index green">Recruiting</span>
+											{% elif onco.research.is_recruiting == 'Completed' %}
+												<span class="index gray">Completed</span>
+											{% elif onco.research.is_recruiting == 'Holding' %}
+												<span class="index yellow">Holding</span>
+											{% elif onco.research.is_recruiting == 'Not yet recruiting' %}
+												<span class="index red">Not yet recruiting</span>
+											{% endif %}
+										</td>
+										<td><a href="/research/{{ onco.research.id }}/">{{ onco.research.research_name }}</a></td>
+										<td>
+											{% with count=onco.research.cancer.count %}{% for cancer in onco.research.cancer.all %}{{ cancer|default_if_none:'' }}{% if forloop.counter < count %}, {% endif%}{% endfor %}{% endwith %}
+										</td>
+										<td>{{ onco.research.team }}</td>
+										<td>
+										  {% with count=onco.research.crc.count %}{% for crc in onco.research.crc.all %}{{ crc|default_if_none:'' }}{% if forloop.counter < count %}, {% endif%}{% endfor %}{% endwith %}
+										</td>
+										<td>{{ onco.screening_period_filter }}</td>
+										<td>{{ onco.pre_screening_period_filter }} ({{ onco.pre_screening_fail_period_filter }})</td>
+										<td>{{ onco.scr_fail_period_filter }}</td>
+
+										<td>{{ onco.ongoing_period_filter }}</td>
+										<td>{{ onco.enroll_period_filter }}</td>
+										<td>{{ onco.FU_period_filter }}</td>
+										<td>{{ onco.r_target }}</td>
+									  </tr>
+									{% endfor %}
+								  </tbody>
+								  {% endif %}
+								</table>
+							</div><!-- //table-responsive -->
+						</div><!-- //info-box -->
+
+						<h3 class="tables-title mb-4">CRC별 Screening/Ongoing/Enroll 수</h3>
+						<div class="chart-area pt-4 mb-4">
+							<div class="info-box2 mb-4 p-2">
+								<div class="row">
+									<div class="col-md-6">
+										<div class="fulldetalil-search">
+                                          {% if user.id in onco %}
+                                          <form action="/research/CRC/list/" method="GET">
+											<div class="form-group">
+												<div class="form-cons">
+													<div class="dash px-2"><span> Team </span></div>
+													<select name="team" id="team">
+													  <option value="" {% if team == "" %} selected {% endif %}>전체</option>
+													  {% for team in teams %}
+													  <option value="{{ team.name }}" {% if request.GET.team == team.name %} selected {% endif %}>{{ team.name }}</option>
+													  {% endfor %}
+													</select>
+
+													<div class="dash px-2"><span> Year/Month </span></div>
+													<div class="input-group">
+														<input type="text" id="from_month_date_full" name="from_month_date" class="form-control datepicker" data-calendar="false"
+                                                               value={% if from_month_date %}{{ from_month_date|default_if_none:'' }}{% else %}{{ first_day }}{% endif %}>
+                                                        <input type="hidden" id="from_month_date" />
+														<label for="from_month_date_full" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+													</div>
+													<div class="dash px-2"><span> ~ </span></div>
+													<div class="input-group">
+														<input type="text" id="to_month_date_full" name="to_month_date" class="form-control datepicker" data-calendar="false"
+                                                               value={% if to_month_date %}{{ to_month_date|default_if_none:'' }}{% else %}{{ last_day }}{% endif %}>
+                                                        <input type="hidden" id="to_month_date" />
+														<label for="to_month_date_full" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+													</div>
+													<button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 ms-1 search-btn"><i class="bi bi-search"></i> <span class="sr-only-">조회</span></button>
+												</div>
+											</div>
+                                          </form>
+                                          {% endif %}
+										</div>
+									</div>
+									<div class="col-md-6">
+                                      {% if from_month_date %}
+                                        <ul class="mb-0">
+                                          <li>Screening (신규) / Enroll (신규) : <span class="text-danger">{{ from_month_date }}</span> 이후 screening / enroll 진행한 환자 수 (매달 1일 reset)</li>
+                                          <li>Screening 후 첫 투약 진행 시, ongoing 으로 count 넘어갑니다.</li>
+                                          <li>Ongoing : 현재 진행 중인 환자 수 <span class="text-danger">({{ from_month_date }} ~ {{ to_month_date }})</span></li>
+                                        </ul>
+                                      {% else %}
+                                        <ul class="mb-0">
+                                          <li>Screening (신규) / Enroll (신규) : <span class="text-danger">{{ first_day }}</span> 이후 screening / enroll 진행한 환자 수 (매달 1일 reset)</li>
+                                          <li>Screening 후 첫 투약 진행 시, ongoing 으로 count 넘어갑니다.</li>
+                                          <li>Ongoing : 현재 진행 중인 환자 수 <span class="text-danger">({{ first_day }} ~ {{ last_day }})</span></li>
+                                        </ul>
+                                      {% endif %}
+									</div>
+								</div>
+							</div>
+
+							<div class="chart-box">
+								<div id="crc-patient-chart" class="apex-charts"></div>
+							</div>
+						</div>
+
+						<h3 class="tables-title mb-4">CRC별 Input Delay Days</h3>
+						<div class="chart-area pt-4">
+							<div class="chart-box">
+								<div id="input-delay-days-chart" class="apex-charts"></div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<!-- end contents-area -->
+			</div>
+			<!-- container-fluid -->
+		</div>
+		<!-- End Page-content -->
+	{% endblock %}
+
+
+{% block script %}
+<!-- CRC 페이지용 js -->
+<script src="{% static 'assets/js/pages/crc.js' %}"></script>
+<script>
+  $(function() {
+      $('.datepicker').datepicker({
+          todayHighlight: true,
+			showMonthAfterYear: true,
+			format: 'yyyy-mm-dd', // 날짜 형식
+			autoclose: true, // 날짜 선택 후 자동으로 닫힘
+			minViewMode: 'months', // 최소 선택 단위 (월)
+			language: 'ko', // 한국어 지원
+			}).on('changeDate', function (e) {
+				// 시작일과 종료일 입력 필드를 구분하기 위해 데이터 속성을 활용합니다.
+				var inputId = $(this).attr('id');
+				if (inputId === 'from_month_date_full') {
+					// 시작일이 변경된 경우, 종료일을 설정합니다.
+					var selectedDate = e.date;
+					var endPicker = $('#to_month_date_full');
+					var lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
+					endPicker.datepicker('setDate', lastDay);
+				}
+      });
+      $('.period_datepicker').datepicker({
+          beforeShow: function(el, dp) {
+                $('#ui-datepicker-div').toggleClass('hide-calendar', $(el).is('[data-calendar="false"]'));
+		  },
+          showMonthAfterYear:true,
+          changeMonth: true,
+          changeYear: true,
+          todayHighlight : true,
+          format: 'yyyy-mm-dd',
+          showAnim: 'slideDown',
+          yearRange: '-5:+0',
+      });
+
+      var table = $('#CRCresearchTable01').DataTable({
+			"rowsGroup": [1,2,3,4],
+			"ordering": false,
+			dom: "frltp",
+			buttons: [
+				'excel', 'print'
+			],
+			//lengthMenu: [10, 20, 50, 100, 200, 500]
+	  } );
+
+	  // Recruitment
+	  $('#table-filter').on('change', function(){
+		var selectedValue = this.value;
+		if (selectedValue === '') {
+			table.column(0).search('').draw();
+		} else {
+			table.column(0).search('^' + selectedValue + '$', true, false).draw();
+		}
+	  });
+
+	  // Study Name
+	  var table_column1 = table.column(1).data();
+	  var uniqueValues = table_column1.toArray().filter(function (value, index, self) {
+	    return self.indexOf(value) === index;
+	  }).sort();
+	  uniqueValues.forEach(function (val) {
+		$('#table-filter2').append('<option value="' + val + '">' + val + '</option>');
+	  });
+	  $('#table-filter2').on('change', function () {
+		table.column(1).search(this.value).draw();
+	  });
+
+	  // Cancer
+	  var table_column2 = table.column(2).data();
+	  var uniqueValues = table_column2.toArray().join(', ').split(', ').filter(function (value, index, self) {
+		return self.indexOf(value) === index;
+	  }).sort();
+	  uniqueValues.forEach(function (val) {
+		$('#table-filter5').append('<option value="' + val + '">' + val + '</option>');
+	  });
+	  $('#table-filter5').on('change', function () {
+		table.column(2).search(this.value).draw();
+	  });
+
+	  // Team
+	  $('#table-filter3').on('change', function(){
+	    table.search(this.value).draw();
+	  });
+
+	  // CRC
+	  var table_column3 = table.column(4).data();
+	  var uniqueValues = table_column3.toArray().join(', ').split(', ').filter(function (value, index, self) {
+		return self.indexOf(value) === index;
+	  }).sort();
+	  uniqueValues.forEach(function (val) {
+		$('#table-filter4').append('<option value="' + val + '">' + val + '</option>');
+	  });
+	  $('#table-filter4').on('change', function () {
+		table.column(4).search(this.value).draw();
+	  });
+  });
+
+
+  var cValue = $('input[type=radio][name=optionRadios]:checked').val();
+  if(cValue == 'total'){
+    $( '#fromDate' ).attr('disabled', 'disabled').val('');
+    $( '#toDate' ).attr('disabled', 'disabled').val('');
+  }
+
+  $('input[type=radio][name=optionRadios]').on('click',function () {
+    var chkValue = $('input[type=radio][name=optionRadios]:checked').val();
+
+    if(chkValue == 'total'){
+      $( '#fromDate' ).attr('disabled', 'disabled').val('');
+      $( '#toDate' ).attr('disabled', 'disabled').val('');
+    }
+    else {
+      $( '#fromDate' ).removeAttr('disabled');
+      $( '#toDate' ).removeAttr('disabled');
+    }
+  });
+</script>
+<script>
+    let crcList = {{ crc_list|safe }}; 
+    var options = {
+	    chart: {
+                height: 350,
+                type: 'bar',
+		events: {
+                    dataPointSelection: function(event, chartContext, opts) {
+                        let seriesIndex = opts.seriesIndex;
+			let CRC_ID = crcList[opts.dataPointIndex].id;    
+                        let baseUrl = window.location.origin; 
+
+			if(seriesIndex == 0) {
+							// 'Screening (신규)' 막대 또는 'Pre screening' 막대를 클릭했을 때의 동작
+							return document.location.href = baseUrl + '/research/CRC/list/screening/' + CRC_ID + '/';
+						} else if(seriesIndex == 2 || seriesIndex == 4) {
+							// 'Ongoing' or 'Ongoing (EAP/PMS/완화연구/혈액,조직연구/기타)' 막대를 클릭했을 때의 동작
+							return document.location.href = baseUrl + '/research/CRC/list/ongoing/' + CRC_ID + '/';
+						}
+                    }
+                }    
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        position: 'top',
+                    },
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val ;
+                },
+                offsetY: -20,
+                style: {
+                    fontSize: '11px',
+                    colors: ["#304758"]
+                }
+            },
+	        series: [
+	          {
+                name: 'Screening (신규)',
+                data: {{ scr_list | safe }}
+               },
+               {
+                name: 'Enroll (신규)',
+                data: {{ enroll_list | safe }}
+               },
+               {
+                name: 'Ongoing',
+                data: {{ ongo_list | safe }}
+               },
+               {
+                name: 'Enroll (EAP/PMS/완화연구/혈액,조직연구/기타)',
+                data: {{ PMS_enroll_list | safe }},
+               },
+               {
+                name: 'Ongoing (EAP/PMS/완화연구/혈액,조직연구/기타)',
+                data: {{ PMS_ongo_list | safe }}
+               }
+            ],
+            xaxis: {
+		categories: crcList.map(crc => crc.name),    
+                position: 'bottom',
+                labels: {
+                    offsetY: -4,
+
+                },
+                axisBorder: {
+                    show: false
+                },
+                axisTicks: {
+                    show: false
+                },
+                crosshairs: {
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            colorFrom: '#D8E3F0',
+                            colorTo: '#BED1E6',
+                            stops: [0, 100],
+                            opacityFrom: 0.4,
+                            opacityTo: 0.5,
+                        }
+                    }
+                },
+                tooltip: {
+                    enabled: false,
+                    offsetY: -35,
+                }
+            },
+            fill: {
+                gradient: {
+                    shade: 'light',
+                    type: "horizontal",
+                    shadeIntensity: 0.25,
+                    gradientToColors: undefined,
+                    inverseColors: true,
+                    opacityFrom: 1,
+                    opacityTo: 1,
+                    stops: [50, 0, 100, 100]
+                },
+            },
+            yaxis: {
+		max: 50,
+                axisBorder: {
+                    show: true
+                },
+                axisTicks: {
+                    show: false,
+                },
+                labels: {
+                    show: false,
+                    formatter: function (val) {
+                        return val ;
+                    }
+                }
+            },
+            /*
+            title: {
+                text: 'CRC별 Screening/Ongoing/Enroll 수',
+                floating: true,
+                offsetY: 0,
+                align: 'center',
+                style: {
+                    color: '#444'
+                }
+            },
+            */
+            {% if team == '' or not team %}
+	        annotations: {
+              xaxis: [
+                {% for groupHead in groupHeads %}
+                {
+                  x: '{{ groupHead.first_name|safe }}',
+                  borderColor: '#686a70',
+                  label: {
+                    borderColor: '#686a70',
+                    orientation: 'horizontal',
+                    text: '{{ groupHead.team__name|safe }}'
+                  }
+                },
+                {% endfor %} 
+	      ]
+            }{% endif %}
+        }
+
+        var chart = new ApexCharts(
+            document.querySelector("#crc-patient-chart"),
+            options
+        );
+        chart.render();
+
+    let GapCRCList = {{ gap_crc_list | safe }};
+    var options2 = {
+	    chart: {
+                height: 425,
+                type: 'bar',
+                events: {
+                    dataPointSelection: function(event, chartContext, opts) {
+		      let CRC_ID = GapCRCList[opts.dataPointIndex].id;	    
+		      var urlParameter = window.location.search;
+                      let baseUrl = window.location.origin; 
+		      return document.location.href = baseUrl + '/research/CRC/list/input_gap/' + CRC_ID + '/' + urlParameter; 
+                    }
+                }
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        position: 'top',
+                    },
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val;
+                },
+                offsetY: -20,
+                style: {
+                    fontSize: '10px',
+                    colors: ["#304758"]
+                }
+            },
+            series: [
+            {
+                name: 'Input delay days',
+                data: {{ gap_count_list | safe }}
+            },
+            {
+                name: 'Visit days',
+                data: {{ visit_count_list | safe }}
+            }
+            ],
+            xaxis: {
+		categories: GapCRCList.map(crc => crc.name),    
+                position: 'bottom',
+                labels: {
+                    offsetY: -4,
+                },
+                axisBorder: {
+                    show: false
+                },
+                axisTicks: {
+                    show: false
+                },
+                crosshairs: {
+                    show: false,
+                    width: 1,
+                },
+                tooltip: {
+                    enabled: false,
+                    offsetY: -35,
+                }
+            },
+            fill: {
+                gradient: {
+                    shade: 'light',
+                    type: "horizontal",
+                    shadeIntensity: 0.25,
+                    gradientToColors: undefined,
+                    inverseColors: true,
+                    opacityFrom: 1,
+                    opacityTo: 1,
+                    stops: [50, 0, 100, 100]
+                },
+            },
+            tooltip: {
+              shared: true,
+              intersect: false,
+              y: [{
+                formatter: function (y) {
+                  if(typeof y !== "undefined") {
+                    return  y.toFixed(0) + " days";
+                  }
+                  return y;
+                }
+              },
+              {
+                formatter: function (y) {
+                  if(typeof y !== "undefined") {
+                    return  y.toFixed(0) + " 건";
+                  }
+                  return y;
+                }
+              }]
+            },
+            yaxis: [
+              {
+		        seriesName: 'Input Delay Days',
+                axisBorder: {
+                  show: true,
+                  color: '#008FFB'
+                },
+                labels: {
+                  style: {
+                    colors: '#008FFB',
+                  }
+                },
+                title: {
+                    text: "Input Delay Days",
+                    style: {
+                        fontSize: '15px',
+                        color: '#008FFB',
+                    }
+                },
+              },
+              {
+                seriesName: 'Visit Days',
+                opposite: true,
+                axisBorder: {
+                  show: true,
+                  color: '#00E396'
+                },
+                labels: {
+                  style: {
+                    colors: '#00E396',
+                  }
+                },
+                title: {
+                    text: "Visit Days",
+                    style: {
+                        fontSize: '15px',
+                        color: '#00E396'
+                    }
+                },
+              },
+            ],
+            /*
+            title: {
+                text: 'CRC별 Visit Days',
+                floating: true,
+                offsetY: 0,
+                align: 'center',
+                style: {
+                    color: '#444'
+                }
+            },
+            */
+            {% if team == '' or not team %}
+            annotations: {
+              xaxis: [
+                {% for groupHead in groupHeads %}
+                {
+                  x: '{{ groupHead.first_name|safe }}',
+                  borderColor: '#686a70',
+                  label: {
+                    borderColor: '#686a70',
+                    orientation: 'horizontal',
+                    text: '{{ groupHead.team__name|safe }}'
+                  }
+                },
+                {% endfor %} 
+	      ]
+            }{% endif %}
+        }
+
+        var chart2 = new ApexCharts(
+            document.querySelector("#input-delay-days-chart"),
+            options2
+        );
+        chart2.render();
+</script>
+{% endblock %}

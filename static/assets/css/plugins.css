@@ -1,0 +1,86 @@
+/*********************************************************************************
+
+	Oncology CR  Bootstrap v5.1.3
+	Version: 1.0
+	Note: This is plugins css. All plugins css files import here.
+
+**********************************************************************************/
+
+/* OverlayScrollbars */
+@import url(OverlayScrollbars.css);
+
+/* dataTables */
+@import url(dataTables.bootstrap5.css);
+
+/* buttons.dataTables.min  
+@import url(buttons.dataTables.min.css);*/
+
+
+/* bootstrap-datepicker */
+@import url(bootstrap-datepicker.css);
+
+/* datetimepicker */
+@import url(jquery.datetimepicker.min.css);
+
+/* slick */
+@import url(slick.css);
+
+/* slick-theme */
+@import url(slick-theme.css);
+
+
+/* 폰트 스타일 */
+@font-face {
+    font-family: 'Pretendard-Black';
+    src: url('./fonts/Pretendard-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Pretendard-Bold';
+    src: url('./fonts/Pretendard-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Pretendard-Medium';
+    src: url('./fonts/Pretendard-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('./fonts/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Pretendard-ExtraLight';
+    src: url('./fonts/Pretendard-ExtraLight.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Pretendard-Thin';
+    src: url('./fonts/Pretendard-Thin.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'GmarketSansLight';
+    src: url('./fonts/GmarketSansLight.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'GmarketSansMedium';
+    src: url('./fonts/GmarketSansMedium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'GmarketSansBold';
+    src: url('./fonts/GmarketSansBold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}

@@ -1,0 +1,464 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load get_value_from_dict from research_tag %}
+{% load split from research_tag %}
+
+<head>
+{% block title %}
+  <title>X-OncoTrack</title>
+{% endblock %}
+</head>
+
+{% block content %}
+{% for research in pi_research %}
+    <div class="modal fade" id="vendor_{{ research.research__id }}" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="add_supporting">Vendor 정보</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body row" id="research-add-form">
+            <div class="col-sm-12">
+                {% include 'pages/miscellaneous/vendor/vendor.html' %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endfor %}
+
+<div class="row">
+  <div class="col-sm-12 mb-4 mb-xl-0">
+    <h4 class="font-weight-bold text-dark">PI - {{ user.first_name }}님</h4>
+      <p class="font-weight-normal mb-4 text-muted"> 현재 {{ user.first_name }}님이 담당하고 있는 임상연구를 보여줍니다.</p>
+  </div>
+</div>
+
+          <form action="/research/PI/list" method="GET">
+            <fieldset style="z-index: 2">
+              <div class="radio" style="display: inline">
+                <label> <input type="radio" name="optionRadios" value="total"
+                               {% if option_radio != 'period' %} checked {% endif %}/> 전체 </label>
+              </div>
+              <div class="radio" style="display: inline">
+                <label> <input type="radio" name="optionRadios" value="period"
+                               {% if option_radio == 'period' %} checked {% endif %}/> 기간 : </label>
+                <input autocomplete="off" name="from_date" id="fromDate" value={{from_date|default_if_none:''}}>
+                <label> ~ </label>
+                <input autocomplete="off" name="to_date" id="toDate" value={{to_date|default_if_none:''}}>
+              </div>
+              <button class="btn btn-primary btn-xs mb-1" type="submit">조회</button>
+            </fieldset>
+          </form>
+
+ <div class="row mt-4">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card" style="z-index: 1">
+        <div class="card-header">
+          <span class="card-title pt-1" style="margin:0;">Search Result</span>
+          <span style="font-size:0.85em; float:right;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            *
+            <div class="square-box green" style="display:inline-block;"></div>: Recruiting &nbsp;
+            <div class="square-box gray" style="display:inline-block;"></div>: Completed &nbsp;
+            <div class="square-box wine" style="display:inline-block;"></div>: Not yet recruiting &nbsp;
+            <div class="square-box yellow" style="display:inline-block;"></div>: Holding</span>
+        </div>
+
+        <div class="card-body pt-4">
+           <table id="pi-research-list" class="table">
+             {% if option_radio != 'period' %}
+               <thead>
+                 <tr>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Recruitment</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Study Name</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Vendor</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">TEAM</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">CRC</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Screening<br />1month/CRC (Total)</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Screening fail<br />1month/CRC (Total)</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Ongoing<br />1month/Total</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Enroll<br />CRC (Total)</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">FU</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Target</th>
+                 </tr>
+               </thead>
+
+               <tbody>
+                 {% for research in pi_research %}
+                   <tr class="text-center">
+		             <td style="font-size: 0em; display: flex; justify-content: center;">
+                       {% if research.research__is_recruiting == 'Recruiting' %}
+                         <div class="square-box green">Recruiting</div>
+                       {% elif research.research__is_recruiting == 'Completed' %}
+                         <div class="square-box gray">Completed</div>
+                       {% elif research.research__is_recruiting == 'Holding' %}
+                         <div class="square-box yellow">Holding</div>
+                       {% elif research.research__is_recruiting == 'Not yet recruiting' %}+
+                         <div class="square-box wine">Not yet recruiting</div>
+                      {% endif %}
+                     </td>
+		             <td><a href="/research/{{ research.research__id }}/">{{ research.research__research_name }}</a></td>
+                     <td data-toggle="modal" data-target="#vendor_{{ research.research__id }}">▽</td>
+                     <td>{{ research.research__team }}</td>
+                     <td>{{ research.research__crc__name|default_if_none:'' }}</td>
+
+                     <td>{{ research.screening_month_filter }}/{{ research.screening_filter }} ({{ research.screening_total_filter }})</td>
+                     <td>{{ research.scr_fail_month_filter }}/{{ research.scr_fail_filter }} ({{ research.scr_fail_total_filter }})</td>
+
+                     <td>{{ research.ongoing_month_filter }}/{{ research.ongoing_filter }}</td>
+                     <td>{{ research.enroll_filter }} ({{ research.enroll_total_filter }})</td>
+
+                     <td>{{ research.FU_filter }}</td>
+                     <td>{{ research.r_target }}</td>
+                   </tr>
+                 {% endfor %}
+               </tbody>
+
+             {% elif option_radio == 'period' %}
+               <thead>
+                 <tr>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Recruitment</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Study Name</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Vendor</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">TEAM</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">CRC</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Screening</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Screening fail</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Ongoing</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Enroll</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">FU</th>
+                   <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Target</th>
+                 </tr>
+               </thead>
+
+               <tbody>
+               {% for research in pi_research_period %}
+                 <tr class="text-center">
+		           <td style="font-size: 0em; display: flex; justify-content: center;">
+                     {% if research.research.is_recruiting == 'Recruiting' %}
+                       <div class="square-box green">Recruiting</div>
+                     {% elif research.research.is_recruiting == 'Completed' %}
+                       <div class="square-box gray">Completed</div>
+                     {% elif research.research.is_recruiting == 'Holding' %}
+                       <div class="square-box yellow">Holding</div>
+                     {% elif research.research.is_recruiting == 'Not yet recruiting' %}+
+                       <div class="square-box wine">Not yet recruiting</div>
+                     {% endif %}
+                   </td>
+		           <td><a href="/research/{{ research.research.id }}/">{{ research.research.research_name }}</a></td>
+                   <td data-toggle="modal" data-target="#vendor_{{ research.research.id }}">▽</td>
+                   <td>{{ research.research.team }}</td>
+                   <td>
+                     {% with count=research.research.crc.count %}
+                        {% for crc in research.research.crc.all %}
+                          {{ crc|default_if_none:'' }}
+                          {% if forloop.counter < count %}, {% endif%}
+                        {% endfor %}
+                      {% endwith %}
+                   </td>
+
+                   <td>{{ research.screening_period_filter }}</td>
+                   <td>{{ research.scr_fail_period_filter }}</td>
+                   <td>{{ research.ongoing_period_filter }}</td>
+                   <td>{{ research.enroll_period_filter }}</td>
+                   <td>{{ research.FU_period_filter }}</td>
+                   <td>{{ research.r_target }}</td>
+                 </tr>
+              {% endfor %}
+              </tbody>
+             {% endif %}
+           </table>
+
+          </div>
+
+      </div>
+    </div>
+ </div>
+
+  <div class="row mt-4">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title pt-1" style="margin:0;">Patient</h4>
+        </div>
+
+        <div class="card-body pt-3">
+          <table id="pi-patient-list" class="table">
+            <thead>
+              <tr>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Study Name</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Status</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Subject No.</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Patient No.</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Name</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Sex</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Age</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Cancer</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Previous Tx</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">PI</th>
+	      	    <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Create Date</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Update Date</th>
+              </tr>
+            </thead>
+
+            <tbody>
+            {% for patient in pi_patient %}
+               <tr>
+                 <td class="text-center assignment-info nowrap">
+                   <a href="/research/{{ patient.research__id }}">{{ patient.research__research_name }}</a>
+                 </td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.status }}</td>
+                 <td class="text-center assignment-info nowrap">
+                   <a href="/assignment/{{ patient.id }}/">{{ patient.no }}</a>
+                 </td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.register_number }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.name }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.sex }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.age }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.dx }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.previous_tx }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.PI }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.create_date }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ patient.update_date }}</td>
+               </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row mt-4">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title pt-1" style="margin:0;">Waiting</h4>
+        </div>
+
+        <div class="card-body pt-3">
+          <table id="pi-waiting-list" class="table">
+            <thead>
+              <tr>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Cancer</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">등록번호</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">이름</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">주치의</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">성별</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">나이</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">현재 상태</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Create Date</th>
+                <th class="text-black text-center text-nowrap bg-secondary font-weight-bold sticky-top-custom">Update Date</th>
+              </tr>
+            </thead>
+
+            <tbody>
+            {% for waiting in pi_waiting %}
+               <tr>
+                 {% if waiting.cancer %}
+                 <td class="text-center assignment-info pre-wrap">{{ waiting.cancer__value }}</td>
+                 {% else %}
+                 <td class="text-center assignment-info pre-wrap">Phase1</td>
+                 {% endif %}
+                 <td class="text-center assignment-info nowrap">
+                   <a href="/research/waitinglist/{{ waiting.id }}/">{{ waiting.register_number }}</a>
+                 </td>
+                 <td class="text-center assignment-info pre-wrap">{{ waiting.name }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ waiting.doctor }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ waiting.sex }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ waiting.age }}</td>
+                 <td align="left" class="assignment-info pre-wrap">{{ waiting.curr_status }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ waiting.create_date }}</td>
+                 <td class="text-center assignment-info pre-wrap">{{ waiting.update_date }}</td>
+               </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          <div class="mt-2" style="text-align:right;">
+             <a href="/research/waitinglist/add/PI/"><button type="submit" class="btn btn-success">Add</button></a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block script %}
+<link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
+
+<script src="{% static 'js/jquery-ui.js-1.12.1.js' %}"></script>
+<script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/dataTables.rowsGroup.js' %}"></script>
+
+<script type='text/javascript'>
+$(document).ready(function() {
+    $('#pi-research-list').DataTable( {
+        "ordering": false,
+        'rowsGroup': [1,2,3],
+        'bStateSave': true,
+        initComplete: function () {
+            this.api().columns([0, 1, 3]).every( function () {
+                var column = this;
+                var colTitle = this.header().innerHTML;
+                var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                    .appendTo( $(column.header()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option>'+d+'</option>' )
+                } );
+            } );
+
+            this.api().columns([4]).every( function () {
+                var column = this;
+                var colTitle = this.header().innerHTML;
+                var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                    .appendTo( $(column.header()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                         );
+                        column
+                .search( this.value )
+                .draw();
+                } );
+
+                column.data().unique().sort().each( function( d, j ) {
+                       var nameArr = d.replace(/[\[\]']+/g,'').split(",").map(item => item.trim());
+                        nameArr.forEach(function(number) {
+                            var optionExists = ($("select option[value='"+number+"']").length > 0);
+                            if(!optionExists){
+                                select.append( '<option value="'+number+'">'+number+'</option>' );
+                            }
+                        });
+                } );
+            } );
+        }
+    } );
+
+    $('#pi-patient-list').DataTable( {
+        "ordering": false,
+        'rowsGroup': [0],
+        'bStateSave': true,
+        initComplete: function () {
+            this.api().columns([0, 1]).every( function () {
+                var column = this;
+                var colTitle = this.header().innerHTML;
+                var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                    .appendTo( $(column.header()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option>'+d+'</option>' )
+                } );
+            } );
+
+        }
+    } );
+
+    $('#pi-waiting-list').DataTable( {
+        "ordering": false,
+        'rowsGroup': [0],
+        'bStateSave': true,
+        initComplete: function () {
+            this.api().columns([0]).every( function () {
+                var column = this;
+                var colTitle = this.header().innerHTML;
+                var select = $('<select><option value="" selected>' + colTitle + '</option></select>')
+                    .appendTo( $(column.header()).empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option>'+d+'</option>' )
+                } );
+            } );
+
+        }
+    } );
+} );
+
+
+	var table = [];
+	var table_count = 1;
+	var k = 0;
+	  $("#pi-research-list tbody").find("tr").each(function(i,v) {
+		table.push($(v).find("td:nth-child(2)").text());
+	  })
+	  for(var i=0; i<table.length; i++) {
+  	    for(var j=i+1; j<table.length; j++) {
+    	  if(table[i] == table[j]) {
+      	    table_count +=1;
+      		k+=1;
+    	  }
+  		}
+        $("#pi-research-list tbody").find("tr")[i].children[1].setAttribute("rowspan", table_count);
+        $("#pi-research-list tbody").find("tr")[i].children[2].setAttribute("rowspan", table_count);
+
+  		if(table_count > 1) {
+    	  for(var q = 1; q < table_count; q++) {
+      		$("#pi-research-list tbody").find("tr")[i+q].children[1].style.display = "none";
+            $("#pi-research-list tbody").find("tr")[i+q].children[2].style.display = "none";
+    	  }
+        }
+  	  table_count = 1;
+  	  i=k;
+  	  k++;
+	  }
+
+  $(function() {
+    $( "#fromDate" ).datepicker({
+      dateFormat: "yy-mm-dd"
+    });
+    $( "#toDate" ).datepicker({
+      dateFormat: "yy-mm-dd"
+    });
+  });
+
+  $('input[type=radio][name=optionRadios]').on('click',function () {
+    var chkValue = $('input[type=radio][name=optionRadios]:checked').val();
+
+    if(chkValue == 'total'){
+      $( '#fromDate' ).attr('disabled', 'disabled').val('');
+      $( '#toDate' ).attr('disabled', 'disabled').val('');
+    }
+    else {
+      $( '#fromDate' ).removeAttr('disabled');
+      $( '#toDate' ).removeAttr('disabled');
+    }
+  });
+
+  $('.modal-dialog').draggable({
+   "handle":".modal-header"
+  });
+</script>
+{% endblock %}

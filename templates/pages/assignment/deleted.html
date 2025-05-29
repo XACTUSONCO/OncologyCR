@@ -1,0 +1,20 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+    {% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+                <div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>
+                              <a href="/research/{{ assignment.research.id }}">{{ assignment.research.research_name }}</a> - {{ assignment.name }} {% if assignment.is_deleted %}(삭제됨){% endif %}
+                            </h2>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    {% endblock %}

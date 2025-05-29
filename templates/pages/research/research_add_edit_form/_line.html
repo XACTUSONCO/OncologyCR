@@ -1,0 +1,105 @@
+{% load get_m2m_values from research_tag %}
+
+<label for="line"
+       class="font-weight-bold col-sm-1 col-form-label pl-3 striped overflow-hidden word-keep-all" style="color:black;">
+  Line
+  {% autoescape off %}
+    {% if 'line' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.line }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-2 form-input-container checkbox-radio-input flex-container">
+  <div class="na-or-else">
+    <div class="cancer-type-category" style="border: none;">
+      <div class="form-check" style="margin-right: 30px;">
+        <label class="form-check-label">
+          <input type="checkbox" style="padding:10px" class="form-check-input"
+                 name="line" value="na"
+              {% if 'na' in research.line.all|get_m2m_values %}
+                 checked {% endif %}
+              {% if not editable %} disabled {% endif %}>
+          <i class="input-helper"></i><span>해당없음</span></label>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category">
+        <div class="form-check" style="margin-right: 10px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="line" value="neoadjuvant"
+                {% if 'na' in research.line.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'neoadjuvant' in research.line.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Neoadjuvant</span></label>
+        </div>
+
+        <div class="form-check" style="margin-right: 10px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="line" value="adjuvant"
+                {% if 'na' in research.line.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'adjuvant' in research.line.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Adjuvant</span></label>
+        </div>
+      </div>
+
+      <div class="cancer-type-category">
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="line" value="line1"
+                {% if 'na' in research.line.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'line1' in research.line.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Line1</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="line" value="line2"
+                {% if 'na' in research.line.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'line2' in research.line.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Line2</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="line" value="line3"
+                {% if 'na' in research.line.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'line3' in research.line.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Line3</span></label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="line" value="line4_or_more"
+                {% if 'na' in research.line.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'line4_or_more' in research.line.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Line 4 or more</span></label>
+        </div>
+      </div>
+
+      <!-- Flex end -->
+    </div>
+
+  </div>
+</div>

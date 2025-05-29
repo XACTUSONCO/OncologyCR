@@ -1,0 +1,85 @@
+{% extends "bases/base_generic.html" %}
+{% load is_numberic from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>{{request.GET.year}}.{% if request.GET.month|length == 1 %}0{{ request.GET.month }}{% else %}{{ request.GET.month }}{% endif %} Cycle Visit List</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">STAT</li>
+									<li class="breadcrumb-item"><a href="/research/CRC_statistic/">CRC</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="table-responsive default-table">
+							<table class="table table-bordered" id="monthly_visit">
+								<thead>
+									<tr class="text-center">
+										<th>Study Name</th>
+										<th>PI</th>
+										<th>CRC</th>
+										<th>환자 이름</th>
+                                        <th>Cycle</th>
+										<th>방문일</th>
+									</tr>
+								</thead>
+								<tbody>
+                                  {% for visit in monthly_visit_list %}
+									<tr class="table-link text-center" data-link="/assignment/{{ visit.assignment.id }}/">
+										<td>{{ visit.assignment.research.research_name }}</td>
+										<td>{{ visit.assignment.PI }}</td>
+										<td>{{ visit.assignment.curr_crc.name }}</td>
+										<td>{{ visit.assignment.name }}</td>
+                                        {% if visit.cycle|is_numberic %}
+                                            <td>C{{ visit.cycle }}D{{ visit.day }}</td>
+                                        {% else%}
+                                            <td>{{ visit.cycle|default_if_none:"" }}<br/>
+                                                {% if 'EOT' in visit.cycle and visit.fu.count != 0 %}
+                                                    {% with count=visit.fu.count %}
+                                                        ({% for fu in visit.fu.all %}{{ fu }}{% if forloop.counter < count %},<br/>{% endif %} {% endfor %})
+                                                    {% endwith %}
+                                                {% elif visit.eos %}
+                                                        (EOS: {{ visit.eos }})
+                                                {% endif %}
+                                            </td>{% endif %}
+										<td>{{ visit.dosing_date|date:'Y-m-d' }}</td>
+									</tr>
+								  {% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    {% endblock %}
+
+{% block script %}
+<script>
+	$(document).ready(function () {
+    	const table = $('#monthly_visit').DataTable({
+        	"order": [[5, "asc"]],
+        	lengthMenu: [10, 25, 50, 100],
+			pageLength: 25,
+			buttons: ['excel']
+        })
+    });
+</script>
+{% endblock %}

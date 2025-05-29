@@ -1,0 +1,280 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Cancer Image Set-up</h2>
+
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+									<li class="breadcrumb-item">Cancer Image Set-up</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<ul id="submenu-tab">
+								<li><a href="/administration/cancer_image_set_up/"><i></i> Page</a></li>
+                                                                <li><a href="/administration/cancer_image_set_up/images/"><i></i> Images</a></li>
+								<li><a href="/administration/cancer_image_set_up/image_links/"><i></i> Image Links</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 education-datas">
+
+						<div class="row row-cols-auto select-action">
+							<div class="col ms-auto">
+								<button id="row-delete-button" type="button" class="btn btn-danger edit-btn px-4" onClick="handleClickDeleteSelection()" style="display: none">
+									<i class="bi bi-trash"></i> <span>DELETE</span>
+								</button>
+								<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAdd()">
+									<i class="bi bi-plus-square"></i> <span>Add</span>
+								</button>
+							</div>
+						</div>
+
+                        <div class="table-responsive">
+							<table class="table table-bordered custom-table" id="page-table">
+								<thead>
+                                    <tr>
+                                        <th scope="col">삭제</th>
+                                        <th scope="col" style="display: none">#</th>
+                                        <th scope="col">Cancer</th>
+                                        <th scope="col">Slide Number</th>
+                                        <th scope="col">Slide</th>
+                                        <th scope="col"></th>
+                                    </tr>
+								</thead>
+								<tbody>
+								  {% for page in pages %}
+                                      <tr>
+                                          <td style="cursor: pointer"></td>
+                                          <th scope="row" style="display: none">{{ page.id|default_if_none:"" }}</th>
+                                          <td>{{ page.cancer|default_if_none:"" }}</td>
+                                          <td>{{ page.slide_number|default_if_none:"" }}</td>
+                                          <td>
+                                              {% if page.slide %}
+                                              <img src="/media/{{ page.slide }}" alt="{{ page.slide }}" style="width: 90px; height: 60px; border-radius: 0">
+                                              {% endif %}
+                                          </td>
+                                          <td>
+                                              <button type="button" class="btn btn-outline-secondary"
+                                                      onClick="handleClickEdit('{{ page.cancer }}', '{{ page.slide_number }}', '{{ page.slide }}', '{{ page.id }}')">
+                                                  수정
+                                              </button>
+                                          </td>
+                                      </tr>
+                                  {% endfor %}
+								</tbody>
+							</table>
+						</div><!-- //table-responsive -->
+
+                        {# 추가/수정 모달 #}
+                        <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addModalLabel">페이지 추가</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="post" action="/administration/cancer_image_set_up/" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="page-id" type="hidden" name="page_id"/>
+                                        <input id="is-update" type="hidden" name="is_update"/>
+                                        <input id="is-deleted" type="hidden" name="is_deleted"/>
+
+                                        <div class="modal-body">
+
+                                            <div class="form-group row">
+                                                <label for="cancer" class="col-sm-3 col-form-label">Cancer</label>
+                                                <div class="col-sm-9">
+                                                    <select class="form-select" id="cancer" name="cancer" required>
+                                                        {% for cancer in cancers %}
+                                                            <option value="{{ cancer }}">{{ cancer }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" id="form-add-file">
+                                                <label for="slide" class="col-sm-3 col-form-label">Slide Image</label>
+                                                <div class="col-sm-9">
+                                                    <img id="image-preview" src=""/>
+                                                    <button id="image-delete" class="btn btn-sm btn-outline-danger" type="button" style="display: none">삭제</button>
+                                                    <input id="slide" type="file" class="form-control" name="slide" alt="logo" accept="image/*">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="slide-number" class="col-sm-3 col-form-label">Slide Number</label>
+                                                <div class="col-sm-9">
+                                                    <input type="number" class="form-control" id="slide-number" name="slide_number" maxlength="100" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                                <i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+                                            </button>
+                                            <button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+                                                <i class="bi bi-pencil"></i> <span>Save</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<script>
+        $(document).ready(function () {
+            const table = $('#page-table').DataTable({
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    },
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+                select: {
+                    style: 'multiple',
+                    selector: 'td:first-child'
+                },
+                "order": [[1, "desc"]],
+            })
+
+            $('#page-table').data('selectedIds', []);
+
+            table.on('select', function (e, dt, type, indexes) {
+                const pageId = table.rows(indexes).data().toArray()[0][1];
+                $('#page-table').data('selectedIds', [...$('#page-table').data('selectedIds'), pageId]);
+                if ($('#page-table').data('selectedIds').length === 1) {
+                    $('#row-delete-button').show();
+                }
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                const pageId = table.rows(indexes).data().toArray()[0][1];
+                const tmp = $('#page-table').data('selectedIds').filter(a => a !== pageId)
+                $('#page-table').data('selectedIds', tmp);
+                if (tmp.length === 0) {
+                    $('#row-delete-button').hide();
+                }
+            });
+
+            $('.dataTables_length').addClass('bs-select');
+
+            $("#page-table_wrapper").css("width", "100%")
+
+            $("#slide").on("change", function (e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        $('#image-preview').attr('src', evt.target.result);
+                        showImage()
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                } else {
+                    $('#image-preview').hide();
+                    $('#image-delete').hide();
+                }
+            })
+
+            $('#image-delete').on('click', deleteImage);
+
+            $('#addModal').on('hide.bs.modal', () => {
+                deleteImage();
+                $('#is-update').val('');
+                $('#is-deleted').val('');
+                $('#page-id').val('');
+                $('#name').val('');
+            })
+        });
+
+        function showImage() {
+            $('#image-preview').css('width', "90px");
+            $('#image-preview').css('height', "60px");
+            $('#image-preview').css('margin', "15px");
+            $('#image-preview').show();
+            $('#image-delete').show();
+        }
+
+        function deleteImage() {
+            $('#image-preview').attr('src', "");
+            $('#slide').val("");
+            $('#is-deleted').val(true);
+            $('#slide').show();
+            $('#image-preview').hide();
+            $('#image-delete').hide();
+        }
+
+        function handleClickAdd() {
+            $('#addModalLabel').text('페이지 추가');
+            $('#is-update').val(false);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(cancer, slideNumber, slide, pageId) {
+            $('#addModalLabel').text('페이지 수정');
+            if (slide) {
+                $('#image-preview').attr('src', `/media/${slide}`);
+                $('#slide').hide();
+                showImage();
+            }
+            $('#cancer').val(cancer);
+            $('#slide-number').val(slideNumber);
+            $('#is-update').val('true');
+            $('#page-id').val(pageId);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteSelection() {
+            const targetList = $('#page-table').data('selectedIds');
+            if (confirm(`${targetList.length}개의 데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/administration/cancer_image_set_up/delete/',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "page_ids": targetList.join(","),
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

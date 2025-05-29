@@ -1,0 +1,453 @@
+
+<div class="row">
+  <div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-header {% if not show_patient_form %}collapsed{% endif %}" data-toggle="collapse" data-target="#research-search-form-container">
+        <h4 class="card-title pt-1" style="margin:0;">환자 추가<i class="fa fa-chevron-down pull-right" style="position:relative; top:-2px;"></i></h4>
+      </div>
+      <div id="research-search-form-container" class="collapse {% if show_patient_form %}show{% endif %}">
+        <div class="card-body">
+          <h4 class="card-title pt-1">환자 식별 정보</h4>
+          <form id="research-search-form" method="post" action="/research/{{ research.id }}/" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="research_id" value="{{ research.id }}">
+
+            <!-- Patient ID -->
+            <div class="form-group row {% if 'patient_id' in errors %} card-inverse-danger {% endif %}">
+              <label for="patient_id" class="col-sm-2 col-form-label pl-3">Patient ID</label>
+              <div class="col-sm-10 form-input-container">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+                  <input type="text" class="form-control col-sm-12" name="patient_id"
+                         placeholder="(환자 ID)"
+                         value="{% if query.patient_id %}{{ query.patient_id }}{% endif %}"
+                         {% if not editable %} disabled {% endif %}>
+                </div>
+              </div>
+            </div>
+
+            <!-- Patient Name -->
+            <div class="form-group row {% if 'patient_name' in errors %} card-inverse-danger {% endif %}">
+              <label for="patient_name" class="col-sm-2 col-form-label pl-3">Patient Name</label>
+              <div class="col-sm-10 form-input-container">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap; position:relative; top:-3px;">
+                  <input type="text" class="form-control col-sm-12" name="patient_name"
+                         placeholder="(환자 이름)"
+                         value="{% if query.patient_name %}{{ query.patient_name }}{% endif %}"
+                         {% if not editable %} disabled {% endif %}>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="card-title" style="margin-top:1.2rem; margin-bottom: 0">환자 조건</h4>
+
+            <!-- Cancer -->
+            <div class="form-group row">
+              <label for="cancer" class="col-sm-2 col-form-label pl-3">Cancer</label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div class="na-or-else">
+                  <div class="cancer-type-category" style="border: none;">
+                    <div class="form-check" style="margin-right: 30px;">
+                      <label class="form-check-label">
+                        <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="na"
+                        {% if 'na' in query.cancer %} checked {% endif %}
+                        {% if not editable %} disabled {% endif %}>
+                      <i class="input-helper"></i><span>해당없음</span></label>
+                    </div>
+                  </div>
+
+                  <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+                    <div class="cancer-type-category">
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="lung"
+                          {% if 'lung' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>폐암</span></label>
+                      </div>
+
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="esophageal"
+                          {% if 'esophageal' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>식도암</span></label>
+                      </div>
+
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="head_and_neck"
+                          {% if 'head_and_neck' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>두경부암</span></label>
+                      </div>
+                    </div>
+
+                    <div class="cancer-type-category">
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="gastric"
+                          {% if 'gastric' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>위암</span></label>
+                      </div>
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="small_bowel"
+                          {% if 'small_bowel' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>소장암</span></label>
+                      </div>
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="colorectal"
+                          {% if 'colorectal' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>대장암</span></label>
+                      </div>
+                    </div>
+
+                    <div class="cancer-type-category">
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="GB/BT"
+                          {% if 'GB/BT' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>담낭/담도암</span></label>
+                      </div>
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="pancreatic"
+                          {% if 'pancreatic' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>췌장암</span></label>
+                      </div>
+                    </div>
+
+                    <div class="cancer-type-category">
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="breast"
+                          {% if 'breast' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>유방암</span></label>
+                      </div>
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="ovarian"
+                          {% if 'ovarian' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>난소암</span></label>
+                      </div>
+
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="gynecological"
+                          {% if 'gynecological' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>부인암</span></label>
+                      </div>
+                    </div>
+
+                    <div class="cancer-type-category">
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="kidney"
+                          {% if 'kidney' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>신장암</span></label>
+                      </div>
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="urological"
+                          {% if 'urological' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>비뇨기암</span></label>
+                      </div>
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="prostate"
+                          {% if 'prostate' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>전립선</span></label>
+                      </div>
+                    </div>
+
+                    <div class="cancer-type-category">
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="sarcoma"
+                          {% if 'sarcoma' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>육종암</span></label>
+                      </div>
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="melanoma"
+                          {% if 'melanoma' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>흑색종암</span></label>
+                      </div>
+                      <div class="form-check" style="margin-right: 30px;">
+                        <label class="form-check-label">
+                          <input type="radio" style="padding:10px" class="form-check-input" name="cancer" value="etc"
+                          {% if 'etc' in query.cancer %} checked {% endif %}
+                          {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span>기타</span></label>
+                      </div>
+                    </div>
+
+                  <!-- Flex end -->
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Histology -->
+            <div class="form-group row {% if 'histology' in errors %} card-inverse-danger {% endif %}">
+              <label for="histology" class="col-sm-2 col-form-label pl-3">Histology
+               {% autoescape off %}
+                  {% if 'histology' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.histology }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+                {% for value, text in field_choice.histology %}
+                  <div class="form-check" style="margin-right: 30px;">
+                    <label class="form-check-label">
+                      <input type="radio" style="padding:10px" class="form-check-input" name="histology" value="{{ value }}"
+                      {% if value == query.histology %} checked {% endif %}
+                      {% if not editable %} disabled {% endif %}>
+                      {{ text }}
+                    </label>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Age -->
+            <div class="form-group row {% if 'age' in errors %} card-inverse-danger {% endif %}">
+              <label for="age" class="col-sm-2 col-form-label pl-3">Age
+                {% autoescape off %}
+                  {% if 'age' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.age }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container">
+                <input type="number" class="form-control col-sm-2" name="age" min="0"
+                       placeholder="(나이)"
+                       value="{% ifnotequal query.age None %}{{ query.age }}{% endifnotequal %}"
+                       {% if not editable %} disabled {% endif %}>
+              </div>
+            </div>
+
+            <!-- Chemotherapy -->
+            <div class="form-group row {% if 'chemotherapy' in errors %} card-inverse-danger {% endif %}">
+              <label for="chemotherapy" class="col-sm-2 col-form-label pl-3">Chemotherapy
+               {% autoescape off %}
+                  {% if 'chemotherapy' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.chemotherapy }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+                {% for value, text in field_choice.chemotherapy %}
+                  <div class="form-check" style="margin-right: 30px;">
+                    <label class="form-check-label">
+                      <input type="radio" style="padding:10px" class="form-check-input" name="chemotherapy" value="{{ value }}"
+                      {% if value == query.chemotherapy %} checked {% endif %}
+                      {% if not editable %} disabled {% endif %}>
+                      {{ text }}
+                    </label>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- ECOG -->
+            <div class="form-group row {% if 'ecog' in errors %} card-inverse-danger {% endif %}">
+              <label for="ecog" class="col-sm-2 col-form-label pl-3">ECOG
+                {% autoescape off %}
+                  {% if 'ecog' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.ecog }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+                {% for value, text in field_choice.ecog %}
+                  <div class="form-check" style="margin-right: 30px;">
+                    <label class="form-check-label">
+                      <input type="radio" style="padding:10px" class="form-check-input" name="ecog" value="{{ value }}"
+                      {% if value == query.ecog %} checked {% endif %}
+                      {% if not editable %} disabled {% endif %}>
+                      {% if text == -1 %}
+                        해당없음
+                      {% else %}
+                        {{ text }}
+                      {% endif %}
+                    </label>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Lesion -->
+            <div class="form-group row {% if 'lesion' in errors %} card-inverse-danger {% endif %}">
+              <label for="lesion" class="col-sm-2 col-form-label pl-3">Lesion
+                {% autoescape off %}
+                  {% if 'lesion' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.lesion }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+                {% for value, text in field_choice.lesion %}
+                  <div class="form-check" style="margin-right: 30px;">
+                    <label class="form-check-label">
+                      <input type="radio" style="padding:10px" class="form-check-input" name="lesion" value="{{ value }}"
+                      {% if value == query.lesion %} checked {% endif %}
+                      {% if not editable %} disabled {% endif %}>
+                      {{ text }}
+                    </label>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Alternation -->
+            <div class="form-group row {% if 'alternation' in errors %} card-inverse-danger {% endif %}">
+              <label for="alternation" class="col-sm-2 col-form-label pl-3">Alternation
+               {% autoescape off %}
+                  {% if 'alternation' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.alternation }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+                {% for value, text in field_choice.alternation %}
+                  <div class="form-check" style="margin-right: 30px;">
+                    <label class="form-check-label">
+                      <input type="checkbox" style="padding:10px" class="form-check-input" name="alternation" value="{{ value }}"
+                      {% if value in query.alternation %} checked {% endif %}
+                      {% if not editable %} disabled {% endif %}>
+                      {{ text }}
+                    </label>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- PDL1 -->
+            <div class="form-group row {% if 'pdl1' in errors %} card-inverse-danger {% endif %}">
+              <label for="pdl1" class="col-sm-2 col-form-label pl-3">PDL1
+                {% autoescape off %}
+                  {% if 'pdl1' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.pdl1 }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container">
+                <input type="number" class="form-control col-sm-2" name="pdl1" id="d" min="0"
+                       placeholder="(PDL1)"
+                       value="{% ifnotequal query.pdl1 None %}{{ query.pdl1 }}{% endifnotequal %}"
+                       {% if not editable %} disabled {% endif %}>
+              </div>
+            </div>
+
+            <!-- MSI -->
+            <div class="form-group row {% if 'msi' in errors %} card-inverse-danger {% endif %}">
+              <label for="msi" class="col-sm-2 col-form-label pl-3">MSI
+                {% autoescape off %}
+                  {% if 'msi' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.msi }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+                {% for value, text in field_choice.msi %}
+                  <div class="form-check" style="margin-right: 30px;">
+                    <label class="form-check-label">
+                      <input type="radio" style="padding:10px" class="form-check-input" name="msi" value="{{ value }}"
+                      {% if value == query.msi %} checked {% endif %}
+                      {% if not editable %} disabled {% endif %}>
+                      {{ text }}
+                    </label>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Line -->
+            <div class="form-group row {% if 'line' in errors %} card-inverse-danger {% endif %}">
+              <label for="line" class="col-sm-2 col-form-label pl-3">Line
+                {% autoescape off %}
+                  {% if 'line' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.line }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap; ">
+                {% for value, text in field_choice.line %}
+                  <div class="form-check" style="margin-right: 30px;">
+                    <label class="form-check-label">
+                      <input type="radio" style="padding:10px" class="form-check-input" name="line" value="{{ value }}"
+                      {% if value == query.line %} checked {% endif %}
+                      {% if not editable %} disabled {% endif %}>
+                      {{ text }}
+                    </label>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+
+             <!-- IO Naive -->
+            <div class="form-group row {% if 'io_naive' in errors %} card-inverse-danger {% endif %}">
+              <label for="line" class="col-sm-2 col-form-label pl-3">IO Naive
+                {% autoescape off %}
+                  {% if 'io_naive' in errors %}
+                    <div class="text-danger small" style="line-height: 1rem;">{{ errors.io_naive }}</div>
+                  {% endif %}
+                {% endautoescape %}
+              </label>
+              <div class="col-sm-10 form-input-container checkbox-radio-input">
+                <div style="display: flex; justify-content: left; flex-wrap:wrap; ">
+                {% for value, text in field_choice.io_naive %}
+                  <div class="form-check" style="margin-right: 30px;">
+                    <label class="form-check-label">
+                      <input type="radio" style="padding:10px" class="form-check-input" name="io_naive" value="{{ value }}"
+                      {% if value == query.io_naive %} checked {% endif %}
+                      {% if not editable %} disabled {% endif %}>
+                      {{ text }}
+                    </label>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mt-2" style="text-align: right;">
+              <button type="submit" class="btn btn-success">Add</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

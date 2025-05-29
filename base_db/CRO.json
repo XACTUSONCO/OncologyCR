@@ -1,0 +1,247 @@
+[
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 1,
+        "fields": {
+            "value": "ADM Korea"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 2,
+        "fields": {
+            "value": "AllLive Healthcare"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 3,
+        "fields": {
+            "value": "BDM Consulting"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 4,
+        "fields": {
+            "value": "BETHESDASOFT"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 5,
+        "fields": {
+            "value": "C&R Research"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 6,
+        "fields": {
+            "value": "CALEB MULTILAB"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 7,
+        "fields": {
+            "value": "CC&I Research"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 8,
+        "fields": {
+            "value": "CiKLux"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 9,
+        "fields": {
+            "value": "Clinical CRO"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 10,
+        "fields": {
+            "value": "CliPS"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 11,
+        "fields": {
+            "value": "D2S"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 12,
+        "fields": {
+            "value": "HELPTRIAL"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 13,
+        "fields": {
+            "value": "JNPMEDI"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 14,
+        "fields": {
+            "value": "KHMEDICARE"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 15,
+        "fields": {
+            "value": "Kolab"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 16,
+        "fields": {
+            "value": "LSK Global PS"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 17,
+        "fields": {
+            "value": "Medi Help Line"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 18,
+        "fields": {
+            "value": "Medical Excellence"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 19,
+        "fields": {
+            "value": "Medical Writing"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 20,
+        "fields": {
+            "value": "PHARMACRO"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 21,
+        "fields": {
+            "value": "PLS"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 22,
+        "fields": {
+            "value": "PROMEDIS"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 23,
+        "fields": {
+            "value": "Research Mentor"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 24,
+        "fields": {
+            "value": "RNDMotiv"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 25,
+        "fields": {
+            "value": "SEO-CHO CRO"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 26,
+        "fields": {
+            "value": "SEOUL CRO"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 27,
+        "fields": {
+            "value": "Symyoo"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 28,
+        "fields": {
+            "value": "Synex Consulting"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 29,
+        "fields": {
+            "value": "UMT"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 30,
+        "fields": {
+            "value": "MSD"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 31,
+        "fields": {
+            "value": "ICON"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 32,
+        "fields": {
+            "value": "Syneous Health"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 33,
+        "fields": {
+            "value": "KCSG"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 34,
+        "fields": {
+            "value": "IQVIA"
+        }
+    },
+    {
+        "model": "miscellaneous.CRO",
+        "pk": 35,
+        "fields": {
+            "value": "PAREXEL"
+        }
+    }
+]

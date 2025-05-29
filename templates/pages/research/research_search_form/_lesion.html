@@ -1,0 +1,48 @@
+{% load get_m2m_values from research_tag %}
+
+<label for="lesion" class="font-weight-bold col-sm-2 col-form-label striped pl-3 word-keep-all text-black">
+  Measurable Lesion 필요여부
+  {% autoescape off %}
+    {% if 'lesion' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.lesion }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+
+<div class="col-sm-2 form-input-container checkbox-radio-input flex-container">
+    <div class="cancer-type-category" style="border: none;">
+      <div class="form-check">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input"
+                 name="lesion" value="na"
+              {% if 'na' == query.lesion %}
+                checked
+              {% endif %}
+              {% if not editable %} disabled {% endif %}>
+          <i class="input-helper"></i><span>해당없음</span>
+        </label>
+      </div>
+    </div>
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input" name="lesion" value="required"
+            {% if 'required' in query.lesion %}
+                 checked {% endif %}>
+            <i class="input-helper"></i><span>있음</span>
+          <i class="input-helper"></i></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input" name="lesion" value="not_required"
+            {% if 'not_required' in query.lesion %}
+                 checked {% endif %}>
+            <i class="input-helper"></i><span>없음</span>
+          <i class="input-helper"></i></label>
+        </div>
+      </div>
+      <!-- Flex end -->
+    </div>
+</div>

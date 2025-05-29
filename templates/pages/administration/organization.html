@@ -1,0 +1,255 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>기관 정보</h2>
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Admin</li>
+									<li class="breadcrumb-item"><a href="/administration/organization/">기관정보</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12 admin-tables">
+
+						<div class="row row-cols-auto select-action">
+							<div class="col ms-auto">
+								<button id="row-delete-button" type="button" class="btn btn-danger edit-btn px-4" onClick="handleClickDeleteSelection()" style="display: none">
+									<i class="bi bi-trash"></i> <span>DELETE</span>
+								</button>
+								{% if organizations|length == 0 %}
+								<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAdd()">
+									<i class="bi bi-plus-square"></i> <span>Add</span>
+								</button>
+								{% endif %}
+							</div>
+						</div>
+
+						<div class="table-responsive">
+							<table class="table table-bordered custom-table" id="organization-table">
+								<thead>
+                                    <tr>
+                                        <th scope="col">삭제</th>
+                                        <th scope="col" style="display:none;">#</th>
+                                        <th scope="col">로고</th>
+                                        <th scope="col">기관명</th>
+                                        <th scope="col"></th>
+                                    </tr>
+								</thead>
+								<tbody>
+                                {% for organization in organizations %}
+                                    <tr>
+                                        <td style="cursor: pointer"></td>
+                                        <td scope="row" style="display: none;">{{ organization.id }}</td>
+                                        <td>
+                                            {% if organization.logo %}
+                                                <img src="/media/{{ organization.logo }}" alt="{{ organizations.logo }}"
+                                                     style="width: 40px; height: 40px; border-radius: 0"></img>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ organization.name }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                    onClick="handleClickEdit('{{ organization.logo }}', '{{ organization.name }}', '{{ organization.id }}')">
+                                                수정
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+							</table>
+						</div><!-- //table-responsive -->
+
+                        {# 추가/수정 모달 #}
+                        <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form method="post"
+                                          action="/administration/organization/"
+                                          enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="organization-id" type="hidden" name="organization_id"/>
+                                        <input id="is-update" type="hidden" name="is_update"/>
+                                        <input id="is-deleted" type="hidden" name="is_deleted"/>
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addModalLabel">기관 추가</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3 row" id="form-add-file">
+                                                <label for="image" class="col-sm-2 col-form-label">로고 이미지</label>
+                                                <div class="col-sm-10">
+                                                    <img id="image-preview" src=""/>
+                                                    <button id="image-delete" class="btn btn-sm btn-outline-danger" type="button"
+                                                            style="display: none">삭제
+                                                    </button>
+                                                    <input id="input-image" type="file" class="form-control" name="image" alt="logo"
+                                                           accept="image/*">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label for="name" class="col-sm-2 col-form-label">기관명</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="name" name="name" maxlength="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"><i class="bi bi-arrow-left-square"></i> <span>Cancel</span></button>
+											<button type="submit" id="add-btn" class="btn btn-success edit-btn px-4">
+												<i class="bi bi-pencil"></i> <span>Save</span>
+											</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endblock %}
+
+{% block script %}
+<script>
+        $(document).ready(function () {
+            const table = $('#organization-table').DataTable({
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    },
+                    {
+                        targets: "_all",
+                        className: "dt-center",
+                    },
+
+                ],
+                select: {
+                    style: 'multiple',
+                    selector: 'td:first-child'
+                },
+                "order": [[1, "desc"]],
+            })
+
+            $('#organization-table').data('selectedIds', []);
+
+            table.on('select', function (e, dt, type, indexes) {
+                const organizationId = table.rows(indexes).data().toArray()[0][1];
+                $('#organization-table').data('selectedIds', [...$('#organization-table').data('selectedIds'), organizationId]);
+                if ($('#organization-table').data('selectedIds').length === 1) {
+                    $('#row-delete-button').show();
+                }
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                const organizationId = table.rows(indexes).data().toArray()[0][1];
+                const tmp = $('#organization-table').data('selectedIds').filter(a => a !== organizationId)
+                $('#organization-table').data('selectedIds', tmp);
+                if (tmp.length === 0) {
+                    $('#row-delete-button').hide();
+                }
+            });
+
+            $('.dataTables_length').addClass('bs-select');
+
+            $("#organization-table_wrapper").css("width", "100%")
+
+            $("#input-image").on("change", function (e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        $('#image-preview').attr('src', evt.target.result);
+                        showImage()
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                } else {
+                    $('#image-preview').hide();
+                    $('#image-delete').hide();
+                }
+            })
+
+            $('#image-delete').on('click', deleteImage);
+
+            $('#addModal').on('hide.bs.modal', () => {
+                deleteImage();
+                $('#is-update').val('');
+                $('#is-deleted').val('');
+                $('#organization-id').val('');
+                $('#name').val('');
+            })
+        });
+
+        function showImage() {
+            $('#image-preview').css('width', "60px");
+            $('#image-preview').css('height', "60px");
+            $('#image-preview').css('margin', "15px");
+            $('#image-preview').show();
+            $('#image-delete').show();
+        }
+
+        function deleteImage() {
+            $('#image-preview').attr('src', "");
+            $('#input-image').val("");
+            $('#is-deleted').val(true);
+            $('#input-image').show();
+            $('#image-preview').hide();
+            $('#image-delete').hide();
+        }
+
+        function handleClickAdd() {
+            $('#addModalLabel').text('기관 추가');
+            $('#is-update').val(false);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(logo, name, organizationId) {
+            $('#addModalLabel').text('기관 수정');
+            if (logo) {
+                $('#image-preview').attr('src', `/media/${logo}`);
+                $('#input-image').hide();
+                showImage();
+            }
+            $('#name').val(name);
+            $('#is-update').val('true');
+            $('#organization-id').val(organizationId);
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteSelection() {
+            const targetList = $('#organization-table').data('selectedIds');
+            if (confirm(`${targetList.length}개의 데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/administration/organization/delete/',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "organization_ids": targetList.join(","),
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+</script>
+
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+{% endblock %}

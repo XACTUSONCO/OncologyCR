@@ -1,0 +1,420 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load cal_career from research_tag %}
+{% load get_o2m_values from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Certification</h2>
+
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="">Staff</a></li>
+									<li class="breadcrumb-item"><a href="/dataroom/certification/">Certification</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start contents-area -->
+				<div class="row certification-area" id="printArea">
+                    <div class="row row-cols-auto header-btns mb-2">
+                        <div class="col">
+                            <p class="text-danger">※ 이외에 필요한 서류는 송희수 선생님께 문의 - 76597</p>
+                        </div>
+                    </div>
+
+						<div class="col-md-3">
+						  <div class="u-box box-secondary box-solid">
+							<div class="box-header">
+							  <div class="box-tools">
+								<div class="form-group">
+									<label class="form-label sr-only">검색</label>
+									<div class="form-cons">
+										<input type="text" class="form-control" name="search_keyword" value="" placeholder="폴더 검색" id="folderSearchInput" >
+										<button type="submit" class="btn btn-success btn-sm edit-btn ms-1 search-btn">
+											<i class="bi bi-search"></i> <span class="sr-only">검색</span>
+										</button>
+									</div>
+
+									<button type="button" class="btn btn-outline-secondary ms-1 btn-box-tool" onClick="handleClickAddCertCategoryBtn()" data-widget="collapse">
+										<i class="bi bi-folder-plus"></i><span class="sr-only">폴더 추가</span>
+									</button>
+								</div>
+							  </div>
+							</div>
+
+							<div class="box-body no-padding">
+							  <ul class="nav flex-column" id="folderList">
+								<li class="list-group-item active" onclick="handleItemClick('ALL')">
+									All
+								</li>
+								{% for category in categories %}
+									<li class="list-group-item" onclick="handleItemClick('{{ category }}')">
+										{{ category }}
+									</li>
+								{% endfor %}
+							  </ul>
+							</div>
+							<!-- /.box-body -->
+						  </div>
+						  <!-- /. box -->
+						</div>
+						<!-- /.col -->
+
+						<div class="col-md-9">
+						  <div class="u-box box-success box-solid">
+							<div class="box-header bg-grey">
+								<div class="row row-cols-auto align-items-center header-btns">
+									<h4 class="col sub-title mb-0"><span class="tit" id="selectedCategory">ALL</span></h4>
+									<div class="col ms-auto">
+										<button type="button" class="btn btn-success edit-btn px-4" onClick="handleClickAddBtn()">
+											<i class="bi bi-plus-square"></i> <span>Add</span>
+										</button>
+									</div>
+								</div>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body no-padding">
+								<div class="table-responsive ">
+									<table class="table custom-table" id="certification-table">
+										<thead>
+											<tr>
+												<th>구분</th>
+												<th>기기명</th>
+												<th>자산번호</th>
+												<th>년도</th>
+												<th>Register</th>
+												<th>Update date</th>
+												<th>File</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+										  {% for material in materials %}
+											<tr class="material-tr material-tr-{{ material.category }}">
+												<td>{{ material.category }}</td>
+												<td>{{ material.name }}</td>
+												<td>{{ material.asset_number|default_if_none:'' }}</td>
+												<td>{{ material.year|default_if_none:'' }}</td>
+												<td>{{ material.uploader }}</td>
+												<td>{{ material.update_date|date:"Y-m-d H:i" }}</td>
+												<td>
+													<a class="btn" onClick="handleClickFileIcon('{{ material.materials }}', '{{ material.id }}', '{{ material.materials_name }}')" target="_blank">
+														<i class="fa fa-paperclip"></i><span class="sr-only">파일 다운로드</span>
+													</a>
+												</td>
+												<td>
+													<button type="button" class="btn btn-outline-secondary"
+															onClick="handleClickEdit('{{ material.category }}', '{{ material.name }}', '{{ material.asset_number }}', '{{ material.year }}', '{{ material.id }}', '{{ material.materials_name }}')">
+														수정
+													</button>
+													<button type="button" class="btn btn-outline-danger" style="margin-left: 10px"
+															onClick="handleClickDelete('{{ material.id }}')">
+														삭제
+													</button>
+												</td>
+											</tr>
+										  {% endfor %}
+										</tbody>
+									</table>
+								</div><!-- //table-responsive -->
+
+								<!-- certificationAdd 추가 -->
+								<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+									<div class="modal-dialog modal-dialog-centered">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h5 class="modal-title" id="addModalLabel">Certification 추가</h5>
+												<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+											</div>
+											<form id="certi-add-form" method="post" action="/dataroom/certification/create" enctype="multipart/form-data">
+												{% csrf_token %}
+												<input id="target-id" type="hidden" name="target_id"/>
+												<input id="is-update" type="hidden" name="is_update"/>
+												<input id="is-deleted" type="hidden" name="is_deleted"/>
+												<div class="modal-body">
+													<div class="mb-3 row">
+														<label for="category" class="col-sm-2 col-form-label">구분</label>
+														<div class="col-sm-10">
+															<select class="form-control custom-select" aria-label="category select"
+																	id="category" name="category" required>
+																{% for category in categories %}
+																	<option value="{{ category }}">{{ category }}</option>
+																{% endfor %}
+															</select>
+														</div>
+													</div>
+													<div class="mb-3 row">
+														<label for="name" class="col-sm-2 col-form-label">기기명</label>
+														<div class="col-sm-10">
+															<input type="text" class="form-control" id="name" name="name" maxlength="500" required>
+														</div>
+													</div>
+													<div class="mb-3 row">
+														<label for="name" class="col-sm-2 col-form-label">자산번호</label>
+														<div class="col-sm-10">
+															<input type="text" class="form-control" id="asset_number" name="asset_number" maxlength="500">
+														</div>
+													</div>
+													<div class="mb-3 row">
+														<label for="name" class="col-sm-2 col-form-label">년도</label>
+														<div class="col-sm-10">
+															<input type="number" class="form-control" id="year" name="year" maxlength="500" required>
+														</div>
+													</div>
+													<div class="mb-3 row" id="form-attached-file" style="display: none">
+														<label for="name" class="col-sm-2 col-form-label">파일첨부</label>
+														<div class="col-sm-8">
+															<input type="text" class="form-control" id="filename" name="filename" readonly>
+														</div>
+														<div class="col-sm-2">
+															<button id="filename-delete" class="form-control btn btn-sm btn-outline-danger"
+																	type="button" onClick="handleClickDeleteFile()">삭제
+															</button>
+														</div>
+													</div>
+													<div class="mb-3 row" id="form-add-file">
+														<label for="file" class="col-sm-2 col-form-label">파일첨부</label>
+														<div class="col-sm-10">
+															<input type="file" class="form-control" name="file" id="file" required>
+														</div>
+													</div>
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+														<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+													</button>
+													<button id="add-btn" type="submit" class="btn btn-success edit-btn px-4">
+														<i class="bi bi-pencil"></i> <span>Save</span>
+													</button>
+												</div>
+											</form>
+										</div>
+									</div>
+								</div>
+
+                                {#교육자료 카테고리 추가 모달#}
+                                <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCertCategoryLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                                        <div class="modal-content">
+                                            <form id="certi-add-form" method="post" action="/dataroom/certification/category/create" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="addCertCategoryLabel">폴더 추가</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group row">
+                                                        <label for="category" class="col-sm-2 col-form-label">구분</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="category" name="category" maxlength="50" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label for="description" class="col-sm-2 col-form-label">Description</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="description" name="description" maxlength="500" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+														<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+													</button>
+                                                    {% csrf_token %}
+                                                    <button type="add-cate-btn" id="add-add-cate-btn" class="btn btn-success edit-btn px-4" >
+                                                        <i class="bi bi-pencil"></i> <span>Save</span>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+							</div>
+						  </div>
+						  <!-- /. box -->
+						</div>
+						<!-- /.col -->
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+{% include 'bases/partials/_modals.html' %}
+<!-- <script src="{% static 'assets/js/pages/staff.js' %}"></script> -->
+<script>
+        $(document).ready(function () {
+            $('#downloadModal').on('hide.bs.modal', () => {
+                $('#downloadCheck').prop('checked', false);
+                $('#download-btn').prop('disabled', true);
+            })
+
+            $('#downloadCheck').on('change', (e) => {
+                console.log(e.currentTarget.checked, $('#save-btn'))
+                if (e.currentTarget.checked) {
+                    $('#download-btn').attr('disabled', false);
+                } else {
+                    $('#download-btn').attr('disabled', true);
+                }
+            })
+
+			$('#certification-table').DataTable({
+				"order": [[ 3, 'desc' ]],
+				dom: "frltp",
+				"columnDefs": [
+					{ "width": "20%", "targets": 1 },
+					{ "width": "15%", "targets": 2 },
+					{ "width": "15%", "targets": 3 },
+				]
+			} );
+
+            $('.dataTables_length').addClass('bs-select');
+            $("#certification-table_wrapper").css("width", "100%")
+
+            $('.nav').on('click', '.list-group-item', function (event) {
+                event.preventDefault();
+                const targetCategory = $(this)[0].innerText;
+                if (targetCategory === "All") {
+                    $('#certification-table').DataTable().column(0).search("").draw();
+                } else {
+                    $('#certification-table').DataTable().column(0).search(targetCategory).draw();
+                }
+                $(this).addClass('active').siblings().removeClass('active');
+            });
+
+            $('#folderSearchInput').on("keyup", function () {
+                const value = $(this).val().toLowerCase();
+                $("#folderList").children().each(function () {
+                    if (!$(this).text().toLowerCase().includes(value) && !$(this).text().includes("All") && !$(this).hasClass("active")) {
+                        $(this).removeClass('list-group-item').hide()
+                    } else {
+                        $(this).addClass('list-group-item').show();
+                    }
+                });
+            });
+            $('#addModal').on('hide.bs.modal', () => {
+                $('#addModalLabel').text('Certification 추가');
+                $('#is-update').val('');
+                $('#category').val('');
+                $('#name').val('');
+		$('#asset_number').val('');
+                $('#year').val('');    
+                $('#target-id').val('');
+                $('#form-add-file').show()
+                $('#form-attached-file').hide()
+            })
+        });
+
+        function handleClickFileIcon(filePath, materialId, materialName) {
+            $('#downloadModal').data('filePath', `/media/${filePath}`);
+            $('#downloadModal').data('materialId', materialId);
+	    $('#downloadModal').data('materialName', materialName);	
+            $('#downloadModal').modal('show');
+        }
+
+        function handleClickSaveBtn() {
+            const materialId = $('#downloadModal').data('materialId');
+	    const materialName = $('#downloadModal').data('materialName');	
+            const url = $('#downloadModal').data('filePath');
+
+	    window.open(url, '_blank');
+
+            $.ajax({
+                type: 'post',
+                url: '/dataroom/certification/download',
+                headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                data: {
+                    "materialId": materialId,
+                },
+                success: function (data) {
+                    const link = document.createElement('a');
+                    document.body.appendChild(link);
+                    link.href = url;
+                    link.download = materialName;
+                    document.body.appendChild(link);
+		    setTimeout(function() { // 브라우저 호환성을 위해 setTimeout을 사용합니다.
+			link.click();
+		    }, 100);
+		},
+                error: function (xhr, errmsg, err) {
+                    $('#downloadModal').modal('hide');
+                }
+            });
+            $('#downloadModal').modal('hide');
+        }
+
+		function handleClickAddBtn() {
+            $('#addModal').modal('show');
+        }
+
+        function handleClickEdit(category, name, asset_number, year, id, filename) {
+            $('#addModalLabel').text('Certification 수정');
+            $('#category').val(category);
+            $('#name').val(name);
+	    $('#asset_number').val(asset_number);
+            $('#year').val(year);	
+            $('#target-id').val(id);
+            if (filename) {
+                $('#filename').val(filename);
+                $('#form-add-file').hide()
+                $('#form-attached-file').show()
+                $('#file').prop('required', false);
+            } else {
+                $('#form-add-file').show()
+            }
+            $('#is-update').val('true');
+            $('#addModal').modal('show');
+        }
+
+        function handleClickDeleteFile() {
+            $('#form-add-file').show()
+            $('#form-attached-file').hide()
+            $('#file').val('')
+            $('#file').prop('required', true);
+        }
+
+        function handleClickDelete(materialId) {
+            if (confirm(`데이터를 삭제하시겠습니까?`)) {
+                $.ajax({
+                    type: 'post',
+                    url: '/dataroom/certification/delete',
+                    headers: {"X-CSRFTOKEN": "{{ csrf_token }}"},
+                    data: {
+                        "target_id": materialId,
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            }
+        }
+
+        function handleClickAddCertCategoryBtn() {
+            $('#addCategoryModal').modal('show');
+        }
+
+        function handleItemClick(category) {
+		var selectedCategory = category; // 선택된 항목의 값을 변수로 저장
+		document.getElementById("selectedCategory").innerText = selectedCategory; // 저장된 값을 선택된 항목의 위치에 출력
+
+		if (selectedCategory === 'All') {
+			document.getElementById("selectedCategory").innerText = 'ALL';
+		}
+	}
+</script>
+{% endblock %}

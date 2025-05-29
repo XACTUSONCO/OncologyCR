@@ -1,0 +1,139 @@
+<div class="form-group row {% if 'feasibility' in errors %} card-inverse-danger {% endif %}">
+  <label for="feasibility"
+         class="col-sm-4 font-weight-bold col-form-label pl-3 striped text-black">Feasibility
+    {% autoescape off %}
+      {% if 'feasibility' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.feasibility }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-6 form-input-container">
+    <div>
+      <input type="text" autocomplete="off" class="form-control col-sm-6 feasibility" name="feasibility"
+             value="{% if setup.feasibility %}{{ setup.feasibility|date:"m/d/Y" }}{% endif %}" >
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'PSV' in errors %} card-inverse-danger {% endif %}">
+  <label for="PSV"
+         class="col-sm-4 font-weight-bold col-form-label pl-3 striped text-black">PSV
+    {% autoescape off %}
+      {% if 'PSV' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.PSV }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-6 form-input-container">
+    <div>
+      <input type="text" autocomplete="off" class="form-control col-sm-6 PSV" name="PSV"
+             value="{% if setup.PSV %}{{ setup.PSV|date:"Y-m-d H:i" }}{% endif %}" >
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'SIV' in errors %} card-inverse-danger {% endif %}">
+  <label for="SIV"
+         class="col-sm-4 font-weight-bold col-form-label pl-3 striped text-black">SIV
+    {% autoescape off %}
+      {% if 'SIV' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.SIV }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-6 form-input-container">
+    <div>
+      <input type="text" autocomplete="off" class="form-control col-sm-6 SIV" name="SIV"
+             value="{% if setup.SIV %}{{ setup.SIV|date:"m/d/Y" }}{% endif %}" >
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'budgeting_from' in errors %} card-inverse-danger {% endif %}">
+  <label for="budgeting_from"
+         class="col-sm-4 font-weight-bold col-form-label pl-3 striped text-black">Budgeting
+    {% autoescape off %}
+      {% if 'budgeting_from' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.budgeting_from }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-7 form-input-container">
+    <div style="display: flex; justify-content: left; flex-wrap:wrap;">
+      <input type="text" autocomplete="off" class="form-control col-sm-4 budgeting_from" name="budgeting_from"
+             value="{% if setup.budgeting_from %}{{ setup.budgeting_from|date:"m/d/Y" }}{% endif %}" >
+      <div>~</div>
+      <input type="text" autocomplete="off" class="form-control col-sm-4 budgeting_to" name="budgeting_to"
+             value="{% if setup.budgeting_to %}{{ setup.budgeting_to|date:"m/d/Y" }}{% endif %}" >
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'IRB_new_review' in errors %} card-inverse-danger {% endif %}">
+  <label for="IRB_new_review"
+         class="col-sm-4 font-weight-bold col-form-label pl-3 striped text-black">IRB - 신규 심의
+    {% autoescape off %}
+      {% if 'IRB_new_review' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.IRB_new_review }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-6 form-input-container">
+    <div>
+      <input type="text" autocomplete="off" class="form-control col-sm-6 IRB_new_review" name="IRB_new_review"
+             value="{% if setup.IRB_new_review %}{{ setup.IRB_new_review|date:"m/d/Y" }}{% endif %}" >
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'IRB_qualified_permission' in errors %} card-inverse-danger {% endif %}">
+  <label for="IRB_qualified_permission"
+         class="col-sm-4 font-weight-bold col-form-label pl-3 striped text-black">IRB - 시정승인
+    {% autoescape off %}
+      {% if 'IRB_qualified_permission' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.IRB_qualified_permission }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-6 form-input-container">
+    <div>
+      <input type="text" autocomplete="off" class="form-control col-sm-6 IRB_qualified_permission" name="IRB_qualified_permission"
+             value="{% if setup.IRB_qualified_permission %}{{ setup.IRB_qualified_permission|date:"m/d/Y" }}{% endif %}" >
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'IRB_finalization' in errors %} card-inverse-danger {% endif %}">
+  <label for="IRB_finalization"
+         class="col-sm-4 font-weight-bold col-form-label pl-3 striped text-black">IRB - 최종승인
+    {% autoescape off %}
+      {% if 'IRB_finalization' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.IRB_finalization }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-6 form-input-container">
+    <div>
+      <input type="text" autocomplete="off" class="form-control col-sm-6 IRB_finalization" name="IRB_finalization"
+             value="{% if setup.IRB_finalization %}{{ setup.IRB_finalization|date:"m/d/Y" }}{% endif %}" >
+    </div>
+  </div>
+</div>
+
+
+<div class="form-group row {% if 'contract' in errors %} card-inverse-danger {% endif %}">
+  <label for="contract"
+         class="col-sm-4 font-weight-bold col-form-label pl-3 striped text-black">계약서 발송
+    {% autoescape off %}
+      {% if 'contract' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.contract }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-6 form-input-container">
+    <div>
+      <input type="text" autocomplete="off" class="form-control col-sm-6 contract" name="contract"
+             value="{% if setup.contract %}{{ setup.contract|date:"m/d/Y" }}{% endif %}" >
+    </div>
+  </div>
+</div>

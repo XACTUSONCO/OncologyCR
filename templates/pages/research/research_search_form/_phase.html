@@ -1,0 +1,47 @@
+<label for="phase"
+       class="font-weight-bold col-sm-2 col-form-label pl-3 striped word-keep-all text-black">
+  Phase
+  {% autoescape off %}
+    {% if 'phase' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.phase }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+
+<div class="col-sm-3 form-input-container checkbox-radio-input">
+  <div class="na-or-else">
+    <div class="cancer-type-category" style="border: none;">
+      <div class="form-check">
+        <label class="form-check-label">
+          <input type="checkbox" style="padding:10px" class="form-check-input"
+                 name="phase" value="na"
+              {% if 'na' in query.phase %}
+                 checked {% endif %}
+              {% if not editable %} disabled {% endif %}>
+          <i class="input-helper"></i><span>해당없음</span></label>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category">
+        {% for value, text in field_choice.phase %}
+          {% if forloop.counter0 > 0 %}
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" style="padding:10px"
+                       class="form-check-input" name="phase"
+                       value="{{ value }}"
+                    {% if value in query.phase %}
+                       checked {% endif %}
+                    {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span>{{ text }}</span></label>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- Flex end -->
+    </div>
+  </div>
+</div>

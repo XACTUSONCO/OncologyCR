@@ -1,0 +1,41 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+{% block title %}
+  <title>Oncology CR</title>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-9 mb-4 mb-xl-0">
+      <h4 class="font-weight-bold text-dark">
+        {% if waitinglist.cancer.value %}
+        <a href="/research/waitinglist/{{ waitinlgist.cancer.value }}">{{ waitinglist.cancer.value }}</a>
+        {% else %}
+        <a href="/research/waitinglist/{{ waitinlgist.phase.value }}">{{ waitinglist.phase.value }}</a>
+        {% endif %}
+        - <a href="/research/waitinglist/{{ waitinglist.id }}">{{ waitinglist.name }}</a>
+        {% if waitinglist.is_deleted %}(삭제됨){% endif %}
+      </h4>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title pt-1" style="margin:0;">환자 정보</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            삭제된 정보
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block custom_end %}
+{% endblock %}

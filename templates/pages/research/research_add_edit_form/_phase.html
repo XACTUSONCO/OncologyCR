@@ -1,0 +1,45 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+
+<label for="phase" class="col-lg-2 col-form-label">Phase
+  {% autoescape off %}
+    {% if 'phase' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.phase }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+
+<div class="col-lg-10 col-form-data no-flex">
+    <div class="form-check form-check-success">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" name="phase" value="na" id="phase-no" onclick="checkInputNo(this)"
+        {% if 'na' in research.phase.all|get_m2m_values or 'na' in pre_initiation.phase.all|get_m2m_values or 'na' in pre_initiation_IIT.phase.all|get_m2m_values %}
+          checked {% endif %}
+        {% if not editable %} disabled {% endif %}><i class="input-helper"></i>
+        <span class="form-check-sign">해당없음</span>
+      </label>
+    </div>
+
+    <div class="line"></div>
+
+    <div class="row row-cols-auto">
+      {% for value, text in field_choice.phase %}
+        {% if forloop.counter0 > 0 %}
+          <div class="col">
+            <div class="form-check form-check-success">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" name="phase" value="{{ value }}"
+                {% if 'na' in research.phase.all|get_m2m_values or 'na' in pre_initiation.phase.all|get_m2m_values or 'na' in pre_initiation_IIT.phase.all|get_m2m_values %}
+                    disabled {% endif %}
+                {% if value in research.phase.all|get_m2m_values or value in pre_initiation.phase.all|get_m2m_values or value in pre_initiation_IIT.phase.all|get_m2m_values %}
+                    checked {% endif %}
+                {% if not editable %} disabled {% endif %}><i class="input-helper"></i>
+                <span class="form-check-sign">{{ text }}</span>
+              </label>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+</div>

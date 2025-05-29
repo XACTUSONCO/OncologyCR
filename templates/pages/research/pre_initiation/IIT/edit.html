@@ -1,0 +1,60 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+<head>
+  {% block custom_head %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.standalone.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/datetimepicker.css' %}">
+  {% endblock %}
+  {% block title %}
+    <title>Oncology CR</title>
+  {% endblock %}
+</head>
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12 mb-4 mb-xl-0">
+      <a href="/research/pre_initiation_IIT/{{ pre_initiation_IIT.id }}/edit/">
+        <h4 class="font-weight-bold text-dark">Edit: {{ pre_initiation_IIT.pre_research_name }}</h4>
+      </a>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title"><연구 정보></h4>
+          <form id="research-edit-form" class="forms-sample" method="post" action="/research/pre_initiation_IIT/{{ pre_initiation_IIT.id }}/edit/" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include 'pages/research/pre_initiation/IIT/pre_initiation_add_edit_form.html' %}
+            <div class="mt-2" style="float:right;">
+              <a href="/research/pre_initiation"><button type="button" class="btn btn-light">Cancel</button></a>
+                &nbsp;&nbsp;
+              <button id="pre-initiation-IIT-remove-button" pre-initiation-IIT-id="{{ pre_initiation_IIT.id }}" type="button" class="btn btn-inverse-danger">Remove</button>
+                &nbsp;&nbsp;
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block custom_end %}
+  <script src="{% static 'js/CRUD/pre_initiation_detail.js' %}"></script>
+  <script src="{% static 'js/CRUD/research_add.js' %}"></script>
+  <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+  <script src="{% static 'js/datetimepicker.js' %}"></script>
+
+  <script>
+  $(function() {
+    $( ".datepicker" ).datepicker({
+      todayHighlight : true,
+    });
+    $( ".PSV" ).datetimepicker({
+            todayHighlight : true
+    });
+  });
+  </script>
+{% endblock %}

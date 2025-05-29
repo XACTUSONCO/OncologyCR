@@ -1,0 +1,191 @@
+[
+    {
+        "model": "research.Cancer",
+        "pk": 1,
+        "fields": {
+            "value": "na"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 2,
+        "fields": {
+            "value": "NSCLC"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 3,
+        "fields": {
+            "value": "esophageal"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 4,
+        "fields": {
+            "value": "head_and_neck"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 5,
+        "fields": {
+            "value": "gastric"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 6,
+        "fields": {
+            "value": "small_bowel"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 7,
+        "fields": {
+            "value": "colorectal"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 8,
+        "fields": {
+            "value": "GB"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 9,
+        "fields": {
+            "value": "pancreatic"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 10,
+        "fields": {
+            "value": "breast"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 11,
+        "fields": {
+            "value": "ovarian"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 12,
+        "fields": {
+            "value": "endometrial"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 13,
+        "fields": {
+            "value": "kidney"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 14,
+        "fields": {
+            "value": "ureter"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 15,
+        "fields": {
+            "value": "prostate"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 16,
+        "fields": {
+            "value": "sarcoma"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 17,
+        "fields": {
+            "value": "melanoma"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 18,
+        "fields": {
+            "value": "phase1"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 19,
+        "fields": {
+            "value": "etc"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 20,
+        "fields": {
+            "value": "vaginal"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 21,
+        "fields": {
+            "value": "cervix"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 22,
+        "fields": {
+            "value": "vulva"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 23,
+        "fields": {
+            "value": "BT"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 24,
+        "fields": {
+            "value": "bladder"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 25,
+        "fields": {
+            "value": "HCC"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 26,
+        "fields": {
+            "value": "SCLC"
+        }
+    },
+    {
+        "model": "research.Cancer",
+        "pk": 27,
+        "fields": {
+            "value": "Solid"
+        }
+    }
+]

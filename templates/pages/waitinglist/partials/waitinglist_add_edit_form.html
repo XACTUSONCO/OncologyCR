@@ -1,0 +1,104 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+{% load chunks from research_tag %}
+
+<div class="form-group row {% if 'register_number' in errors %} card-inverse-danger {% endif %}">
+  <label for="register_number" class="col-lg-2 col-form-label">Patient No.
+    {% autoescape off %}
+      {% if 'register_number' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.register_number }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="number" class="form-control" name="register_number"
+             value="{% if waitinglist.register_number %}{{ waitinglist.register_number }}{% endif %}"
+             min="0">
+  </div>
+</div>
+
+<div class="form-group row {% if 'name' in errors %} card-inverse-danger {% endif %}">
+  <label for="name" class="col-lg-2 col-form-label">Name
+    {% autoescape off %}
+      {% if 'name' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.name }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="name"
+             value="{% if waitinglist.name %}{{ waitinglist.name }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'doctor' in errors %} card-inverse-danger {% endif %}">
+  <label for="doctor" class="col-lg-2 col-form-label">Doctor
+    {% autoescape off %}
+      {% if 'doctor' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.doctor }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="text" class="form-control" name="doctor"
+             value="{% if waitinglist.doctor %}{{ waitinglist.doctor }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'age' in errors %} card-inverse-danger {% endif %}">
+  <label for="age" class="col-lg-2 col-form-label">Age
+    {% autoescape off %}
+      {% if 'age' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.age }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <input type="number" class="form-control" name="age"
+             value="{% if waitinglist.age %}{{ waitinglist.age }}{% endif %}"
+             min="0">
+  </div>
+</div>
+
+<div class="form-group row {% if 'sex' in errors %} card-inverse-danger {% endif %}">
+  <label for="sex" class="col-lg-2 col-form-label">Sex
+    {% autoescape off %}
+      {% if 'sex' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.sex }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="sex" value="M" {% if 'M' == waitinglist.sex %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">M</span>
+          </label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="sex" value="F" {% if 'F' == waitinglist.sex %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">F</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'curr_status' in errors %} card-inverse-danger {% endif %}">
+  <label for="curr_status" class="col-lg-2 col-form-label">Current Status
+    {% autoescape off %}
+      {% if 'curr_status' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.curr_status }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-4 col-form-data">
+      <textarea type="text" class="form-control" rows="4" name="curr_status">{{ waitinglist.curr_status }}</textarea>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+
+{% block title %}
+  <title>Add WaitingList</title>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12 mb-4 mb-xl-0">
+      <h4 class="font-weight-bold text-dark">Add WaitingList -
+        <a href="/research/search/?cancer={{ cancer.value }}">{{ cancer.value }}</a></h4>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title pt-1" style="margin:0;">환자 정보</h4>
+        </div>
+        <div class="card-body">
+          <form id="waitinglist-add-form" class="forms-sample" method="post"
+                action="/research/waitinglist/add/{{ cancer.id }}/"
+                enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include 'pages/waitinglist/partials/waitinglist_add_edit_form.html' %}
+            <div class="mt-2" style="text-align:right;">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block custom_end %}
+  {#  <script src="{% static 'js/CRUD/waitinglist_add.js' %}"></script>#}
+{% endblock %}

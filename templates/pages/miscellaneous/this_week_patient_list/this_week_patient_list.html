@@ -1,0 +1,125 @@
+{% load static %}
+{% load cal_career from research_tag %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include "bases/partials/_base_head.html" %}
+  {% block title %}
+    <title>X-OncoTrack</title>
+  {% endblock %}
+</head>
+
+<body class="sidebar-icon-only">
+  <div class="container-scroller">
+    <nav id="navbar" class="navbar navbar-expand-lg">
+      <a id="oncologyCR" href="/">
+        <div class="navbar-brand mr-0" style="padding-left: 8px; font-family: 'Dancing Script',cursive;">
+            <div style="font-size: 1.25rem;">Oncology CR</div>
+        </div>
+      </a>
+    </nav>
+
+    <div class="container-fluid page-body-wrapper">
+      <div class="main-panel">
+        <div class="content-wrapper pt-4">
+
+          {% block content %}
+            <div class="row">
+              <div class="col-sm-12 mb-4 mb-xl-0">
+                <h4 class="font-weight-bold text-dark">Calendar</h4>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <div>
+                <a class="btn btn-info" href="{% url 'miscellaneous:this_week_patient_list' %}?{{ prev_month }}">Previous</a>
+                <div style="float:right;">
+                  <a class="btn btn-success" href="{% url 'miscellaneous:download_this_week_patient_list' %}">Download</a>
+                  <a class="btn btn-info" href="{% url 'miscellaneous:this_week_patient_list' %}?{{ next_month }}">Next</a>
+                </div>
+              </div>
+            </div>
+            {{calendar}}
+
+          {% endblock %}
+
+      </div>
+    </div>
+  </div>
+  </div>
+  {% include 'bases/partials/_base_end.html' %}
+
+<style>
+      .container {
+        width: 100%;
+      }
+
+      .calendar, .leave_calendar {
+        width: 85%;
+        margin: auto;
+        font-size: 12px;
+      }
+
+      .calendar tr, .calendar td, .leave_calendar tr, .leave_calendar td {
+        border: 1px solid black;
+      }
+
+      .calendar th, .leave_calendar th {
+        padding: 10px;
+        text-align: center;
+        font-size: 18px;
+      }
+
+      .calendar td, .leave_calendar td {
+        width: 200px;
+        height: 150px;
+        padding: 20px 0px 0px 5px;
+      }
+
+      .month {
+        font-size: 25px;
+      }
+
+      .date {
+        font-size: 16px;
+      }
+
+      ul {
+        height: 100%;
+        padding: 0px 5px 0px 5px;
+      }
+
+      a {
+        color: #bab1b1;
+      }
+      .next-visit-title {
+        font-weight: 500;
+        border-radius: 0.3rem;
+        border-color: none;
+        background-color: #bab1b1;
+        margin: 0.3em;
+        padding: 0em 0.3em;
+      }
+    </style>
+</body>
+
+{% block script %}
+<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.standalone.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+<script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'js/jquery-ui.js-1.12.1.js' %}"></script>
+<script src="{% static 'js/popper-1.17.4.js' %}"></script>
+<script src="{% static 'js/bootstrap-4.3.1.js' %}"></script>
+
+<script type='text/javascript'>
+    $('.modal-dialog').draggable({
+        "handle":".modal-header"
+    });
+    $('#usage_detail').draggable({
+        "handle":".modal-header"
+    });
+</script>
+{% endblock %}
+</html>

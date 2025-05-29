@@ -1,0 +1,136 @@
+{% load static %}
+
+<nav id="navbar" class="navbar navbar-expand-lg">
+
+  {% if job_title == 'urological' %}
+  <div class="navbar-brand ml-2 mr-0" style="text-align: center;">
+    <img src="/static/images/caduceus.png" style="height: 40px">
+  </div>
+
+  <div class="navbar-brand mr-0" style="padding-left: 8px; font-family: 'Dancing Script',cursive;">
+      <div style="font-size: 1.25rem;">Oncology CR</div>
+  </div>
+
+  <div class="collapse navbar-collapse" id="navbarText">
+    <div class="form-inline float-right">
+        <span class="navbar-text mr-3" style="padding-left: 0.5rem;">
+          {% if request.user.first_name %}
+            {{ request.user.first_name }}
+          {% else %}
+            &nbsp;
+          {% endif %}
+          ID: {{ request.user.username }},
+          직급: {{ job_title }}
+        </span>
+        <a class="nav-link font-weight-bold float-right" href="/logout/">
+          <i class="icon-power menu-icon"></i>
+          <span class="menu-title">Logout</span>
+        </a>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="navbar-brand ml-2 mr-0" style="text-align: center;">
+    <a class="text-decoration-none" href="/">
+      <img src="/static/images/caduceus.png" style="height: 40px">
+    </a>
+  </div>
+
+  <a id="oncologyCR" href="/">
+    <div class="navbar-brand mr-0" style="padding-left: 8px; font-family: 'Dancing Script',cursive;">
+        <div style="font-size: 1.25rem;">Oncology CR</div>
+    </div>
+  </a>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse"
+          data-target="#navbarText" aria-controls="navbarText"
+          aria-expanded="false" aria-label="Toggle navigation">
+    <span class="icon-menu text-white"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarText">
+    <ul class="navbar-nav mr-auto font-weight-bold">
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/research/add/">
+          <i class="icon-square-plus menu-icon"></i>
+          <span>연구 등록</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/research/CRC/list">
+          <i class="icon-search menu-icon"></i>
+          <span>CRC</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/miscellaneous/supporting/">
+          <i class="icon-search menu-icon"></i>
+          <span>Blood sample list</span>
+        </a>
+      </li>
+      {% if job_title == 'doctor' %}
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/research/PI/list">
+          <i class="icon-search menu-icon"></i>
+          <span>PI</span>
+        </a>
+      </li>
+      {% endif %}
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/research/pre_initiation">
+          <i class="icon-search menu-icon"></i>
+          <span>개시 연구</span>
+        </a>
+      </li>
+      {% if request.user.is_staff == 1 %}
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/research/statistic">
+          <span>통계</span>
+        </a>
+      </li>
+      {% endif %}
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/user/list">
+          <span>연락처</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/leave/calendar">
+          <span>캘린더</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/dataroom/crc/check_list/">
+          <span>자료실</span>
+        </a>
+      </li>
+      {% if request.user.is_staff == 1 or job_title == 'QC' %}
+      <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/miscellaneous/QC/">
+          <span>QC</span>
+        </a>
+      </li>
+      {% endif %}
+       <li class="nav-item">
+        <a class="btn nav-link nav-link-button" href="/research/search/">
+          <i class="icon-search menu-icon"></i>
+          <span>검색</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="form-inline float-right">
+      <span class="navbar-text mr-3" style="padding-left: 0.5rem;">
+        ID: {{ request.user.username }}
+      </span>
+      <a class="nav-link font-weight-bold float-right" href="/user/edit/">
+        <span class="menu-title">패스워드 변경</span>
+      </a>
+      <a class="nav-link font-weight-bold float-right" href="/logout/">
+        <i class="icon-power menu-icon"></i>
+        <span class="menu-title">Logout</span>
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</nav>

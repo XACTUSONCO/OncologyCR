@@ -1,0 +1,392 @@
+{% load static %}
+{% load administration_tag %}
+<!doctype html>
+<html lang="ko">
+
+<head>
+
+	<meta charset="utf-8" />
+	<title>X-OncoTrack</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- <meta name="viewport" content="width=1024px"> -->
+	<meta content="임상시험 관리 시스템" name="description" />
+	<meta name="keywords" content="임상시험 관리 시스템">
+	<meta name="format-detection" content="telephone=no">
+	<meta content="임상시험 관리 시스템" property="og:description">
+	<meta name="author" content="임상시험 관리 시스템">
+
+	<!-- App favicon -->
+	<!-- <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}"> -->
+
+	<!-- Bootstrap Css -->
+	<link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+	<link href="{% static 'assets/css/bootstrap-icons.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Icons Css -->
+	<link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Layout  Css -->
+	<link href="{% static 'assets/css/layout.min.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Plugin  Css -->
+	<link href="{% static 'assets/css/plugins.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Style Css -->
+	<link href="{% static 'assets/css/style.css' %}" rel="stylesheet" type="text/css" />
+
+	<style>
+	/* 로딩 이미지를 투명하게 하고 content 위에 겹치도록 스타일링 */
+		#loading {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		opacity: 0.8; /* 투명도 설정 */
+		z-index: 1000; /* 가장 위에 오도록 설정 */
+	}
+	/* content 영역에 로딩 이미지를 겹치기 위해 position을 relative로 설정 */
+	/* #content {
+			position: relative;
+			min-height: 300px;
+	} */
+	</style>
+</head>
+
+<body>
+<div id="loading" style="display:none;">
+	<img src="{% static 'assets/images/loading.gif' %}" alt="로딩 중...">
+</div>
+
+{% with job_title=user.groups.all.0.name %}
+
+<!-- Begin page -->
+<div id="layout-wrapper">
+
+	<header id="page-topbar">
+		<div class="navbar-header">
+			<div class="d-flex">
+				<button type="button" class="btn btn-sm px-3 font-size-16 header-item vertical-menu-btn">
+					<i class="fa fa-fw fa-bars"></i><!-- fa fa-fw fa-bars -->
+				</button>
+			</div>
+
+			<!-- s : My 계정 정보/로그아웃 -->
+			<div class="d-flex align-items-center">
+				<div class="dropdown d-inline-block">
+					<button type="button" class="btn header-item user text-start d-flex align-items-center" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<img class="rounded-circle header-profile-user" src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="profile">
+						<span class="ms-2 d-none d-sm-block user-item-desc ">
+							<span class="user-name">{{ user.first_name }} {{ job_title }}</span>
+						</span>
+						<i class="bi bi-chevron-down ms-2"></i>
+					</button>
+					<div class="dropdown-menu dropdown-menu-end pt-0 pb-0">
+						<div class="p-3 bg-success border-bottom rounded-top text-center">
+							<img class="rounded-circle img-sm" src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="profile">
+							<h6 class="text-white fs-5 mt-3 mb-1">{{ user.first_name }} {{ job_title }}</h6>
+							<p class="mb-0 font-size-11 text-white-50 fw-semibold">{{ user.email }}</p>
+						</div>
+						<a class="dropdown-item d-flex align-items-center py-2" href="/user/profile/overview"><i class="mdi mdi-account-outline text-muted font-size-16 align-middle me-1"></i> <span class="align-middle">My Profile</span></a>
+						<a class="dropdown-item d-flex align-items-center py-2" href="/user/profile/edit/info"><i class="mdi mdi-cog-outline text-muted font-size-16 align-middle me-1"></i> <span class="align-middle">Account Settings</span></a>
+						<button type="button" class="dropdown-item py-2 border-top" onclick="location.href='/logout/'"><i class="bi bi-box-arrow-right"></i> Sign Out</button>
+					</div>
+				</div>
+				<div class="topbar-divider d-none d-sm-block"></div>
+				<button type="button" onclick="javascript:toggleFullScreen()" class="btn d-flex align-items-center fs-5">
+					<i class="bi bi-arrows-fullscreen"></i> <span class="sr-only">Full Screen</span>
+				</button>
+				<div class="d-inline-block  ms-2">
+					<button type="button" class="btn d-flex align-items-center fs-4" onclick="location.href='/logout/'">
+						<i class="bi bi-power"></i> <span class="sr-only">Logout</span>
+					</button>
+				</div>
+			</div><!-- e : My 계정 정보/로그아웃 -->
+
+		</div>
+	</header>
+
+
+	<!-- ========== Left Sidebar Start ========== -->
+	<div class="vertical-menu">
+		<!-- s : LOGO -->
+		<div class="navbar-brand-box">
+			<a href="/" class="logo">
+				<span class="logo-sm">
+				    {% get_organization as organizations %}
+				    {% for organization in organizations %}
+					<img src="{{ organization.logo.url }}" alt="로고 이미지" height="28">
+				    {% endfor %}
+				</span>
+				<span class="logo-lg r">
+				    <p class="d-flex align-items-center mb-0">
+					{% get_organization as organizations %}
+					{% for organization in organizations %}
+					    <img src="{{ organization.logo.url }}" alt="로고 이미지" height="28">
+					{% endfor %}
+				        <u class="logo-txt mx-2">&nbsp;</u>
+			            </p>
+				</span>
+			</a>
+		</div><!-- e : LOGO -->
+
+		<!-- <button type="button" class="btn btn-sm px-3 font-size-16 header-item vertical-menu-btn">
+			<i class="fa fa-fw fa-bars"></i>
+		</button> -->
+
+		<div data-simplebar class="sidebar-menu-scroll">
+
+			<!--- Sidemenu -->
+			<div id="sidebar-menu">
+				<!-- Left Menu Start  -->
+				<ul class="metismenu list-unstyled" id="accordion">
+					<li>
+						<a href="/">
+							<i class="bi bi-display"></i>
+							<span class="menu-item">Dashboard</span>
+						</a>
+					</li>
+					<li>
+						<a data-bs-toggle="collapse" href="#menu-2" class="accordion-button collapsed" aria-expanded="false">
+							<i class="bi bi-pencil-square"></i>
+							<span class="menu-item">Studies</span>
+						</a>
+						<div id="menu-2" class="collapse" data-bs-parent="#accordion">
+							<ul class="nav flex-column sub-menu">
+                              {% if user.id in onco_team and job_title == 'doctor' %}
+                                <li>
+                                  <a href="/research/search/?PI={{user.first_name}}"><i></i> 임상 연구</a>
+                                </li>
+                              {% elif user.id in onco_team and job_title == 'nurse' %}
+                                <li>
+                                  <a href="/research/search/?crc={{ user.id }}"><i></i> 임상 연구</a>
+                                </li>
+                              {% else %}
+								<li>
+									<a href="/research/search/"><i></i> 임상 연구</a>
+								</li>
+                              {% endif %}
+
+                              {% if user.id in onco_team and job_title == 'nurse' and user.contact.team.name == 'CLUE' %}
+                                <li>
+									<a href="/research/pre_initiation/?team=CLUE"><i></i> 개시 연구</a>
+								</li>
+                              {% elif user.id in onco_team and job_title == 'nurse' and user.contact.team.name == 'GSI' %}
+                                <li>
+									<a href="/research/pre_initiation/?team=GSI"><i></i> 개시 연구</a>
+								</li>
+                              {% else %}
+								<li>
+									<a href="/research/pre_initiation/"><i></i> 개시 연구</a>
+								</li>
+                              {% endif %}
+								<li>
+									<a href="/research/end_study/"><i></i> 종료 보고 이후 연구</a>
+								</li>
+							</ul>
+						</div>
+					</li>
+					<li>
+                      {% if user.id in onco_team and job_title == 'nurse' and user.contact.team.name == 'CLUE' %}
+						<a href="/research/CRC/list/?team=CLUE&from_month_date={{ from_month_date|date:'Y-m-d' }}&to_month_date={{ to_month_date|date:'Y-m-d' }}">
+                      {% elif user.id in onco_team and job_title == 'nurse' and user.contact.team.name == 'GSI' %}
+                        <a href="/research/CRC/list/?team=GSI&from_month_date={{ from_month_date|date:'Y-m-d' }}&to_month_date={{ to_month_date|date:'Y-m-d' }}">
+                      {% elif user.id in onco_team and job_title == 'nurse' and user.contact.team.name == 'etc' %}
+                        <a href="/research/CRC/list/?team=etc&from_month_date={{ from_month_date|date:'Y-m-d' }}&to_month_date={{ to_month_date|date:'Y-m-d' }}">
+                      {% else %}
+                        <a href="/research/CRC/list/">
+                      {% endif %}
+							<i class="bi bi-clipboard2-data"></i>
+							<span class="menu-item">CRC</span>
+						</a>
+					</li>
+					<li>
+						<a href="/miscellaneous/supporting/">
+							<i class="bi bi-droplet"></i>
+							<span class="menu-item">Blood Sample</span>
+						</a>
+					</li>
+					<li>
+						<a data-bs-toggle="collapse" href="#menu-5" class="accordion-button collapsed">
+							<i class="bi bi-hdd"></i>
+							<span class="menu-item">Dataroom</span>
+						</a>
+						<div id="menu-5" class="collapse" data-bs-parent="#accordion">
+							<ul class="nav flex-column sub-menu">
+								<li><a href="/dataroom/data/?cancer=Phase1"><i></i> Phase1</a></li>
+								<li><a href="/dataroom/data/?cancer=CRC"><i></i> 대장암</a></li>
+								<li><a href="/dataroom/data/?cancer=Stomach"><i></i> 위암</a></li>
+								<li><a href="/dataroom/data/?cancer=Melanoma"><i></i> 흑색종</a></li>
+								<li><a href="/dataroom/data/?cancer=Sarcoma"><i></i> 육종암</a></li>
+								<li><a href="/dataroom/data/?cancer=Urological"><i></i> 비뇨기암</a></li>
+								<li><a href="/dataroom/data/?cancer=Pancreatic"><i></i> 간담췌암</a></li>
+							</ul>
+						</div>
+					</li>
+					{% if user.is_superuser == 1 %}
+					<li>
+						<a data-bs-toggle="collapse" href="#menu-6" class="accordion-button collapsed" aria-expanded="false">
+							<i class="bi bi-bar-chart-line"></i>
+							<span class="menu-item">STAT</span>
+						</a>
+						<div id="menu-6" class="collapse" data-bs-parent="#accordion">
+							<ul class="nav flex-column sub-menu">
+								<li>
+									<a href="/research/CRC_statistic/" class="menu-link"><i></i> CRC</a>
+								</li>
+								<li>
+									<a href="/research/PI_statistic/" class="menu-link"><i></i> PI</a>
+								</li>
+								<li>
+									<a href="/research/not_entered_statistic/" class="menu-link"><i></i> 데이터 미입력</a>
+								</li>
+								<li>
+									<a href="/research/ETC_statistic/" class="menu-link"><i></i> 기타</a>
+								</li>
+							</ul>
+						</div>
+					</li>
+                    {% endif %}
+		    {% if user.is_superuser == 1 or job_title == 'QC' or user.id == 8 or user.id == 22%}
+					<li>
+						<a href="/miscellaneous/QC/">
+							<i class="bi bi-file-medical"></i>
+							<span class="menu-item">QC</span>
+						</a>
+					</li>
+                    {% endif %}
+					<li>
+						<a data-bs-toggle="collapse" href="#menu-8" class="accordion-button collapsed">
+							<i class="bi bi-people"></i>
+							<span class="menu-item">Staff</span>
+						</a>
+						<div id="menu-8" class="collapse" data-bs-parent="#accordion">
+							<ul class="nav flex-column sub-menu">
+								<li>
+									<a href="/user/list/"><i></i> 연락처</a>
+								</li>
+								<li>
+									<a href="/leave/calendar/"><i></i> 휴가</a>
+								</li>
+								<li>
+									<a href="/dataroom/educational_material/"><i></i> 교육자료</a>
+								</li>
+								<li>
+									<a href="/dataroom/certification/"><i></i> Certification</a>
+								</li>
+								{% if user.id in onco_team %}
+								<li>
+									<a href="/dataroom/good_clinical_practice/"><i></i> 연구자 GCP</a>
+								</li>
+								{% endif %} 
+							</ul>
+						</div>
+					</li>
+					{% if user.is_superuser == 1%}
+					<li>
+						<a data-bs-toggle="collapse" href="#menu-9" class="accordion-button collapsed">
+							<i class="bi bi-gear"></i>
+							<span class="menu-item">Admin</span>
+						</a>
+						<div id="menu-9" class="collapse" data-bs-parent="#accordion">
+							<ul class="nav flex-column sub-menu">
+								<li>
+									<a href="/administration/organization/"><i></i> 기관 정보</a>
+								</li>
+								<li>
+									<a href="/administration/user/"><i></i> 사용자 정보</a>
+								</li>
+								<li>
+									<a href="/administration/company/"><i></i> 회사 정보</a>
+								</li>
+								<li>
+									<a href="/administration/study_set_up/"><i></i> Study Set-up</a>
+								</li>
+								<li>
+									<a href="/administration/cancer_image_set_up/"><i></i> Cancer Image Set-up</a>
+								</li>
+								<li>
+									<a href="/administration/notice/"><i></i> Notice</a>
+								</li>
+								<li>
+									<a href="/administration/commute/"><i></i> 출퇴근 관리</a>
+								</li>
+							</ul>
+						</div>
+					</li>
+                    {% endif %}
+				</ul>
+			</div>
+			<!-- Sidebar -->
+		</div>
+	</div>
+	<!-- Left Sidebar End -->
+
+
+
+	<!-- ============================================================== -->
+	<!-- Start right Content here -->
+	<!-- ============================================================== -->
+	<div class="main-content">
+		{% block content %}
+			<!-- Content -->
+		{% endblock %}
+
+		<footer class="footer">
+			<div class="container-fluid">
+				<div class="row">
+					<!--
+					<div class="col-sm-12 text-center">
+						<script>document.write(new Date().getFullYear())</script> &copy; Oncology CR.
+					</div>
+					-->
+				</div>
+			</div>
+		</footer>
+	</div>
+	<!-- end main content-->
+
+</div>
+<!-- END layout-wrapper -->
+
+<!-- JAVASCRIPT -->
+<script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+
+<!-- plugin js -->
+<script src="{% static 'assets/js/plugins.js' %}"></script>
+
+<!-- 커스텀 js -->
+<script src="{% static 'assets/js/active.js' %}"></script>
+
+<script>
+    $(document).ready(function() {  // 메뉴 링크 클릭 시 처리
+		$('.menu-link').on('click', function(e) {
+		e.preventDefault();  // 기본 링크 동작을 막음
+
+		$('#loading').show();  // 로딩 이미지 표시
+			// 클릭한 링크의 href 속성 가져오기
+			var url = $(this).attr('href');
+			window.location.href = url;
+		});
+
+    	$(window).on('pageshow', function(event) {
+			if (event.originalEvent.persisted) {   // 페이지가 캐시에서 로드되면 로딩 이미지를 숨김
+				$('#loading').hide();
+			}
+		});
+    });
+</script>
+<!-- studies 페이지용 js -->
+{% block script %}
+{% endblock %}
+
+<!-- edit & add js//무조건 제일 하단에 위치해야함! -->
+<script src="{% static 'assets/js/edit.js' %}"></script>
+
+<!-- rowspan tabele js //무조건 제일 하단에 위치해야함!-->
+<script src="{% static 'assets/js/rowspan.js' %}"></script>
+
+{% endwith %}
+</body>
+</html>

@@ -1,0 +1,306 @@
+{% load get_o2m_values from research_tag %}
+<label for="cro"
+       class="font-weight-bold col-sm-2 col-form-label pl-3 striped word-keep-all" style="color:black;">CRO
+  {% autoescape off %}
+    {% if 'cro' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.cro }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-10 form-input-container checkbox-radio-input">
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cro-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="ADM Korea"
+                {% if 'ADM Korea' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>ADM Korea</span></label>
+        </div>
+
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="AllLive Healthcare"
+                {% if 'AllLive Healthcare' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>AllLive Healthcare</span></label>
+        </div>
+
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="BDM Consulting"
+                {% if 'BDM Consulting' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>BDM Consulting</span></label>
+        </div>
+
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="BETHESDASOFT"
+                {% if 'BETHESDASOFT' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>BETHESDASOFT</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="C&R Research"
+                {% if 'C&R Research' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>C&R Research</span></label>
+        </div>
+      </div>
+
+      <div class="cro-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="CALEB MULTILAB"
+                {% if 'CALEB MULTILAB' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>CALEB MULTILAB</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="CC&I Research"
+                {% if 'CC&I Research' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>CC&I Research</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="CiKLux"
+                {% if 'CiKLux' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>CiKLux</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="Clinical CRO"
+                {% if 'Clinical CRO' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Clinical CRO</span></label>
+        </div>
+                <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="CliPS"
+                {% if 'CliPS' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>CliPS</span></label>
+        </div>
+      </div>
+
+      <div class="cro-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="D2S"
+                {% if 'D2S' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>D2S</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="HELPTRIAL"
+                {% if 'HELPTRIAL' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>HELPTRIAL</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="JNPMEDI"
+                {% if 'JNPMEDI' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>JNPMEDI</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="KHMEDICARE"
+                {% if 'KHMEDICARE' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>KHMEDICARE</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="Kolab"
+                {% if 'Kolab' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Kolab</span></label>
+        </div>
+      </div>
+
+      <div class="cro-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="LSK Global PS"
+                {% if 'LSK Global PS' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>LSK Global PS</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="Medi Help Line"
+                {% if 'Medi Help Line' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Medi Help Line</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="Medical Excellence"
+                {% if 'Medical Excellence' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Medical Excellence</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="Medical Writing"
+                {% if 'Medical Writing' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Medical Writing</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="PHARMACRO"
+                {% if 'PHARMACRO' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>PHARMACRO</span></label>
+        </div>
+      </div>
+
+      <div class="cro-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="PLS"
+                {% if 'PLS' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span></span>PLS</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="PROMEDIS"
+                {% if 'PROMEDIS' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>PROMEDIS</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="Research Mentor"
+                {% if 'Research Mentor' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Research Mentor</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="RNDMotiv"
+                {% if 'RNDMotiv' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>RNDMotiv</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="SEO-CHO CRO"
+                {% if 'SEO-CHO CRO' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>SEO-CHO CRO</span></label>
+        </div>
+      </div>
+
+            <div class="cro-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="SEOUL CRO"
+                {% if 'SEOUL CRO' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>SEOUL CRO</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="Symyoo"
+                {% if 'Symyoo' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Symyoo</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="Synex Consulting"
+                {% if 'Synex Consulting' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Synex Consulting</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="UMT"
+                {% if 'UMT' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>UMT</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input"
+                   name="cro" value="MSD"
+                {% if 'MSD' == research_management.cro %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>MSD</span></label>
+        </div>
+      </div>
+
+      <!-- Flex end -->
+  </div>
+</div>

@@ -1,0 +1,44 @@
+[
+    {
+        "model": "research.MultiCenter",
+        "pk": 1,
+        "fields": {
+            "value": "initial_contract"
+        }
+    },
+    {
+        "model": "research.MultiCenter",
+        "pk": 2,
+        "fields": {
+            "value": "change_contract"
+        }
+    },
+    {
+        "model": "research.MultiCenter",
+        "pk": 3,
+        "fields": {
+            "value": "allowance_of_medicalcare_and_CRIS"
+        }
+    },
+    {
+        "model": "research.MultiCenter",
+        "pk": 4,
+        "fields": {
+            "value": "other_institution_irb"
+        }
+    },
+    {
+        "model": "research.MultiCenter",
+        "pk": 5,
+        "fields": {
+            "value": "IP_delivery"
+        }
+    },
+    {
+        "model": "research.MultiCenter",
+        "pk": 6,
+        "fields": {
+            "value": "tissue_blood"
+        }
+    }
+]

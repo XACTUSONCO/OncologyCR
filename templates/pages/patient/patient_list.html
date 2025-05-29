@@ -1,0 +1,77 @@
+
+<div class="row mt-3">
+  <div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Assinged Patients</h4>
+        <p class="card-description">
+            Total: <b>{{ research.patient|length }} patient(s)</b>
+        </p>
+        <div class="table-responsive">
+          <table id="search-result-table" class="table table-striped">
+            <thead>
+              <tr>
+                <th class="text-nowrap">
+                  Patient ID
+                </th>
+                <th class="text-nowrap">
+                  Patient Name
+                </th>
+                <th class="text-nowrap">Cancer</th>
+                <th class="text-nowrap">Histology</th>
+                <th class="text-nowrap">Age</th>
+                <th class="text-nowrap">ECOG</th>
+                <th class="text-nowrap">Leison</th>
+                <th class="text-nowrap">Alternation</th>
+                <th class="text-nowrap">PDL1</th>
+                <th class="text-nowrap">Line</th>
+                <th class="text-nowrap">Chemotherapy</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% ifequal research.patient|length 0 %}
+              <tr>
+                <td colspan="11"><div class="text-center">배정된 환자가 없습니다.</div></td>
+              </tr>
+              {% endifequal %}
+
+              {% for patient in research.patient %}
+                <tr>
+                  <td>
+                    <a href="/patient/{{ patient.id }}/"
+                     data-toggle="tooltip" data-placement="top" title="Detail view">{{ patient.patient_id }}</a>
+                  </td>
+                  <td>
+                    <a href="/patient/{{ patient.id }}/"
+                     data-toggle="tooltip" data-placement="top" title="Detail view">{{ patient.patient_name }}</a>
+                  </td>
+                  <td>{{ patient.cancer }}</td>
+                  <td>{{ patient.histology }}</td>
+                  <td>{{ patient.age }}</td>
+                  <td>{{ patient.ecog }}</td>
+                  <td>{{ patient.lesion }}</td>
+                  <td>
+                  {% with count=patient.alternation.all|length %}
+                  [
+                    {% for alternation in patient.alternation.all %}
+                      {{ alternation }}
+                      {% if forloop.counter < count %},{% endif %}
+                    {% endfor %}
+                  ]
+                  {% endwith %}
+                </td>
+                  <td>{{ patient.pdl1 }}</td>
+                  <td>{{ patient.line }}</td>
+                  <td>{{ patient.chemotherapy }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="pt-3">
+          <a class="btn btn-secondary pull-right" href="/research/{{ research.id }}/patient_download/">Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

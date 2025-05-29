@@ -1,0 +1,30 @@
+[
+    {
+        "model": "miscellaneous.Supporting_type",
+        "pk": 1,
+        "fields": {
+            "value": "sample"
+        }
+    },
+    {
+        "model": "miscellaneous.Supporting_type",
+        "pk": 2,
+        "fields": {
+            "value": "separate blood draw"
+        }
+    },
+    {
+        "model": "miscellaneous.Supporting_type",
+        "pk": 3,
+        "fields": {
+            "value": "accompany blood draw"
+        }
+    },
+    {
+        "model": "miscellaneous.Supporting_type",
+        "pk": 4,
+        "fields": {
+            "value": "blood"
+        }
+    }    
+]

@@ -1,0 +1,115 @@
+{% extends "bases/base_generic.html" %}
+{% load cal_career from research_tag %}
+{% load after_december_available from research_tag %}
+{% load fixed_annual from research_tag %}
+{% load subtract from research_tag %}
+{% load static %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>휴가</h2>
+
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item">Staff</li>
+									<li class="breadcrumb-item">휴가</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+				<!-- start sub-menu-tabs-->
+				<div class="row">
+					<div class="col-12">
+						<div class="sub-menu-tabs">
+							<ul id="submenu-tab">
+								<li><a href="/leave/calendar/"><i></i> 월별</a></li>
+								<li><a href="/leave/total_usage/"><i></i> 휴가 사용 현황</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- end sub-menu-tabs -->
+
+				<!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+                      <div class="table-responsive">
+                        <div class="point-tablebox type2">
+                          <table class="table custom-table">
+                            <thead>
+                              <tr>
+                                <th>이름</th>
+                                <th>경력</th>
+                                <th>사용 가능</th>
+                                <th>소진 일수</th>
+                                <th>남은 일수</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for leave in leave %}
+                              {% with cal_career=leave.user__contact__career|cal_career %} {% with fixed_annual=leave.user__contact__career|fixed_annual %}
+                              <tr class="text-black tr-hover text-center">
+                                <td>{{ leave.user__first_name }}</td>
+                                <td>
+                                  {% if cal_career.0.0 != 0 %}
+                                    {{ cal_career.0.0 }}년 {{ cal_career.1 }}개월
+                                  {% elif cal_career.0.0 == 0 and cal_career.1 == 0 %}
+                                    신규
+                                  {% else %}
+                                    {{ cal_career.1 }}개월
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if cal_career.0.0 == 0 and cal_career.1 == 0 %}
+                                    신규
+                                  {% elif cal_career.0.0 == 0 and cal_career.1 != 0 and leave.user__contact__career < december %}
+                                    {{ leave.before_december_available|add:fixed_annual }} (일)
+                                  {% elif cal_career.0.0 == 0 and cal_career.1 != 0 and leave.user__contact__career >= december %}
+                                    {{ leave.user__contact__career|after_december_available|add:fixed_annual }}  (일)
+                                  {% else %}
+                                    {{ leave.fixed_monthly|add:fixed_annual }} (일)
+                                  {% endif %}
+                                </td>
+                                <td>{{ leave.usage }} (일)</td>
+                                <td>
+                                  {% if cal_career.0.0 == 0 and cal_career.1 == 0 %}
+                                    신규
+                                  {% elif cal_career.0.0 == 0 and cal_career.1 != 0 and leave.user__contact__career < december %}
+                                    {{ leave.before_december_available|add:fixed_annual|subtract:leave.usage }} (일)
+                                  {% elif cal_career.0.0 == 0 and cal_career.1 != 0 and leave.user__contact__career >= december %}
+                                    {{ leave.user__contact__career|after_december_available|add:fixed_annual|subtract:leave.usage }}  (일)
+                                  {% else %}
+                                    {{ leave.fixed_monthly|add:fixed_annual|subtract:leave.usage }} (일)
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              {% endwith %} {% endwith %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<script src="{% static 'assets/js/pages/staff2.js' %}"></script>
+{% endblock %}

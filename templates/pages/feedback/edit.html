@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include "partials/_base_head.html" %}
+  {% block custom_head %}
+    <!-- Required meta tags -->
+    <!-- plugins:css -->
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- End plugin css for this page -->
+  {% endblock %}
+  {% block title %}
+  <title>X-OncoTrack</title>
+  {%  endblock %}
+</head>
+
+<body>
+<nav id="navbar" class="navbar navbar-expand-lg">
+  <div class="navbar-brand ml-2 mr-0" style="text-align: center;">
+    <a class="text-decoration-none" href="/">
+        <img src="/static/images/severance_white.png" style="height: 50px">
+    </a>
+  </div>
+    <h1>X-OncoTrack</h1>
+</nav>
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12 mb-4 mb-xl-0">
+        {% for n in name%}
+        <h4 class="font-weight-bold text-dark">Edit: {{ n.name }}</h4>
+        {% endfor %}
+      </a>
+    </div>
+  </div>
+{% endblock %}

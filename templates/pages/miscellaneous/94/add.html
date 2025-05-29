@@ -1,0 +1,58 @@
+{% extends "bases/base_generic.html" %}
+{% load get_m2m_values from research_tag %}
+{% load static %}
+
+<head>
+  {% block custom_head %}
+    <link rel="stylesheet" href="ajax/bootstrap-datepicker.standalone.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chosen.min.css' %}">
+  {% endblock %}
+  {% block title %}
+    <title>X-OncoTrack</title>
+  {% endblock %}
+</head>
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12 mb-4 mb-xl-0">
+      <h4 class="font-weight-bold text-dark">Add</h4>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title pt-1" style="margin:0;">환자 정보</h4>
+        </div>
+        <div class="card-body">
+          <form id="pre-initiation-add-form" class="forms-sample" method="post"
+                action="/miscellaneous/94/add_delivery/"
+                enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include 'pages/miscellaneous/94/delivery_add_edit_form.html' %}
+            <div class="mt-2" style="text-align:right;">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script src="{% static 'js/chosen.jquery.min.js' %}"></script>
+  <script src="{% static 'js/jquery-ui.js-1.12.1.js' %}"></script>
+  <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+
+  <script>
+      $(function() {
+        $( ".visit_date" ).datepicker({
+            todayHighlight : true,
+        });
+      });
+
+      $(".chosen").chosen();
+  </script>
+
+{% endblock %}

@@ -1,0 +1,180 @@
+{% load get_m2m_values from research_tag %}
+
+<div class="form-group row {% if 'lab_date' in errors %} card-inverse-danger {% endif %}">
+  <label for="lab_date" class="col-sm-3 col-form-label">Date
+    {% autoescape off %}
+      {% if 'lab_date' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.lab_date }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 col-form-data">
+    <div class="input-group">
+      {% if parameter != 'this' %}
+        <input autocomplete="off" class="form-control lab_date" name="lab_date" id="lab_date"
+               value="{% if supporting.lab_date %}{{ supporting.lab_date|date:'Y/m/d H:i' }}{% endif %}" >
+        <label for="lab_date" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+      {% elif parameter == 'this' %}
+        <input autocomplete="off" class="form-control lab_date_no_limit" name="lab_date"
+               value="{% if supporting.lab_date %}{{ supporting.lab_date|date:'Y/m/d H:i' }}{% endif %}" >
+        <label for="lab_date" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'assignment' in errors %} card-inverse-danger {% endif %}">
+  <label for="assignment" class="col-sm-3 col-form-label">Patient
+    {% autoescape off %}
+      {% if 'assignment' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.assignment }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 col-form-data">
+      <select id="assignment" name="assignment" class="chosen form-control">
+          <option value="">-------</option>
+          {% if job_title == 'technician' %}
+            {% for technician_assignment in technician_assignments %}
+            <option value="{{technician_assignment.id}}" {% if technician_assignment.id == supporting.assignment.id %} selected {% endif %}>
+              {{technician_assignment.no}} {{technician_assignment.register_number}} {{technician_assignment.name}} -> {{technician_assignment.research__research_name}} ({{technician_assignment.status}})</option>
+            {% endfor %}
+          {% else %}
+            {% for assignment in assignments %}
+              <option value="{{assignment.id}}" {% if assignment.id == supporting.assignment.id %} selected {% endif %}>
+                {{assignment.no}} {{assignment.register_number}} {{assignment.name}} -> {{assignment.research__research_name}} ({{assignment.status}})</option>
+            {% endfor %}
+          {% endif %}
+      </select>
+  </div>
+</div>
+
+<div class="form-group row {% if 'kinds' in errors %} card-inverse-danger {% endif %}">
+  <label for="kinds" class="col-sm-3 col-form-label">Category
+    {% autoescape off %}
+      {% if 'kinds' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.kinds }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 col-form-data">
+      <select id="kinds" name="kinds" class="form-select">
+        <option value="">-------</option>
+        <option value="PK-pre" {% if "PK-pre" == supporting.kinds %} selected {% endif %}>PK-pre</option>
+        <option value="PK-post" {% if "PK-post" == supporting.kinds %} selected {% endif %}>PK-post</option>
+        <option value="EKG" {% if "EKG" == supporting.kinds %} selected {% endif %}>EKG</option>
+        <option value="PK/EKG" {% if "PK/EKG" == supporting.kinds %} selected {% endif %}>PK/EKG</option>
+        <option value="Bx" {% if "Bx" == supporting.kinds %} selected {% endif %}>Bx</option>
+        <option value="LAB" {% if "LAB" == supporting.kinds %} selected {% endif %}>LAB</option>
+	    <option value="PK+LAB" {% if "PK+LAB" == supporting.kinds %} selected {% endif %}>PK+LAB</option>
+      </select>
+  </div>
+</div>
+
+<div class="form-group row {% if 'post_hour' in errors %} card-inverse-danger {% endif %}">
+  <label for="post_hour" class="col-sm-3 col-form-label">Post
+    {% autoescape off %}
+      {% if 'post_hour' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.post_hour }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 col-form-data">
+      <input type="text" pattern="[0-9]*\.?[0-9]+" class="form-control" name="post_hour" placeholder="hr" id="post_hour"
+             value="{% if supporting.post_hour %}{{ supporting.post_hour }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'crc' in errors %} card-inverse-danger {% endif %}">
+  <label for="crc" class="col-sm-3 col-form-label">CRC
+    {% autoescape off %}
+      {% if 'crc' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.crc }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 col-form-data">
+      <input type="text" class="form-control" name="crc"
+             value="{% if supporting.crc %}{{ supporting.crc }}{% elif job_title != 'nurse' %}{% else %}{{ request.user.first_name }}{% endif %}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'supporting_type' in errors %} card-inverse-danger {% endif %}">
+  <label for="supporting_type" class="col-sm-3 col-form-label">Sample Collection
+    {% autoescape off %}
+      {% if 'supporting_type' in errors %}
+        <div class="text-danger small"
+             style="line-height: 1rem;">{{ errors.supporting_type }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+
+  <div class="col-sm-9 col-form-data">
+     <div class="row row-cols-auto">
+       <div class="col">
+         <div class="form-check form-check-success">
+           <label class="form-check-label">
+             <input type="radio" class="form-check-input" name="supporting_type" value="진검검체" {% if '진검검체' in supporting.supporting_type %} checked {% endif %}>
+             <i class="input-helper"></i><span class="form-check-sign">진검 검체</span>
+           </label>
+         </div>
+       </div>
+       <div class="col">
+         <div class="form-check form-check-success">
+           <label class="form-check-label">
+             <input type="radio" class="form-check-input" name="supporting_type" value="별도채혈" {% if '별도채혈' in supporting.supporting_type %} checked {% endif %}>
+	     <i class="input-helper"></i><span class="form-check-sign">별도 채혈</span>
+            </label>
+          </div>
+       </div>
+       <div class="col">
+         <div class="form-check form-check-success">
+           <label class="form-check-label">
+             <input type="radio" class="form-check-input" name="supporting_type" value="채혈실동행" {% if '채혈실동행' in supporting.supporting_type %} checked {% endif %}>
+             <i class="input-helper"></i><span class="form-check-sign">동행 채혈</span>
+           </label>
+         </div>
+       </div>
+       <div class="col">
+         <div class="form-check form-check-success">
+           <label class="form-check-label">
+             <input type="radio" class="form-check-input" name="supporting_type" value="분주"  {% if '분주' in supporting.supporting_type %} checked {% endif %}>
+             <i class="input-helper"></i><span class="form-check-sign">분주</span>
+           </label>
+         </div>
+       </div>
+     </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'comment' in errors %} card-inverse-danger {% endif %}">
+  <label for="comment" class="col-sm-3 col-form-label">Comment
+    {% autoescape off %}
+      {% if 'comment' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.comment }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9 col-form-data">
+      <textarea class="form-control" name="comment" rows="4">{% if supporting.comment %}{{ supporting.comment }}{% endif %}</textarea>
+  </div>
+</div>
+
+<div class="form-group row {% if 'technician' in errors %} card-inverse-danger {% endif %}">
+  <label for="technician" class="col-sm-3 col-form-label">Technician
+    {% autoescape off %}
+      {% if 'technician' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.technician }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-sm-9">
+      {% if parameter == 'this' %}
+        <input class="form-control col-sm-12" name="technician"
+               value="{% if supporting.technician %}{{ supporting.technician }}{% else %}{{ technician }}{% endif %}">
+      {% else %}
+        <input type="hidden" class="form-control col-sm-12" name="technician"
+             value="{% if supporting.technician %}{{ supporting.technician }}{% endif %}">
+      {% endif %}
+  </div>
+</div>

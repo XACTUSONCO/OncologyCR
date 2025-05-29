@@ -1,0 +1,118 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+
+<head>
+
+	<meta charset="utf-8" />
+	<title>X-OncoTrack</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- <meta name="viewport" content="width=1024px"> -->
+	<meta content="임상시험 관리 시스템" name="description" />
+	<meta name="keywords" content="임상시험 관리 시스템">
+	<meta name="format-detection" content="telephone=no">
+	<meta content="임상시험 관리 시스템" property="og:description">
+	<meta name="author" content="임상시험 관리 시스템">
+
+	<!-- App favicon -->
+	<link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}">
+
+	<!-- Bootstrap Css -->
+	<link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+	<link href="{% static 'assets/css/bootstrap-icons.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Icons Css -->
+	<link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Layout  Css -->
+	<link href="{% static 'assets/css/layout.min.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Plugin  Css -->
+	<link href="{% static 'assets/css/plugins.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Style Css -->
+	<link href="{% static 'assets/css/style.css' %}" rel="stylesheet" type="text/css" />
+
+</head>
+
+
+<body>
+
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="col-6" id="printArea">
+            <div class="card shadow">
+                <div class="card-body">
+                    <strong>[개인정보 수집 · 이용 동의]</strong>
+                        <p>본인은 아래 내용에 대해 확인하고 본인의 개인정보의 수집 · 이용 및 제공에 대해 동의 하였음을 확인합니다.</p><br/>
+                    <strong>[개인정보 수집 · 이용에 관한 사항]</strong>
+                        <ol>
+                            <li>수집이용 목적
+                                <ul>
+                                    <li>본인확인 및 메일발송을 위해 개인정보를 수집 및 이용</li>
+                                </ul>
+                            </li>
+                            <li>개인정보 수집항목
+                                <ul>
+                                    <li>이름, 이메일, 전화번호</li>
+                                </ul>
+                            </li>
+                            <li>이용 및 보유기간
+                                <ul>
+                                    <li>시스템 가입일로부터 수집 · 이용 목적이 종료되는 때</li>
+                                </ul>
+                            </li>
+                            <li>개인정보의 제3자 제공 여부
+                                <ul>
+                                    <li>제 3자에게 제공되지 않음</li>
+                                </ul>
+                            </li>
+                            <li>동의를 거부할 권리 고지
+                                <ul>
+                                    <li>개인정보의 수집 · 이용에 관한 상기 사항에 대해 동의를 거부할 수 있으며, 동의 거부 시 본 사이트를 사용할 수 없습니다.</li>
+                                </ul>
+                            </li>
+                        </ol>
+                </div>
+                <div class="text-center">
+                    <form method="post" action="/user/term/" enctype="multipart/form-data">{% csrf_token %}
+                        <label for="downloadCheck">
+                            <input type="checkbox" id="downloadCheck"
+                                   onchange="document.getElementById('term-save-btn').disabled = !this.checked;">
+                            위 내용에 모두 동의 합니다.
+                        </label>
+                        <div class="py-4 px-3 text-center">
+                            <button id="term-save-btn" type="submit" class="btn btn-success add-btn px-4" disabled>
+                                <i class="bi bi-pencil"></i> <span>Save</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick="handleClickTermCancel()">
+                                <i class="bi bi-trash"></i> <span>Cancel</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<!-- JAVASCRIPT -->
+<script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+
+<!-- plugin js -->
+<script src="{% static 'assets/js/plugins.js' %}"></script>
+
+<!-- 커스텀 js -->
+<script src="{% static 'assets/js/active.js' %}"></script>
+<script>
+    function handleClickTermCancel() {
+        window.location.href = "/"
+    }
+</script>
+
+<!-- rowspan tabele js //무조건 제일 하단에 위치해야함!-->
+<script src="{% static 'assets/js/rowspan.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+
+<thead>
+   <tr>
+       <th>Status</th>
+       <th>Target</th>
+       <th>Subject No.</th>
+       <th>Patient No.</th>
+       <th>Name</th>
+       <th>Sex</th>
+       <th>Age</th>
+       <th>Cancer</th>
+       <th>Previous Tx.</th>
+       <th>Last response</th>
+       <th>환자 등록</th>
+  </tr>
+</thead>
+
+<tbody>
+  {% for pre_screening in research_pre_screening_lists %}
+    <tr class="table-link" data-link="/assignment/{{ pre_screening.id }}/">
+      <td class="text-center">{{ pre_screening.get_status_display }}</td>
+      <td class="text-center">{% if pre_screening.research.onco_cr_count_set.all|length == 1 %}-{% else %}{{ pre_screening.phase }}{% endif %}</td>
+      <td class="text-center">{{ pre_screening.no|default_if_none:"" }}</td>
+      <td class="text-center">{{ pre_screening.register_number }}</td>
+      <td class="text-center">{{ pre_screening.name }}</td>
+      <td class="text-center">{{ pre_screening.get_sex_display|default_if_none:"" }}</td>
+      <td class="text-center">{{ pre_screening.age|default_if_none:"" }}</td>
+      <td class="text-center">{{ pre_screening.get_dx_display|default_if_none:"" }}</td>
+      <td class="text-center" style="white-space: pre-line;">{{ pre_screening.previous_tx|default_if_none:"" }}</td>
+      <td class="text-center">
+        {% ifequal pre_screening.feedback_set.count 0 %}
+          (empty)
+        {% else %}
+          {% with last_pre_screening=pre_screening.feedback_set.all.last %}
+            {{ last_pre_screening.photo_date|date:"m/d/Y" }}
+            ({{ last_pre_screening.response }})
+          {% endwith %}
+        {% endifequal %}
+      </td>
+      <td class="text-center">
+        <button type="button" class="btn btn-outline-success btn-sm text-nowrap goNewAssignment"
+                research-id="{{ pre_screening.research.id }}"
+                pre-screening-id="{{ pre_screening.id }}">
+              <i class="bi bi-pencil"></i> <span class="sr-only">Register</span>
+        </button>
+      </td>
+    </tr>
+  {% endfor %}
+</tbody>

@@ -1,0 +1,98 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+
+<head>
+
+	<meta charset="utf-8" />
+	<title>X-OncoTrack</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- <meta name="viewport" content="width=1024px"> -->
+	<meta content="임상시험 관리 시스템" name="description" />
+	<meta name="keywords" content="임상시험 관리 시스템">
+	<meta name="format-detection" content="telephone=no">
+	<meta content="임상시험 관리 시스템" property="og:description">
+	<meta name="author" content="임상시험 관리 시스템">
+
+	<!-- App favicon -->
+	<link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}">
+
+	<!-- Bootstrap Css -->
+	<link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+	<link href="{% static 'assets/css/bootstrap-icons.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Icons Css -->
+	<link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Layout  Css -->
+	<link href="{% static 'assets/css/layout.min.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Plugin  Css -->
+	<link href="{% static 'assets/css/plugins.css' %}" rel="stylesheet" type="text/css" />
+
+	<!-- Style Css -->
+	<link href="{% static 'assets/css/style.css' %}" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="col-6" id="printArea">
+            <div class="card shadow">
+                <div class="card-body">
+                    <strong>[사용자의 정보 보안 및 비밀유지]</strong>
+                    <ol>
+                        <li>본 시스템을 사용하여 업무 수행시 취득한 정보 및 자료에 대 한 비밀을 유지한다.</li>
+                        <li>본 시스템을 사용한 업무 수행 중 취득한 자료를 고의 또는 과실로 인해 절대로 외부에 유출시키지 않는다.</li>
+                        <li>본 시스템을 사용하여 업무 수행 중 취득한 자료는 어떤 형태 로도 별도의 저장매체에 보관하지 않고, 별도 보관이 필요할 경우 그 책임은 사용자에게 있다.</li>
+                        <li>본 시스템을 사용한 업무 수행시 지정된 업무 목적으로만 사 용 가능하고, 제 3자에게 제공, 전달하지 않는다.</li>
+                        <li>사용자 개인정보는 오직 본인만이 열람, 수정 할 수 있으며, 사 용자의 아이디나 비밀번호를 타인에게 제공하여 발생하는 모 든 결과에 대한 책임은 사용자 본인에게 있다.</li>
+                        <li>사용자는 본 시스템 사용 종료 시마다 접속을 종료하도록 해 야 하며, 정확히 종료하지 아니함으로 제 3자가 정보를 이용 하게 되는 등의 결과로 인해
+                            발생하는 손해 및 손실에 대해 본 사이트는 책임을 부담하지 않는다.</li>
+                    </ol>
+                </div>
+                <div class="text-center">
+                    <form method="post" action="/user/security/" enctype="multipart/form-data">{% csrf_token %}
+                        <label for="downloadCheck">
+                            <input type="checkbox" id="downloadCheck"
+                                   onchange="document.getElementById('security-save-btn').disabled = !this.checked;">
+                            위 내용에 모두 동의하고 서약 합니다.
+                        </label>
+                        <div class="py-4 px-3 text-center">
+                            <button id="security-save-btn" type="submit" class="btn btn-success add-btn px-4" disabled>
+                                <i class="bi bi-pencil"></i> <span>Save</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick="handleClickTermCancel()">
+                                <i class="bi bi-trash"></i> <span>Cancel</span>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<!-- JAVASCRIPT -->
+<script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+
+<!-- plugin js -->
+<script src="{% static 'assets/js/plugins.js' %}"></script>
+
+<!-- 커스텀 js -->
+<script src="{% static 'assets/js/active.js' %}"></script>
+<script>
+    function handleClickTermCancel() {
+        window.location.href = "/"
+    }
+</script>
+
+<!-- rowspan tabele js //무조건 제일 하단에 위치해야함!-->
+<script src="{% static 'assets/js/rowspan.js' %}"></script>
+
+</body>
+</html>

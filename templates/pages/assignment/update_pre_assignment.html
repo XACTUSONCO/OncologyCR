@@ -1,0 +1,257 @@
+{% extends "bases/base_generic.html" %}
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+{% load chunks from research_tag %}
+{% load static %}
+
+    {% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h3>새 임상 등록 - (<a href="/research/{{ research.id }}/">{{ research.research_name }}</a>) ({{ research.medicine_name }})</h3>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                 <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<div class="card maindata-card shadow mb-5">
+							<div class="card-body">
+								<div class="default-forms">
+                                  <form class="forms-sample" method="post" action="/research/{{ research.id }}/new_assignment/" enctype="multipart/form-data">
+                                  {% csrf_token %}
+                                      <div class="form-group row {% if 'status' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="status" class="col-lg-2 col-form-label">Status
+                                            {% autoescape off %}
+                                              {% if 'status ' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.status }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                            <div class="row row-cols-auto">
+                                              <div class="col">
+                                                <div class="form-check form-check-success">
+                                                  <label class="form-check-label">
+                                                    <input checked="checked" type="radio" class="form-check-input" name="status" value="screening">
+                                                    <i class="input-helper"></i><span class="form-check-sign">Screening</span>
+                                                  </label>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'phase' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="phase" class="col-lg-2 col-form-label">Target</br>(part/cohort/multi-arm)
+                                            {% autoescape off %}
+                                              {% if 'phase ' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.phase }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                            <div class="row row-cols-auto">
+                                              {% for cr in research.onco_cr_count_set.all %}
+                                                <div class="col">
+                                                    <div class="form-check form-check-success">
+                                                      <label class="form-check-label">
+                                                        <input type="radio" class="form-check-input" name="phase" value="{{ cr.r_target }}"
+                                                            {% if cr.r_target in pre_scr_assignment.phase or research.onco_cr_count_set.all|length == 1 %} checked {% endif %}>
+                                                        <i class="input-helper"></i><span class="form-check-sign">{{ cr.r_target }}</span>
+                                                      </label>
+                                                    </div>
+                                                </div>
+                                              {% endfor %}
+                                            </div>
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'no' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="no" class="col-lg-2 col-form-label">Subject No.
+                                            {% autoescape off %}
+                                              {% if 'no' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.no }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="text" class="form-control" name="no"
+                                                     value="{% if pre_scr_assignment.no %}{{ pre_scr_assignment.no }}{% endif %}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'register_number' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="register_number" class="col-lg-2 col-form-label">Patient No.
+                                            {% autoescape off %}
+                                              {% if 'register_number' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.register_number }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="text" class="form-control" name="register_number"
+                                                     value="{% if pre_scr_assignment.register_number %}{{ pre_scr_assignment.register_number }}{% endif %}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'name' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="name" class="col-lg-2 col-form-label">Name
+                                            {% autoescape off %}
+                                              {% if 'name' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.name }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="text" class="form-control" name="name"
+                                                     value="{% if pre_scr_assignment.name %}{{ pre_scr_assignment.name }}{% endif %}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'sex' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="sex" class="col-lg-2 col-form-label">Sex
+                                            {% autoescape off %}
+                                              {% if 'sex' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.sex }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                            <div class="row row-cols-auto">
+                                              <div class="col">
+                                                <div class="form-check form-check-success">
+                                                  <label class="form-check-label">
+                                                    <input type="radio" class="form-check-input" name="sex" value="M" {% if 'M' == pre_scr_assignment.sex %} checked {% endif %}>
+                                                    <i class="input-helper"></i><span class="form-check-sign">M</span>
+                                                  </label>
+                                                </div>
+                                              </div>
+                                              <div class="col">
+                                                <div class="form-check form-check-success">
+                                                  <label class="form-check-label">
+                                                    <input type="radio" class="form-check-input" name="sex" value="F" {% if 'F' == pre_scr_assignment.sex %} checked {% endif %}>
+                                                    <i class="input-helper"></i><span class="form-check-sign">F</span>
+                                                  </label>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'age' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="age" class="col-lg-2 col-form-label">Age
+                                            {% autoescape off %}
+                                              {% if 'age' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.age }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="number" class="form-control" name="age"
+                                                     value="{% if pre_scr_assignment.age %}{{ pre_scr_assignment.age }}{% endif %}" min="0">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'dx' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="dx" class="col-lg-2 col-form-label">Cancer
+                                            {% autoescape off %}
+                                              {% if 'dx' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.dx }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data multi-form-check">
+                                            <div class="row">
+                                              {% for chunk in assignment_field_choice.dx|chunks:4 %}
+                                                {% for value, text in chunk %}
+                                                  <div class="col-lg-2 col-md-3 col-sm-6">
+                                                    <div class="form-check form-check-success">
+                                                      <label class="form-check-label">
+                                                        <input type="radio" class="form-check-input" name="dx" value="{{ value }}"
+                                                            {% if pre_scr_assignment.dx == value %} checked {% endif %}>
+                                                        <i class="input-helper"></i><span class="form-check-sign">{{ text }}</span>
+                                                      </label>
+                                                    </div>
+                                                  </div>
+                                                {% endfor %}
+                                              {% endfor %}
+                                            </div>
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'previous_tx' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="previous_tx" class="col-lg-2 col-form-label">Previous Tx
+                                            {% autoescape off %}
+                                              {% if 'previous_tx' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.previous_tx }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <textarea type="text" class="form-control" rows="5" name="previous_tx">{% if pre_scr_assignment.previous_tx %}{{ pre_scr_assignment.previous_tx }}{% endif %}</textarea>
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'ECOG' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="ECOG" class="col-lg-2 col-form-label">ECOG
+                                            {% autoescape off %}
+                                              {% if 'ECOG' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.ECOG }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="number" class="form-control" name="ECOG"
+                                                     value="{% if pre_scr_assignment.ECOG %}{{ pre_scr_assignment.ECOG }}{% endif %}" min="0" max="5">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'PI' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="PI" class="col-lg-2 col-form-label">Doctor
+                                            {% autoescape off %}
+                                              {% if 'PI' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.PI }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <input type="text" class="form-control" name="PI"
+                                                     value="{% if pre_scr_assignment.PI %}{{ pre_scr_assignment.PI }}{% endif %}">
+                                          </div>
+                                      </div>
+                                      <div class="form-group row {% if 'curr_crc' in errors %} card-inverse-danger {% endif %}">
+                                          <label for="curr_crc" class="col-lg-2 col-form-label">CRC
+                                            {% autoescape off %}
+                                              {% if 'curr_crc' in errors %}
+                                                <div class="text-danger small" style="line-height: 1rem;">{{ errors.curr_crc }}</div>
+                                              {% endif %}
+                                            {% endautoescape %}
+                                          </label>
+                                          <div class="col-lg-10 col-form-data">
+                                              <select class="form-select" id="curr_crc" name="curr_crc">
+                                                  <option value="" selected="">-------</option>
+                                                    {% for backup in backup %}
+                                                      <option value="{{backup.id}}" {% if backup.id == pre_scr_assignment.curr_crc.id %} selected {% endif %}>{{backup}}</option>
+                                                    {% endfor %}
+                                              </select>
+                                          </div>
+                                      </div>
+                                      <div class="py-4 px-3 text-end">
+                                          <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                                            <i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+                                          </button>
+
+                                          <button type="submit" class="btn btn-success edit-btn px-4" id="update-assignment-button"
+                                                  pre-screeing-id="{{ pre_screening.id }}" research-id="{{ pre_screening.research.id }}">
+                                            <i class="bi bi-pencil"></i> <span>Submit</span>
+                                          </button>
+                                      </div>
+                                  </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

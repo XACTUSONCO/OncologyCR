@@ -1,0 +1,115 @@
+{% extends "bases/base_generic.html" %}
+{% load is_numberic from research_tag %}
+{% load static %}
+
+    {% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>Input Delay List [{{crc_name}} CRC]</h2>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                <!-- 다중선택되는 select박스로 검색하기 -->
+				<div class="row row-cols-auto select-action">
+					<div class="col">
+						<select id="table-filter" class="form-select">
+							<option value="" selected="">Study Name</option>
+						</select>
+					</div>
+				</div>
+
+                <!-- start contents-area -->
+                <div class="table-responsive default-table">
+                  <table class="table table-bordered" id="input-gap-statistic">
+                    <thead>
+                        <tr>
+                          <th>CRC</th>
+                          <th>Study name</th>
+                          <th>Patient name</th>
+                          <th>Patient No.</th>
+                          <th>ICF date or Cycle</th>
+                          <th>실제 ICF date or dosing date</th>
+                          <th>데이터 입력일</th>
+                          <th>Gap days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for input_gap_1 in input_gap_1 %}
+                          <tr class="table-link" data-link="/assignment/{{ input_gap_1.assignment_id }}/">
+                            <td>{{ input_gap_1.uploader_id__first_name }}</td >
+                            <td>{{ input_gap_1.assignment_id__research_id__research_name }}</td>
+                            <td>{{ input_gap_1.assignment_id__name }}</td>
+                            <td>{{ input_gap_1.assignment_id__register_number }}</td>
+                            <td>
+                                {% if input_gap_1.ICF_date %}
+                                   ICF date
+                                {% elif input_gap_1.cycle|is_numberic %}
+                                   C{{ input_gap_1.cycle }}D{{ input_gap_1.day }}
+                                {% else %}
+                                    {{ input_gap_1.cycle }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if input_gap_1.ICF_date %}
+                                   {{ input_gap_1.ICF_date }}
+                                {% else %}
+                                   {{ input_gap_1.dosing_date }}
+                                {% endif %}
+                            </td>
+                            <td>{{ input_gap_1.create_date }}</td>
+                            <td>{{ input_gap_1.total_gap }} day</td>
+                          </tr>
+                        {% endfor %}
+                        {% for input_gap_2 in input_gap_2 %}
+                          <tr class="table-link" data-link="/assignment/{{ input_gap_2.assignment_id }}/">
+                            <td>{{ input_gap_2.uploader_id__first_name }}</td >
+                            <td>{{ input_gap_2.assignment_id__research_id__research_name }}</td>
+                            <td>{{ input_gap_2.assignment_id__name }}</td>
+                            <td>{{ input_gap_2.assignment_id__register_number }}</td>
+                            <td>C1D1</td>
+                            <td>
+                                {% if input_gap_2.cycle == '1' and input_gap_2.day == '1' %}
+                                   {{ input_gap_2.dosing_date }}
+                                {% endif %}
+                            </td>
+                            <td>{{ input_gap_2.update_date }}</td>
+                            <td>{{ input_gap_2.C1D1_gap }} day</td>
+                          </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<!-- CRC 페이지용 js -->
+<script src="{% static 'assets/js/pages/crc.js' %}"></script>
+<script>
+    // CRC탭 - Input Delay List
+    var input_gap_list = $('#input-gap-statistic').DataTable( {
+        "ordering": false,
+        'rowsGroup': [0],
+    } );
+    // Study Name
+    var input_gap_list_column1 = input_gap_list.column(1).data();
+    var uniqueValues = input_gap_list_column1.toArray().filter(function (value, index, self) {
+        return self.indexOf(value) === index;
+    }).sort();
+    uniqueValues.forEach(function (val) {
+        $('#table-filter').append('<option value="' + val + '">' + val + '</option>');
+    });
+    $('#table-filter').on('change', function () {
+        input_gap_list.column(1).search(this.value).draw();
+    });
+</script>
+{% endblock %}

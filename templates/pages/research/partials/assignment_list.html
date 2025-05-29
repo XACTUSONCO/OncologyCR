@@ -1,0 +1,74 @@
+{% load static %}
+{% load is_numberic from research_tag %}
+
+  <thead>
+    <tr>
+        <th>Status</th>
+        <th>Target</th>
+        <th>Subject No.</th>
+        <th>Patient No.</th>
+        <th>ECOG</th>
+        <th>Name</th>
+        <th>Sex</th>
+        <th>Age</th>
+        <th>Cancer</th>
+        <th>Previous Tx.</th>
+        <th>Doctor</th>
+        <th>CRC</th>
+	<th>Last cycle</th>
+        <th>Last response</th>
+        <th>RECIST File</th>
+    </tr>
+  </thead>
+
+  <tbody>
+  {% for assignment in assignments %}
+    <tr class="table-link" data-link="/assignment/{{ assignment.id }}/">
+      <td class="text-center">{{ assignment.get_status_display }}</td>
+      <td class="text-center">{% if assignment.research.onco_cr_count_set.all|length == 1 %}-{% else %}{{ assignment.phase }}{% endif %}</td>
+      <td class="text-center">{{ assignment.no }}</td>
+      <td class="text-center">{{ assignment.register_number }}</td>
+      <td class="text-center">{{ assignment.ECOG|default_if_none:"" }}</td>
+      <td class="text-center">{{ assignment.name }}</td>
+      <td class="text-center">{{ assignment.get_sex_display }}</td>
+      <td class="text-center">{{ assignment.age }}</td>
+      <td class="text-center">{{ assignment.get_dx_display }}</td>
+      <td class="text-center" style="white-space: pre-line;">{{ assignment.previous_tx }}</td>
+      <td class="text-center">{{ assignment.PI }}</td>
+      <td class="text-center">{{ assignment.curr_crc.name }}</td>
+      {% with last_assignment=assignment.feedback_set.all.last %}
+      <td class="text-center">
+            {% if last_assignment.cycle|is_numberic %}
+                C{{ last_assignment.cycle }}D{{ last_assignment.day }}
+            {% else%}
+                {{ last_assignment.cycle|default_if_none:"" }}<br/>
+                {% if 'EOT' in last_assignment.cycle and last_assignment.fu.count != 0 %}
+                    {% with count=last_assignment.fu.count %}
+                        ({% for fu in last_assignment.fu.all %}{{ fu }}{% if forloop.counter < count %},<br/>{% endif %} {% endfor %})
+                    {% endwith %}
+                {% elif last_assignment.eos %}
+                    (EOS: {{ last_assignment.eos }})
+                {% endif %}
+            {% endif %}
+      </td>
+      <td class="text-center">
+        {% ifequal assignment.feedback_set.count 0 %}
+        {% else %}
+            {{ last_assignment.photo_date|date:"m/d/Y" }}
+            ({{ last_assignment.response }})
+        {% endifequal %}
+      </td>
+      {% endwith %}
+      <td class="text-center">
+      {% if not upload_RECIST %}
+      {% else %}
+        {% for file in upload_RECIST %}
+          {% if file.assignment.id == assignment.id %}
+            <a href="{{ file.file.url }}" target="_blank" download>{{ file.filename }}</a>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>

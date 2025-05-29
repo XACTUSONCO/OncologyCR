@@ -1,0 +1,261 @@
+{% load get_m2m_values from research_tag %}
+<label for="cancer"
+       class="font-weight-bold col-sm-2 col-form-label pl-3 striped word-keep-all text-black">Cancer
+  {% autoescape off %}
+    {% if 'cancer' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.cancer }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-10 form-input-container checkbox-radio-input">
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category border-0">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="BT"
+                {% if 'BT' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Biliary tract</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="bladder"
+                {% if 'bladder' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Bladder</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="breast"
+                {% if 'breast' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Breast</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="cervix"
+                {% if 'cervix' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Cervix</span></label>
+        </div>
+      </div>
+
+      <div class="cancer-type-category border-0">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="colorectal"
+                {% if 'colorectal' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Colorectal</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="prostate"
+                {% if 'prostate' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>CRPC</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="endometrial"
+                {% if 'endometrial' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Endometrial</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="esophageal"
+                {% if 'esophageal' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Esophageal</span></label>
+        </div>
+      </div>
+
+      <div class="cancer-type-category border-0">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="GB"
+                {% if 'GB' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Gallbladder</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="gastric"
+                {% if 'gastric' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Gastric</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+            <label class="form-check-label">
+              <input type="checkbox" style="padding:10px" class="form-check-input"
+                     name="cancer" value="HCC"
+                  {% if 'HCC' in query.cancer %}
+                     checked {% endif %}
+                  {% if not editable %} disabled {% endif %}>
+              <i class="input-helper"></i><span>HCC</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="head_and_neck"
+                {% if 'head_and_neck' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Head and Neck</span></label>
+        </div>
+      </div>
+
+
+      <div class="cancer-type-category border-0">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="melanoma"
+                {% if 'melanoma' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Melanoma</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="NSCLC"
+                {% if 'NSCLC' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>NSCLC</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="ovarian"
+                {% if 'ovarian' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Ovary</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="pancreatic"
+                {% if 'pancreatic' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Pancreatic</span></label>
+        </div>
+      </div>
+
+      <div class="cancer-type-category border-0">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="kidney"
+                {% if 'kidney' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>RCC</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="sarcoma"
+                {% if 'sarcoma' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Sarcoma</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="SCLC"
+                {% if 'SCLC' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>SCLC</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="small_bowel"
+                {% if 'small_bowel' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Small bowel</span></label>
+        </div>
+      </div>
+
+      <div class="cancer-type-category border-0">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="Solid"
+                {% if 'Solid' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Solid tumor</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="ureter"
+                {% if 'ureter' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Urothelial</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="vaginal"
+                {% if 'vaginal' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Vaginal</span></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="vulva"
+                {% if 'vulva' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>Vulva</span></label>
+        </div>
+      </div>
+
+      <div class="cancer-type-category border-0">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="checkbox" style="padding:10px" class="form-check-input"
+                   name="cancer" value="etc"
+                {% if 'etc' in query.cancer %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span>기타</span></label>
+        </div>
+      </div>
+      <!-- Flex end -->
+    </div>
+</div>

@@ -1,0 +1,60 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+
+
+<label for="type" class="col-lg-2 col-form-label">IIT/SIT
+    {% autoescape off %}
+      {% if 'type' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.type }}</div>
+      {% endif %}
+    {% endautoescape %}
+</label>
+<div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+        {% for value, text in field_choice.type %}
+          {% if forloop.counter0 < 2 %}
+            <div class="col">
+                <div class="form-check form-check-success">
+                    <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="type" id="required"
+                       value="{{ value }}"
+                    {% if value in research.type.all|get_m2m_values or value in pre_initiation.type.all|get_m2m_values or text in request.GET.type %}
+                       checked {% endif %}
+                    {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span class="form-check-sign">{{ text }}</span>
+
+                    </label>
+                </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<label for="type" class="col-lg-2 col-form-label">Option
+    {% autoescape off %}
+      {% if 'type' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.type }}</div>
+      {% endif %}
+    {% endautoescape %}
+</label>
+<div class="col-lg-4 col-form-data">
+    <div class="row row-cols-auto">
+        {% for value, text in field_choice.type %}
+          {% if forloop.counter0 > 1 %}
+            <div class="col">
+                <div class="form-check form-check-success">
+                    <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" name="type"
+                               value="{{ value }}"
+                            {% if value in research.type.all|get_m2m_values or value in pre_initiation.type.all|get_m2m_values %}
+                               checked {% endif %}
+                            {% if not editable %} disabled {% endif %}>
+                        <i class="input-helper"></i><span class="form-check-sign">{{ text }}</span>
+                    </label>
+                </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+    </div>
+</div>

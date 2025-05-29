@@ -1,0 +1,51 @@
+[
+    {
+        "model": "research.Type",
+        "pk": 1,
+        "fields": {
+            "value": "IIT"
+        }
+    },
+    {
+        "model": "research.Type",
+        "pk": 2,
+        "fields": {
+            "value": "SIT"
+        }
+    },
+    {
+        "model": "research.Type",
+        "pk": 3,
+        "fields": {
+            "value": "EAP"
+        }
+    },
+    {
+        "model": "research.Type",
+        "pk": 4,
+        "fields": {
+            "value": "PMS"
+        }
+    },
+    {
+        "model": "research.Type",
+        "pk": 5,
+        "fields": {
+            "value": "Palliative"
+        }
+    },
+    {
+        "model": "research.Type",
+        "pk": 6,
+        "fields": {
+            "value": "Blood"
+        }
+    },
+    {
+        "model": "research.Type",
+        "pk": 7,
+        "fields": {
+            "value": "ETC"
+        }
+    }
+]

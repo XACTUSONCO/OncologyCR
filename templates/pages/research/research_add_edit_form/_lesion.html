@@ -1,0 +1,47 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+
+<label for="lesion" class="font-weight-bold col-sm-2 col-form-label striped pl-3" style="color:black;">
+  Measurable Lesion 필요여부
+  {% autoescape off %}
+    {% if 'lesion' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.lesion }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+
+<div class="col-sm-2 form-input-container radio-radio-input flex-container">
+{{ research.leison }}
+    <div class="cancer-type-category" style="border: none;">
+      <div class="form-check">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input"
+                 name="lesion" value="na"
+              {% if 'na' == research.lesion|get_o2m_values %}
+                 checked {% endif %}
+              {% if not editable %} disabled {% endif %}>
+          <i class="input-helper"></i><span>해당없음</span>
+        </label>
+      </div>
+    </div>
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category">
+        {% for value, text in field_choice.lesion %}
+          {% if forloop.counter0 > 0 %}
+            <div class="form-check" style="margin-right: 30px;">
+              <label class="form-check-label">
+                <input type="radio" style="padding:10px"
+                       class="form-check-input" name="lesion" value="{{ value }}"
+                    {% if value == research.lesion|get_o2m_values %}
+                       checked {% endif %}
+                    {% if not editable %} disabled {% endif %}>
+                <i class="input-helper"></i><span>{{ text }}</span>
+              </label>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <!-- Flex end -->
+  </div>
+</div>

@@ -1,0 +1,23 @@
+[
+    {
+        "model": "research.Biopsy",
+        "pk": 1,
+        "fields": {
+            "value": "na"
+        }
+    },
+    {
+        "model": "research.Biopsy",
+        "pk": 2,
+        "fields": {
+            "value": "required"
+        }
+    },
+    {
+        "model": "research.Biopsy",
+        "pk": 3,
+        "fields": {
+            "value": "not_required"
+        }
+    }
+]

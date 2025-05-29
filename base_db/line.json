@@ -1,0 +1,51 @@
+[
+    {
+        "model": "research.Line",
+        "pk": 1,
+        "fields": {
+            "value": "na"
+        }
+    },
+    {
+        "model": "research.Line",
+        "pk": 2,
+        "fields": {
+            "value": "neoadjuvant"
+        }
+    },
+    {
+        "model": "research.Line",
+        "pk": 3,
+        "fields": {
+            "value": "adjuvant"
+        }
+    },
+    {
+        "model": "research.Line",
+        "pk": 4,
+        "fields": {
+            "value": "line1"
+        }
+    },
+    {
+        "model": "research.Line",
+        "pk": 5,
+        "fields": {
+            "value": "line2"
+        }
+    },
+    {
+        "model": "research.Line",
+        "pk": 6,
+        "fields": {
+            "value": "line3"
+        }
+    },
+    {
+        "model": "research.Line",
+        "pk": 7,
+        "fields": {
+            "value": "line4_or_more"
+        }
+    }
+]

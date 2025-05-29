@@ -1,0 +1,48 @@
+{% load get_m2m_values from research_tag %}
+{% load get_o2m_values from research_tag %}
+
+<label for="biopsy" class="font-weight-bold col-sm-1 col-form-label pl-3 striped word-keep-all text-black">
+  Biopsy 필요여부
+  {% autoescape off %}
+    {% if 'brain_mets' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.biopsy }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+<div class="col-sm-2 form-input-container checkbox-radio-input flex-container">
+
+    <div class="cancer-type-category" style="border: none;">
+      <div class="form-check">
+        <label class="form-check-label">
+          <input type="radio" style="padding:10px" class="form-check-input"
+                 name="biopsy" value="na"
+              {% if 'na' == query.biopsy %}
+                 checked {% endif %}
+              {% if not editable %} disabled {% endif %}>
+          <i class="input-helper"></i><span>해당없음</span></label>
+      </div>
+    </div>
+    <div style="display:flex; justify-content: left; flex-wrap:wrap;">
+      <div class="cancer-type-category">
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input" name="biopsy" value="required"
+            {% if 'required' in query.biopsy %}
+                 checked {% endif %}>
+            <i class="input-helper"></i><span>가능</span>
+          <i class="input-helper"></i></label>
+        </div>
+        <div class="form-check" style="margin-right: 30px;">
+          <label class="form-check-label">
+            <input type="radio" style="padding:10px" class="form-check-input" name="biopsy" value="not_required"
+            {% if 'not_required' in query.biopsy %}
+                 checked {% endif %}>
+            <i class="input-helper"></i><span>불가능</span>
+          <i class="input-helper"></i></label>
+        </div>
+      </div>
+      <!-- Flex end -->
+    </div>
+
+</div>

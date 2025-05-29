@@ -1,0 +1,30 @@
+[
+    {
+        "model": "research.IRB",
+        "pk": 1,
+        "fields": {
+            "value": "new_reception"
+        }
+    },
+    {
+        "model": "research.IRB",
+        "pk": 2,
+        "fields": {
+            "value": "qna"
+        }
+    },
+    {
+        "model": "research.IRB",
+        "pk": 3,
+        "fields": {
+            "value": "amendment"
+        }
+    },
+    {
+        "model": "research.IRB",
+        "pk": 4,
+        "fields": {
+            "value": "interim_report"
+        }
+    }
+]

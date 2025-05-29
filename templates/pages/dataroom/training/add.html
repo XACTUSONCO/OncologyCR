@@ -1,0 +1,81 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load subtract from research_tag %}
+{% load cal_career from research_tag %}
+
+	{% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+						<div class="card maindata-card shadow mb-5">
+							<div class="card-body">
+                                <div class="default-forms">
+                                    <form method="post">
+                                    {% csrf_token %}
+                                        <div class="form-group row">
+                                           <label class="col-lg-2 col-form-label">Topic</label>
+                                           <div class="col-lg-10 col-form-data">
+                                               <input type="text" class="form-control" name="topic" value="{{ training.topic|default_if_none:"" }}">
+                                           </div>
+                                        </div>
+                                        <div class="form-group row">
+                                           <label class="col-lg-2 col-form-label">Trainer</label>
+                                           <div class="col-lg-10 col-form-data">
+                                               <input type="text" class="form-control" name="trainer" value="{{ training.trainer|default_if_none:"" }}">
+                                           </div>
+                                        </div>
+                                        <div class="form-group row">
+                                           <label class="col-lg-2 col-form-label">Date</label>
+                                           <div class="col-lg-10 col-form-data">
+                                               <input type="datetime" class="form-control timepickerStyle" autocomplete="off" name="date" value="{{ request.GET.from_date }}" required>
+                                           </div>
+                                        </div>
+                                        <div class="form-group row">
+                                           <label class="col-lg-2 col-form-label">Location</label>
+                                           <div class="col-lg-10 col-form-data">
+                                               <input type="text" class="form-control" name="location" value="{{ training.location|default_if_none:"" }}">
+                                           </div>
+                                        </div>
+                                        <div class="form-group row">
+                                           <label class="col-lg-2 col-form-label">Memo</label>
+                                           <div class="col-lg-10 col-form-data">
+                                               <input type="text" class="form-control" name="memo" value="{{ training.memo|default_if_none:"" }}">
+                                           </div>
+                                        </div>
+
+                                        <div class="py-4 px-3 text-end">
+                                            <button type="submit" class="btn btn-success edit-btn px-4">
+                                                <i class="bi bi-pencil"></i> <span>Save</span>
+                                            </button>
+                                            <button type="button" id="training-remove-button" training-id="{{ training.id }}" class="btn btn-outline-secondary">
+                                                <i class="bi bi-trash"></i> <span>Remove</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endblock %}
+
+{% block script %}
+<link href="{% static 'css/fullcalendar/fullcalendar_3.4.0.css' %}" rel="stylesheet" >
+<script>
+        $(function () {
+            $('#training-remove-button').click(function (e) {
+                let trainingID = $(this).attr('training-id');
+                let deleteTraining = confirm("정말 삭제하시겠습니까?");
+                if (deleteTraining) {
+                    window.location.href = '/dataroom/crc/training/delete/' + trainingID + '/';
+                }
+            });
+        });
+</script>
+{% endblock %}

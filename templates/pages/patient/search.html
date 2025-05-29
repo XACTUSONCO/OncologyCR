@@ -1,0 +1,222 @@
+{% extends "bases/base_generic.html" %}
+{% load static from staticfiles %}
+{% load get_value_from_dict from research_tag %}
+
+{% block title %}
+  <title>Search</title>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12 mb-4 mb-xl-0">
+      <h4 class="font-weight-bold text-dark">환자 검색</h4>
+      <p class="font-weight-normal mb-2 text-muted">환자를 검색합니다.</p>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title pt-1" style="margin:0;">검색 조건</h4>
+        </div>
+        <div id="research-search-form-container">
+          <div class="card-body">
+            <h4 class="card-title pt-1">환자 정보</h4>
+            <form id="research-search-form" method="get" action="/patient/search/" enctype="multipart/form-data">
+              <input type="hidden" value="{% if not query.sort or query.sort == '' %}id{% else %}{{ query.sort }}{% endif %}" name="sort">
+
+              <!-- Patient ID -->
+              <div class="form-group row">
+                <label for="research_name" class="col-sm-2 col-form-label pl-3">Patient ID</label>
+                <div class="col-sm-10" style="padding-top:0.36rem;">
+                  <div style="display: flex; justify-content: left; flex-wrap:wrap; position:relative; top:-3px;">
+                    <input type="text" class="form-control col-sm-12" name="patient_id"
+                           placeholder="(환자 ID)"
+                           value="{% if query.patient_id %}{{ query.patient_id }}{% endif %}"
+                           {% if not editable %} disabled {% endif %}>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Patient Name -->
+              <div class="form-group row">
+                <label for="research_name" class="col-sm-2 col-form-label pl-3">Patient Name</label>
+                <div class="col-sm-10" style="padding-top:0.36rem;">
+                  <div style="display: flex; justify-content: left; flex-wrap:wrap; position:relative; top:-3px;">
+                    <input type="text" class="form-control col-sm-12" name="patient_name"
+                           placeholder="(환자 이름)"
+                           value="{% if query.patient_name %}{{ query.patient_name }}{% endif %}"
+                           {% if not editable %} disabled {% endif %}>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group mt-2" style="text-align: right;">
+                <button type="submit" class="btn btn-primary">Search</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Result Table -->
+  <div class="row">
+
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Search Result</h4>
+          <p class="card-description">
+              Total: <b>{{ search_count }} patient(s)</b>
+          </p>
+          <div class="table-responsive">
+            <table id="search-result-table" class="table table-striped">
+              <thead>
+                <tr>
+{#                  <th class="text-nowrap">#}
+{#                    id#}
+{#                  </th>#}
+                  <th class="text-nowrap">
+                    Patient ID
+                  </th>
+                  <th class="text-nowrap">
+                    Patient Name
+                  </th>
+                  <th class="text-nowrap">
+                    Study
+                  </th>
+                  <th class="text-nowrap">Cancer</th>
+                  <th class="text-nowrap">Histology</th>
+                  <th class="text-nowrap">Age</th>
+                  <th class="text-nowrap">ECOG</th>
+                  <th class="text-nowrap">Leison</th>
+                  <th class="text-nowrap">Alternation</th>
+                  <th class="text-nowrap">PDL1</th>
+                  <th class="text-nowrap">Line</th>
+                  <th class="text-nowrap">Chemotherapy</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% ifequal search_count 0 %}
+                <tr>
+                  <td colspan="13"><div class="text-center">조건에 맞는 환자가 없습니다.</div></td>
+                </tr>
+                {% endifequal %}
+
+                {% for patient in search %}
+                  <tr>
+{#                    <td>{{ patient.id }}</td>#}
+                    <td>
+                      <a href="/patient/{{ patient.id }}/">{{ patient.patient_id }}</a>
+                    </td>
+                    <td>
+                      <a href="/patient/{{ patient.id }}/">{{ patient.patient_name }}</a></td>
+                    <td>
+                      <a href="/research/{{ patient.assigned_research.id }}/"
+                           data-toggle="tooltip" data-placement="top" title="Detail view">
+                      {{ patient.assigned_research.research_name }} ({{ patient.assigned_research.medicine_name }})
+                      </a>
+                    </td>
+                    <td>{{ patient.cancer }}</td>
+                    <td>{{ patient.histology }}</td>
+                    <td>{{ patient.age }}</td>
+                    <td>{{ patient.ecog }}</td>
+                    <td>{{ patient.lesion }}</td>
+                    <td>
+                    {% with count=patient.alternation.count %}
+                    [
+                      {% for alternation in patient.alternation.all %}
+                        {{ alternation }}
+                        {% if forloop.counter < count %},{% endif %}
+                      {% endfor %}
+                    ]
+                    {% endwith %}
+                  </td>
+                    <td>{{ patient.pdl1 }}</td>
+                    <td>{{ patient.line }}</td>
+                    <td>{{ patient.chemotherapy }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+{#          <div class="pt-3">#}
+{#            <a class="btn-lg btn-secondary pull-right" href="/patient/search/download/?sort={{ query.sort }}&{{ query_string }}">Download</a>#}
+{#          </div>#}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row col-12">
+  <nav class="m-auto" aria-label="Search result page navigation">
+    <ul class="pagination">
+
+      {% if search.number|add:"-10" > 0 %}
+        <li class="page-item">
+          <a class="page-link" href="?sort={{ query.sort }}&page={{ search.number|add:"-10" }}&{{ query_string }}">&laquo;</a>
+        </li>
+      {% elif not search.has_previous %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#">&laquo;</a>
+        </li>
+      {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?sort={{ query.sort }}&page=1&{{ query_string }}">&laquo;</a>
+        </li>
+      {% endif %}
+
+      {% if search.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?sort={{ query.sort }}&page={{ search.previous_page_number }}&{{ query_string }}">&lsaquo;</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#">&lsaquo;</a>
+        </li>
+      {% endif %}
+
+      {% for i in page_num_list %}
+        {% if i > search.number|add:"-10" and search.number|add:"10" > i %}
+          {% if search.number == i %}
+            <li class="active page-item">
+              <a class="page-link" href="?sort={{ query.sort }}&page={{ i }}&{{ query_string }}">{{ i }}<span class="sr-only">(current)</span></a>
+            </li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="?sort={{ query.sort }}&page={{ i }}&{{ query_string }}">{{ i }}</a></li>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% if search.has_next %}
+        <li class="page-item"><a class="page-link" href="?sort={{ query.sort }}&page={{ search.next_page_number }}&{{ query_string }}">&rsaquo;</a></li>
+      {% else %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#">&rsaquo;</a>
+        </li>
+      {% endif %}
+
+      {% if search.number|add:"10" < search.paginator.num_pages %}
+        <li class="page-item">
+          <a class="page-link" href="?sort={{ query.sort }}&page={{ search.number|add:"10" }}&{{ query_string }}">&raquo;</a>
+        </li>
+      {% elif not search.has_next %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#">&raquo;</a>
+        </li>
+      {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?sort={{ query.sort }}&page={{ search.paginator.num_pages }}&{{ query_string }}">&raquo;</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+  </div>
+{% endblock %}
+
+{% block custom_end %}
+  <script src="{% static 'js/research_search.js' %}"></script>
+{% endblock %}

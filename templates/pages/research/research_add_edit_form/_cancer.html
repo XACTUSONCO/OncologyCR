@@ -1,0 +1,339 @@
+{% load get_m2m_values from research_tag %}
+<label for="cancer" class="col-lg-2 col-form-label">Cancer
+  {% autoescape off %}
+    {% if 'cancer' in errors %}
+      <div class="text-danger small"
+           style="line-height: 1rem;">{{ errors.cancer }}</div>
+    {% endif %}
+  {% endautoescape %}
+</label>
+
+<div class="col-lg-10 col-form-data multi-form-check">
+    <div class="row">
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="BT"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'BT' in research.cancer.all|get_m2m_values or 'BT' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Biliary tract</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="bladder"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'bladder' in research.cancer.all|get_m2m_values or 'bladder' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Bladder</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="breast"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'breast' in research.cancer.all|get_m2m_values or 'breast' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Breast</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="cervix"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'cervix' in research.cancer.all|get_m2m_values or 'cervix' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Cervix</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="colorectal"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'colorectal' in research.cancer.all|get_m2m_values or 'colorectal' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Colorectal</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="prostate"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'prostate' in research.cancer.all|get_m2m_values or 'prostate' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">CRPC</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="endometrial"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'endometrial' in research.cancer.all|get_m2m_values or 'endometrial' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Endometrial</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="esophageal"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'esophageal' in research.cancer.all|get_m2m_values or 'esophageal' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Esophageal</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="GB"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'GB' in research.cancer.all|get_m2m_values or 'GB' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Gallbladder</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="gastric"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'gastric' in research.cancer.all|get_m2m_values or 'gastric' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Gastric</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="HCC"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'HCC' in research.cancer.all|get_m2m_values or 'HCC' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">HCC</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="head_and_neck"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'head_and_neck' in research.cancer.all|get_m2m_values or 'head_and_neck' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Head and Neck</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="melanoma"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'melanoma' in research.cancer.all|get_m2m_values or 'melanoma' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Melanoma</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="NSCLC"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'NSCLC' in research.cancer.all|get_m2m_values or 'NSCLC' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">NSCLC</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="ovarian"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'ovarian' in research.cancer.all|get_m2m_values or 'ovarian' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Ovary</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="pancreatic"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'pancreatic' in research.cancer.all|get_m2m_values or 'pancreatic' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Pancreatic</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="kidney"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'kidney' in research.cancer.all|get_m2m_values or 'kidney' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">RCC</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="sarcoma"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'sarcoma' in research.cancer.all|get_m2m_values or 'sarcoma' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Sarcoma</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="SCLC"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'SCLC' in research.cancer.all|get_m2m_values or 'SCLC' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">SCLC</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="small_bowel"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'small_bowel' in research.cancer.all|get_m2m_values or 'small_bowel' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Small bowel</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="Solid"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'Solid' in research.cancer.all|get_m2m_values or 'Solid' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Solid tumor</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="ureter"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'ureter' in research.cancer.all|get_m2m_values or 'ureter' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Urothelial</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="vaginal"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'vaginal' in research.cancer.all|get_m2m_values or 'vaginal' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Vaginal</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="vulva"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'vulva' in research.cancer.all|get_m2m_values or 'vulva' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">Vulva</span></label>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input"
+                   name="cancer" value="etc"
+                {% if 'na' in research.cancer.all|get_m2m_values or 'na' in pre_initiation.cancer.all|get_m2m_values %}
+                   disabled {% endif %}
+                {% if 'etc' in research.cancer.all|get_m2m_values or 'etc' in pre_initiation.cancer.all|get_m2m_values %}
+                   checked {% endif %}
+                {% if not editable %} disabled {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">기타</span></label>
+        </div>
+      </div>
+    </div>
+</div>

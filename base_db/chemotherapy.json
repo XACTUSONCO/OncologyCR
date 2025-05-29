@@ -1,0 +1,30 @@
+[
+    {
+        "model": "research.Chemotherapy",
+        "pk": 1,
+        "fields": {
+            "value": "toxic_agent"
+        }
+    },
+    {
+        "model": "research.Chemotherapy",
+        "pk": 2,
+        "fields": {
+            "value": "target_agent"
+        }
+    },
+    {
+        "model": "research.Chemotherapy",
+        "pk": 3,
+        "fields": {
+            "value": "Immunotherapy"
+        }
+    },
+    {
+        "model": "research.Chemotherapy",
+        "pk": 4,
+        "fields": {
+            "value": "etc"
+        }
+    }
+]

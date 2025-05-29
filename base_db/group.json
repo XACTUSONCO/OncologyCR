@@ -1,0 +1,65 @@
+[
+    {
+        "model": "auth.Group",
+        "pk": 1,
+        "fields": {
+            "name": "doctor"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 2,
+        "fields": {
+            "name": "nurse"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 3,
+        "fields": {
+            "name": "etc"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 4,
+        "fields": {
+            "name": "transfer"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 5,
+        "fields": {
+            "name": "technician"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 6,
+        "fields": {
+            "name": "QC"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 7,
+        "fields": {
+            "name": "secretary"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 8,
+        "fields": {
+            "name": "medical records"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 9,
+        "fields": {
+            "name": "SETUP"
+        }
+    }
+]
