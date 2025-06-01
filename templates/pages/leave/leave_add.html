@@ -25,12 +25,12 @@
                                       </div>
                                       <div class="form-group row">
                                           <label class="col-lg-2 col-form-label">Kind<span class="text-danger">*</span>
-					      {% autoescape off %}
+					                          {% autoescape off %}
                                                   {% if form.kind.errors %}
                                                     <span class="error-inline">{{ form.kind.errors.0 }}</span>
                                                   {% endif %}
-                                              {% endautoescape %}	  
-					  </label>
+                                              {% endautoescape %}
+                                          </label>
                                           <div class="col-lg-10 col-form-data">
                                               <select class="form-select" id="kind" name="kind" required>
                                                   <option value="" selected="">-------</option>
@@ -39,13 +39,19 @@
                                                   <option value="morning_Half" {% if leave.kind == "morning_Half" %} selected {% endif %}>반차 (오전)</option>
                                                   <option value="afternoon_Half" {% if leave.kind == "afternoon_Half" %} selected {% endif %}>반차 (오후)</option>
                                                   <option value="official" {% if leave.kind == "official" %} selected {% endif %}>공가 및 특별휴가</option>
-						  <option value="carry_over" {% if leave.kind == "carry_over" %} selected {% endif %}>이월 (1일)</option>
+                                                  <option value="carry_over" {% if leave.kind == "carry_over" %} selected {% endif %}>이월 (1일)</option>
                                                   <option value="carry_over_Half" {% if leave.kind == "carry_over_Half" %} selected {% endif %}>이월 (반차)</option>
                                               </select>
                                           </div>
                                       </div>
                                       <div class="form-group row">
-                                          <label class="col-lg-2 col-form-label">Date</label>
+                                          <label class="col-lg-2 col-form-label">Date<span class="text-danger">*</span>
+                                              {% autoescape off %}
+                                                  {% if form.from_date.errors %}
+                                                    <span class="error-inline">{{ form.from_date.errors.0 }}</span>
+                                                  {% endif %} 
+                                              {% endautoescape %}
+                                          </label>
                                           <div class="col-lg-10 col-form-data">
                                               <input class="form-control datepicker" name="from_date" value="{{ request.GET.from_date }}" required>
                                           </div>
@@ -97,7 +103,7 @@
     }
 </style>
 <script>
-$(function () {
+        $(function () {
             $('#leave-remove-button').click(function (e) {
                 let leaveID = $(this).attr('leave-id');
                 let deleteLeave = confirm("정말 삭제하시겠습니까?");
@@ -106,11 +112,49 @@ $(function () {
                 }
             });
 
-            $( ".datepicker" ).datepicker({
-                todayHighlight : true,
+
+            $(".datepicker").datepicker({
+                todayHighlight: false,
                 format: "yyyy-mm-dd",
-                startDate: '+7d',
+                startDate: getStartDate(),
+                endDate: getEndDate(),
             });
+            
+            function getStartDate() {
+                // 오늘 날짜 기준으로 '당일' 제외한 내일부터 가능
+                var today = new Date();
+                today.setDate(today.getDate() + 1);
+                return formatDate(today);
+            }
+            
+            function getEndDate() {
+                var today = new Date();
+            
+                // 기준이 되는 연/월
+                var startMonth = today.getMonth(); // 0~11
+                var startYear = today.getFullYear();
+            
+                // 끝나는 달 = 현재 달 + 2 (3개월치)
+                var endMonth = startMonth + 2;
+                var endYear = startYear;
+            
+                if (endMonth > 11) {
+                    endMonth -= 12;
+                    endYear += 1;
+                }
+            
+                // 말일 계산
+                var lastDay = new Date(endYear, endMonth + 1, 0).getDate();
+                return formatDate(new Date(endYear, endMonth, lastDay));
+            }
+            
+            function formatDate(date) {
+                var yyyy = date.getFullYear();
+                var mm = String(date.getMonth() + 1).padStart(2, '0');
+                var dd = String(date.getDate()).padStart(2, '0');
+                return yyyy + '-' + mm + '-' + dd;
+            }
+            
         });
 </script>
 {% endblock %}

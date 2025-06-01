@@ -52,5 +52,8 @@ class LeaveForm(ModelForm):
                 raise ValidationError({'kind': '이월 휴가는 3월까지 사용 가능합니다.'})
             elif from_date.year > today.year:
                 raise ValidationError({'kind': '이월 휴가는 당해 연도에만 사용하실 수 있습니다.'})
+            
+        if from_date == today:
+            raise ValidationError({'from_date': '당일 휴가 신청은 불가합니다.'})
 
         return cleaned_data
