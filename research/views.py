@@ -2400,6 +2400,7 @@ def ongoing_patients(request):
 
     data = list(qs.values(
         'id',
+        'research__research_name',
         'register_number',
         'no',
         'name',
@@ -2407,7 +2408,7 @@ def ongoing_patients(request):
         'age',
         'PI',
         'curr_crc__name',
-    ).order_by('name'))
+    ).order_by('research__research_name'))
     return JsonResponse({'patients': data})
 
 

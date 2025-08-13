@@ -566,6 +566,7 @@
 
 			const rows = (data.patients || []).map(p => `
 			  <tr class="text-center table-link" data-link="/assignment/${p.id}/">
+			    <td>${p.research__research_name ?? ''}</td>
 				<td>${p.register_number ?? ''}</td>
 				<td>${p.no ?? ''}</td>
 				<td>${p.name ?? ''}</td>
@@ -581,6 +582,7 @@
 				<table class="table table-sm table-striped table-hover align-middle">
 				  <thead>
 					<tr class="text-center">
+					  <th>Study Name</th>
 					  <th>Subject No.</th>
 					  <th>Patient No.</th>
 					  <th>Name</th>
