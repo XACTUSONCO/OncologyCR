@@ -186,17 +186,8 @@
 						</div>
 					</li>
 					<li>
-                      {% if user.id in onco_team and job_title == 'nurse' and user.contact.team.name == 'CLUE' %}
-						<a href="/research/CRC/list/?team=CLUE&from_month_date={{ from_month_date|date:'Y-m-d' }}&to_month_date={{ to_month_date|date:'Y-m-d' }}">
-                      {% elif user.id in onco_team and job_title == 'nurse' and user.contact.team.name == 'GSI' %}
-                        <a href="/research/CRC/list/?team=GSI&from_month_date={{ from_month_date|date:'Y-m-d' }}&to_month_date={{ to_month_date|date:'Y-m-d' }}">
-                      {% elif user.id in onco_team and job_title == 'nurse' and user.contact.team.name == 'etc' %}
-                        <a href="/research/CRC/list/?team=etc&from_month_date={{ from_month_date|date:'Y-m-d' }}&to_month_date={{ to_month_date|date:'Y-m-d' }}">
-                      {% else %}
-                        <a href="/research/CRC/list/">
-                      {% endif %}
-							<i class="bi bi-clipboard2-data"></i>
-							<span class="menu-item">CRC</span>
+						<a href="/research/CRC/list/">
+							<i class="bi bi-clipboard2-data"></i><span class="menu-item">CRC</span>
 						</a>
 					</li>
 					<li>

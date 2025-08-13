@@ -1,6 +1,6 @@
 {% extends "bases/base_generic.html" %}
 {% load total_sum from research_tag %}
-{% load sum_of_ongoings_by_PI_CRC from research_tag %}
+{% load get_item from research_tag %}
 {% load static %}
 
 	{% block content %}
@@ -142,134 +142,34 @@
 							</div>
 
 							<div class="tab-pane fade" id="status03_04">
+								{% for type_label, type_name in type_labels %}
 								<div class="pointtable-box mb-5">
-								  <h4 class="tables-title">IIT</h4>
+									<h4 class="tables-title">{{ type_name }}</h4>
 									<div class="table-responsive colorTableStyle">
-									  <table>
-										<thead>
-										  <tr>
-											<th></th>
-											{% for PI in N_of_ongoings_by_PI_CRC_list %}
-											  <th>{{ PI }}</th>
-											{% endfor %}
-										  </tr>
-										</thead>
-										<tbody>
-										  {% for crc, ongoings in N_of_ongoings_by_PI_CRC_dict %}
-											<tr class="item">
-											  <td class="bg-warning name">{{ crc.0 }}</td>
-											  <td>{{ ongoings.0 }}</td>
-											  <td>{{ ongoings.1 }}</td>
-											  <td>{{ ongoings.2 }}</td>
-											  <td>{{ ongoings.3 }}</td>
-											  <td>{{ ongoings.4 }}</td>
-											  <td>{{ ongoings.5 }}</td>
-											  <td>{{ ongoings.6 }}</td>
-											</tr>
-										  {% endfor %}
+										<table>
+											<thead>
+												<tr>
+													<th></th>
+													{% for pi in N_of_ongoings_by_PI_CRC_list %}
+														<th>{{ pi }}</th>
+													{% endfor %}
+												</tr>
+											</thead>
 
-											<tr class="total">
-											  <td class="bg-info">합계</td>
-											  {% with sum=N_of_ongoings_by_PI_CRC_dict|sum_of_ongoings_by_PI_CRC %}
-												<td class="bg-info">{{ sum.0 }}</td>
-												<td class="bg-info">{{ sum.1 }}</td>
-												<td class="bg-info">{{ sum.2 }}</td>
-												<td class="bg-info">{{ sum.3 }}</td>
-												<td class="bg-info">{{ sum.4 }}</td>
-												<td class="bg-info">{{ sum.5 }}</td>
-												<td class="bg-info">{{ sum.6 }}</td>
-											  {% endwith %}
-											</tr>
-										</tbody>
-									  </table>
+											<tbody>
+												{% for key, value in N_of_ongoings_by_PI_CRC_table_dict.items %}
+												<tr class="item">
+													<td class="bg-warning name">{{ key.0 }}</td>
+													{% for count in value|get_item:type_label %}
+														<td>{{ count }}</td>
+													{% endfor %}
+												</tr>
+												{% endfor %}
+											</tbody>
+										</table>
 									</div>
 								</div>
-                              
-								<div class="pointtable-box mb-5">
-								  <h4 class="tables-title">SIT</h4>
-									<div class="table-responsive colorTableStyle">
-									  <table>
-										<thead>
-										  <tr>
-											<th></th>
-											{% for PI in N_of_ongoings_by_PI_CRC_list %}
-											  <th>{{ PI }}</th>
-											{% endfor %}
-										  </tr>
-										</thead>
-										<tbody>
-										  {% for crc, ongoings in N_of_ongoings_by_PI_CRC_dict %}
-											<tr class="item">
-											  <td class="bg-warning name">{{ crc.0 }}</td>
-											  <td>{{ ongoings.7 }}</td>
-											  <td>{{ ongoings.8 }}</td>
-											  <td>{{ ongoings.9 }}</td>
-											  <td>{{ ongoings.10 }}</td>
-											  <td>{{ ongoings.11 }}</td>
-											  <td>{{ ongoings.12 }}</td>
-											  <td>{{ ongoings.13 }}</td>
-											</tr>
-										  {% endfor %}
-
-											<tr class="total">
-											  <td class="bg-info">합계</td>
-											  {% with sum=N_of_ongoings_by_PI_CRC_dict|sum_of_ongoings_by_PI_CRC %}
-												<td class="bg-info">{{ sum.7 }}</td>
-												<td class="bg-info">{{ sum.8 }}</td>
-												<td class="bg-info">{{ sum.9 }}</td>
-												<td class="bg-info">{{ sum.10 }}</td>
-												<td class="bg-info">{{ sum.11 }}</td>
-												<td class="bg-info">{{ sum.12 }}</td>
-												<td class="bg-info">{{ sum.13 }}</td>
-											  {% endwith %}
-											</tr>
-										</tbody>
-									  </table>
-									</div>
-								</div>
-
-								<div class="pointtable-box mb-5">
-								  <h4 class="tables-title">* PMS/EAP/완화연구/혈액,조직연구/기타</h4>
-									<div class="table-responsive colorTableStyle">
-									  <table>
-										<thead>
-										  <tr>
-											<th></th>
-											{% for PI in N_of_ongoings_by_PI_CRC_list %}
-											  <th>{{ PI }}</th>
-											{% endfor %}
-										  </tr>
-										</thead>
-										<tbody>
-										  {% for crc, ongoings in N_of_ongoings_by_PI_CRC_dict %}
-											<tr class="item">
-											  <td class="bg-warning name">{{ crc.0 }}</td>
-											  <td>{{ ongoings.14 }}</td>
-											  <td>{{ ongoings.15 }}</td>
-											  <td>{{ ongoings.16 }}</td>
-											  <td>{{ ongoings.17 }}</td>
-											  <td>{{ ongoings.18 }}</td>
-											  <td>{{ ongoings.19 }}</td>
-											  <td>{{ ongoings.20 }}</td>
-											</tr>
-										  {% endfor %}
-
-											<tr class="total">
-											  <td class="bg-info">합계</td>
-											  {% with sum=N_of_ongoings_by_PI_CRC_dict|sum_of_ongoings_by_PI_CRC %}
-												<td class="bg-info">{{ sum.14 }}</td>
-												<td class="bg-info">{{ sum.15 }}</td>
-												<td class="bg-info">{{ sum.16 }}</td>
-												<td class="bg-info">{{ sum.17 }}</td>
-												<td class="bg-info">{{ sum.18 }}</td>
-												<td class="bg-info">{{ sum.19 }}</td>
-												<td class="bg-info">{{ sum.20 }}</td>
-											  {% endwith %}
-											</tr>
-										</tbody>
-									  </table>
-									</div>
-								</div>
+								{% endfor %}
 							</div>
 						</div>
 					</div>
@@ -282,24 +182,7 @@
 <script>
     // PI별 진행 환자 수
     var N_of_ongoings_by_PI_CRC_option = {
-      series: [
-          {% for crc, ongoings in N_of_ongoings_by_PI_CRC_dict %}
-          {
-            name: "{{ crc.0|safe }} (IIT)",
-            group: 'IIT',
-            data: {{ ongoings|slice:"0:7" | safe }},
-          },
-          {
-            name: "{{ crc.0|safe }} (SIT)",
-            group: 'SIT',
-            data: {{ ongoings|slice:"7:14" | safe }},
-          },
-          {
-            name: "{{ crc.0|safe }} PMS/EAP/완화연구/혈액,조직연구/기타",
-            group: 'ETC',
-            data: {{ ongoings|slice:"14:" | safe }},
-          },{% endfor %}
-      ],
+      series: {{ series_js | safe }},
       chart: {
         type: "bar",
         height: 700,
@@ -313,7 +196,7 @@
 	enabled: true,
         formatter: function (val) {
 	    return val === 0 ? '' : val;
-        },      
+        },
         style: {
           fontSize: '10px',
           colors: ["#304758"]
@@ -325,7 +208,7 @@
         }
       },
       xaxis: {
-        categories: {{ N_of_ongoings_by_PI_CRC_list | safe }},
+        categories: {{ pi_list | safe }},
       },
       fill: {
         opacity: 1,

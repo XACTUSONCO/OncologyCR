@@ -19,11 +19,8 @@ from .utils import compare_research_fields, generate_search_query, generate_end_
 from feedback.utils import compare_assignment_fields
 from feedback.models import Assignment, Feedback, STATUS_HISTORY, UploadRECIST
 
-from openpyxl import Workbook
-from openpyxl.writer.excel import save_virtual_workbook
-
 from django.db.models import Value, Q, Count, F, Sum, Max, Min, ExpressionWrapper, DateField, DurationField, \
-    IntegerField, FloatField, Case, When, Func, CharField, Subquery, OuterRef
+    IntegerField, FloatField, Case, When, Func, CharField, Subquery, OuterRef, Exists
 from django.db.models.functions import TruncMonth, Cast, ExtractMonth, Coalesce, ExtractDay, TruncDate
 from django.views.generic import ListView, View
 from user.models import AuditEntry, Contact, User, InvestigatorContact, Team
@@ -894,11 +891,15 @@ class CrcListView(ListView):
                                               .annotate(Max('create_date')).values('create_date__max')
     EOS_assign = Feedback.objects.exclude(eos__isnull=True).values('assignment_id').distinct() ##### 2024.03.07 
 
-    complete = ['종료보고완료', '결과보고완료', '장기보관예정', '장기보관완료']
-    queryset = ONCO_CR_COUNT.objects.filter(Q(research__is_deleted=False) & ~Q(research__status__in=complete)) \
-        .annotate(custom_order=Case(When(research__is_recruiting='Recruiting', then=Value(1)), When(research__is_recruiting='Holding', then=Value(2)),
-                                    When(research__is_recruiting='Not yet recruiting', then=Value(3)), When(research__is_recruiting='Completed', then=Value(4)), output_field=IntegerField()),
-                  ATEAM=Case(When(research__onco_A='1', then=Value(1)), When(research__onco_A='0', then=Value(2)), output_field=IntegerField()),
+    queryset = ONCO_CR_COUNT.objects.filter(Q(research__is_deleted=False) & ~Q(research__status__in=['종료보고완료', '결과보고완료', '장기보관완료'])) \
+        .annotate(custom_order=Case(When(research__is_recruiting='Recruiting', then=Value(1)),
+                                    When(research__is_recruiting='Holding', then=Value(2)),
+                                    When(research__is_recruiting='Not yet recruiting', then=Value(3)),
+                                    When(research__is_recruiting='Completed', then=Value(4)),
+                                    output_field=IntegerField()),
+                  ATEAM=Case(When(research__onco_A='1', then=Value(1)),
+                             When(research__onco_A='0', then=Value(2)),
+                             output_field=IntegerField()),
                   screening_total_filter=Count('research__assignment', distinct=True,
                                                filter=(Q(research__assignment__feedback__ICF_date__isnull=False) &
                                                        Q(research__assignment__is_deleted=0) &
@@ -959,12 +960,19 @@ class CrcListView(ListView):
                                            research__assignment__phase=F('r_target'), research__assignment__is_deleted=0))) \
         .order_by('ATEAM', 'custom_order', 'research__research_name') \
         .prefetch_related('research', 'research__crc', 'research__cancer')
-        #.values('research__id', 'research__research_name', 'research__is_recruiting', 'research__team', 'research__crc__name', 'id', 'r_target',
-        #        'screening_total_filter', 'pre_screening_filter', 'pre_screening_fail_filter', 'scr_fail_total_filter', 'enroll_total_filter', 'FU_filter',
-        #        'screening_filter', 'screening_month_filter', 'scr_fail_month_filter', 'scr_fail_filter', 'ongoing_month_filter', 'ongoing_filter', 'enroll_filter')
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # 월별 ('Screening/Ongoing/Enroll')
+        user = self.request.user
+        team_name = getattr(getattr(user, 'contact', None), 'team', None)
+        team_name = getattr(team_name, 'name', None)
+
+        team_filter = Q(team__name=team_name) if team_name else Q()
+        # 팀 + onco_A 필터링된 Contact ID 리스트
+        contact_ids = Contact.objects.filter(Q(onco_A=1) & team_filter).values_list('id', flat=True)
 
         today = datetime.today()
         from_date = datetime(today.year, today.month, 1)
@@ -997,16 +1005,21 @@ class CrcListView(ListView):
         ).values('assignment_id').distinct()
 
         observe_and_PMS = Research.objects.filter(Q(type__value='EAP') | Q(type__value='PMS') | Q(type__value='Palliative') | Q(type__value='Blood') | Q(type__value='ETC')).values('id')
-        charts = Assignment.objects.filter(research__is_deleted=0, is_deleted=0, curr_crc__onco_A=1)\
-                    .values('curr_crc__name').distinct().order_by('curr_crc__name')\
-                    .filter(~Q(curr_crc=91)) \
-                    .annotate(custom_order=Case(When(curr_crc__team__name='GSI', then=Value(1)), When(curr_crc__team__name='CLUE', then=Value(2)), When(curr_crc__team__name='etc', then=Value(4)), output_field=IntegerField()),
-                              screening_chart=Count('id', filter=Q(id__in=screening_condition)),
-                              ongoing_chart=Count('id', filter=(Q(id__in=ongoing_condition) & ~Q(research_id__in=observe_and_PMS))),
-                              PMS_ongoing_chart=Count('id', filter=(Q(id__in=ongoing_condition) & Q(research_id__in=observe_and_PMS))),
-                              enroll_chart=Count('id', filter=Q(id__in=enroll_month_condition) & ~Q(research_id__in=observe_and_PMS)),
-                              PMS_enroll_chart=Count('id', filter=Q(id__in=enroll_month_condition) & Q(research_id__in=observe_and_PMS))
-                             ).values('curr_crc__user__first_name', 'curr_crc__user__id', 'screening_chart', 'ongoing_chart', 'PMS_ongoing_chart', 'enroll_chart', 'PMS_enroll_chart').order_by('custom_order', 'curr_crc__name')
+        charts = Assignment.objects.filter(research__is_deleted=0, is_deleted=0, curr_crc__in=contact_ids) \
+            .values('curr_crc__name').distinct().order_by('curr_crc__name') \
+            .filter(~Q(curr_crc__in=[91, 15])) \
+            .annotate(custom_order=Case(When(curr_crc__team__name='GSI', then=Value(1)),
+                                        When(curr_crc__team__name='CLUE', then=Value(2)),
+                                        When(curr_crc__team__name='etc', then=Value(4)),
+                                        output_field=IntegerField())).order_by('custom_order', 'curr_crc__name') \
+            .annotate(screening_chart=Count('id', filter=Q(id__in=screening_condition)),
+                      ongoing_chart=Count('id', filter=(Q(id__in=ongoing_condition) & ~Q(research_id__in=observe_and_PMS))),
+                      PMS_ongoing_chart=Count('id', filter=(Q(id__in=ongoing_condition) & Q(research_id__in=observe_and_PMS))),
+                      enroll_chart=Count('id', filter=Q(id__in=enroll_month_condition) & ~Q(research_id__in=observe_and_PMS)),
+                      PMS_enroll_chart=Count('id', filter=Q(id__in=enroll_month_condition) & Q(research_id__in=observe_and_PMS))
+                      ).values('curr_crc__user__first_name', 'curr_crc__user__id', 'screening_chart',
+                               'ongoing_chart', 'PMS_ongoing_chart', 'enroll_chart', 'PMS_enroll_chart')\
+            .order_by('custom_order', 'curr_crc__name')
 
         crc_list = [];
         scr_list = [];
@@ -1029,6 +1042,52 @@ class CrcListView(ListView):
         context['enroll_list'] = enroll_list
         context['PMS_enroll_list'] = PMS_enroll_list
 
+        # 월별 ('Input Delay Days')
+        # # 날짜 조건
+        # dosing_date_range_q = Q(dosing_date__range=[from_date, to_date])
+        # icf_range_q = Q(ICF_date__range=[from_date, to_date])
+        #
+        # # 각 gap condition을 Q 객체로 대체
+        # gap_q1 = Q(ICF_date__isnull=False) & icf_range_q  # ICF
+        # gap_q2 = ~Q(cycle='1', day='1') & ~Q(cycle='') & Q(ICF_date__isnull=True) & dosing_date_range_q  # Cycle Visit
+        # gap_q3 = Q(cycle='1', day='1') & ~Q(cycle__isnull=True) & dosing_date_range_q  # C1D1
+        #
+        # gap_charts = Feedback.objects.filter(
+        #     assignment__is_deleted=0,
+        #     uploader__contact__in=contact_ids
+        # ).exclude(
+        #     uploader=193
+        # ).annotate(
+        #     custom_order=Case(
+        #         When(uploader__contact__team__name='GSI', then=Value(1)),
+        #         When(uploader__contact__team__name='CLUE', then=Value(2)),
+        #         When(uploader__contact__team__name='etc', then=Value(4)),
+        #         output_field=IntegerField()
+        #     )
+        # ).annotate(
+        #     C1D1_count=Count('id', filter=gap_q3),
+        #     gap1_count=Count('id', filter=gap_q1),
+        #     gap2_count=Count('id', filter=gap_q2),
+        #     gap1_total=Sum(
+        #         ExpressionWrapper(
+        #             Cast(F('create_date'), DateField()) - F('ICF_date'),
+        #             output_field=IntegerField()
+        #         ),
+        #         filter=gap_q1
+        #     ),
+        #     gap2_total=Sum(
+        #         ExpressionWrapper(
+        #             Cast(F('create_date'), DateField()) - F('dosing_date'),
+        #             output_field=IntegerField()
+        #         ),
+        #         filter=gap_q2
+        #     )
+        # ).annotate(
+        #     total_gap=(Coalesce(F('gap1_total'), 0) + Coalesce(F('gap2_total'), 0)) /
+        #               (Coalesce(F('gap1_count'), 0) + Coalesce(F('gap2_count'), 0) + Coalesce(F('C1D1_count'), 0)),
+        #     visit_count=(Coalesce(F('gap1_count'), 0) + Coalesce(F('gap2_count'), 0) + Coalesce(F('C1D1_count'), 0))
+        # ).values('uploader_id__first_name', 'uploader_id', 'total_gap', 'visit_count'
+        # ).order_by('custom_order', 'uploader_id__first_name')
 
         # ICF data input interval
         gap_condition_1 = Feedback.objects.filter(ICF_date__isnull=False, ICF_date__gte=from_date, ICF_date__lte=to_date)
@@ -1039,8 +1098,7 @@ class CrcListView(ListView):
         gap_condition_3 = Feedback.objects.filter(Q(cycle='1', day='1') & Q(cycle__isnull=False) &
             Q(dosing_date__gte=from_date) & Q(dosing_date__lte=to_date))
 
-        onco_A = Contact.objects.filter(onco_A=1).values('user_id')
-        gap_charts = Feedback.objects.filter(assignment__is_deleted=0, uploader_id__in=onco_A)\
+        gap_charts = Feedback.objects.filter(assignment__is_deleted=0, uploader__contact__in=contact_ids)\
             .values('uploader').distinct().order_by('uploader') \
             .filter(~Q(uploader=193)) \
             .annotate(custom_order=Case(When(uploader__contact__team__name='GSI', then=Value(1)), When(uploader__contact__team__name='CLUE', then=Value(2)), When(uploader__contact__team__name='etc', then=Value(4)),
@@ -1072,8 +1130,8 @@ class CrcListView(ListView):
         #context['no_input_count_list'] = no_input_count_list
         context['team'] = self.request.GET.get('team')
 
-        if self.request.GET.get('from_month_date') or self.request.GET.get('team'):
-            team = self.request.GET.get('team')
+        # 월별 ('screening/ongoing/enroll 수', 'Input Delay Days')
+        if self.request.GET.get('from_month_date'):
             month_today = datetime.strptime(self.request.GET.get('from_month_date'), '%Y-%m-%d')
             from_month_date = datetime(month_today.year, month_today.month, 1)
             date_year = month_today.year
@@ -1107,30 +1165,23 @@ class CrcListView(ListView):
 
             observe_and_PMS = Research.objects.filter(Q(type__value='EAP') | Q(type__value='PMS') | Q(type__value='Palliative') | Q(type__value='Blood') | Q(type__value='ETC')).values('id')
 
-            if team == '':
-                charts = Assignment.objects.filter(research__is_deleted=0, is_deleted=0, curr_crc__in=Contact.objects.filter(onco_A=1).values('id'))\
+            team_filter = Q(team__name=team_name) if self.request.GET.get('team') else Q()
+            contact_ids = Contact.objects.filter(Q(onco_A=1) & team_filter).values_list('id', flat=True)
+
+            charts = Assignment.objects.filter(research__is_deleted=0, is_deleted=0, curr_crc__in=contact_ids)\
                             .values('curr_crc__name').distinct().order_by('curr_crc__name')\
-                            .filter(~Q(curr_crc=91)) \
-                            .annotate(custom_order=Case(When(curr_crc__team__name='GSI', then=Value(1)), When(curr_crc__team__name='CLUE', then=Value(2)), When(curr_crc__team__name='etc', then=Value(4)),
+                            .filter(~Q(curr_crc__in=[91, 15])) \
+                            .annotate(custom_order=Case(When(curr_crc__team__name='GSI', then=Value(1)),
+                                                        When(curr_crc__team__name='CLUE', then=Value(2)),
+                                                        When(curr_crc__team__name='etc', then=Value(4)),
                                                         output_field=IntegerField())).order_by('custom_order', 'curr_crc__name') \
                             .annotate(screening_chart=Count('id', filter=Q(id__in=screening_condition)),
                                       ongoing_chart=Count('id', filter=(Q(id__in=ongoing_condition) & ~Q(research_id__in=observe_and_PMS))),
                                       PMS_ongoing_chart=Count('id', filter=(Q(id__in=ongoing_condition) & Q(research_id__in=observe_and_PMS))),
                                       enroll_chart=Count('id', filter=Q(id__in=enroll_month_condition) & ~Q(research_id__in=observe_and_PMS)),
                                       PMS_enroll_chart=Count('id', filter=Q(id__in=enroll_month_condition) & Q(research_id__in=observe_and_PMS))
-                                     ).values('curr_crc__user__first_name', 'curr_crc__user__id', 'screening_chart', 'ongoing_chart', 'PMS_ongoing_chart', 'enroll_chart', 'PMS_enroll_chart')
-            else:
-                charts = Assignment.objects.filter(research__is_deleted=0, is_deleted=0, curr_crc__in=Contact.objects.filter(onco_A=1, team__name=team).values('id')) \
-                    .values('curr_crc__name').distinct().order_by('curr_crc__name') \
-                    .filter(~Q(curr_crc=91)) \
-                    .annotate(custom_order=Case(When(curr_crc__team__name='GSI', then=Value(1)), When(curr_crc__team__name='CLUE', then=Value(2)), When(curr_crc__team__name='etc', then=Value(4)),
-                                                output_field=IntegerField())).order_by('custom_order', 'curr_crc__name') \
-                    .annotate(screening_chart=Count('id', filter=Q(id__in=screening_condition)),
-                              ongoing_chart=Count('id', filter=(Q(id__in=ongoing_condition) & ~Q(research_id__in=observe_and_PMS))),
-                              PMS_ongoing_chart=Count('id', filter=(Q(id__in=ongoing_condition) & Q(research_id__in=observe_and_PMS))),
-                              enroll_chart=Count('id', filter=Q(id__in=enroll_month_condition) & ~Q(research_id__in=observe_and_PMS)),
-                              PMS_enroll_chart=Count('id', filter=Q(id__in=enroll_month_condition) & Q(research_id__in=observe_and_PMS))
-                              ).values('curr_crc__user__first_name', 'curr_crc__user__id', 'screening_chart', 'ongoing_chart', 'PMS_ongoing_chart', 'enroll_chart', 'PMS_enroll_chart')
+                                     ).values('curr_crc__user__first_name', 'curr_crc__user__id', 'screening_chart', 'ongoing_chart',
+                                              'PMS_ongoing_chart', 'enroll_chart', 'PMS_enroll_chart')
 
             crc_list = [];
             scr_list = [];
@@ -1153,6 +1204,56 @@ class CrcListView(ListView):
             context['enroll_list'] = enroll_list
             context['PMS_enroll_list'] = PMS_enroll_list
 
+            # # 날짜 조건
+            # dosing_date_range_q = Q(dosing_date__range=[from_month_date, to_month_date])
+            # icf_range_q = Q(ICF_date__range=[from_month_date, to_month_date])
+            #
+            # # 각 gap condition을 Q 객체로 대체
+            # gap_q1 = Q(ICF_date__isnull=False) & icf_range_q  # ICF
+            # gap_q2 = ~Q(cycle='1', day='1') & ~Q(cycle='') & Q(ICF_date__isnull=True) & dosing_date_range_q  # Cycle Visit
+            # gap_q3 = Q(cycle='1', day='1') & ~Q(cycle__isnull=True) & dosing_date_range_q  # C1D1
+            #
+            # # 대상 uploader (onco A 사용자)
+            # onco_A_user_ids = Contact.objects.filter(onco_A=1).values_list('user_id', flat=True)
+            #
+            # gap_charts = Feedback.objects.filter(
+            #     assignment__is_deleted=0,
+            #     uploader_id__in=onco_A_user_ids,
+            #     uploader__contact__in=contact_ids
+            # ).exclude(
+            #     uploader=193
+            # ).annotate(
+            #     custom_order=Case(
+            #         When(uploader__contact__team__name='GSI', then=Value(1)),
+            #         When(uploader__contact__team__name='CLUE', then=Value(2)),
+            #         When(uploader__contact__team__name='etc', then=Value(4)),
+            #         output_field=IntegerField()
+            #     )
+            # ).annotate(
+            #     C1D1_count=Count('id', filter=gap_q3),
+            #     gap1_count=Count('id', filter=gap_q1),
+            #     gap2_count=Count('id', filter=gap_q2),
+            #     gap1_total=Sum(
+            #         ExpressionWrapper(
+            #             Cast(F('create_date'), DateField()) - F('ICF_date'),
+            #             output_field=IntegerField()
+            #         ),
+            #         filter=gap_q1
+            #     ),
+            #     gap2_total=Sum(
+            #         ExpressionWrapper(
+            #             Cast(F('create_date'), DateField()) - F('dosing_date'),
+            #             output_field=IntegerField()
+            #         ),
+            #         filter=gap_q2
+            #     )
+            # ).annotate(
+            #     total_gap=(Coalesce(F('gap1_total'), 0) + Coalesce(F('gap2_total'), 0)) /
+            #               (Coalesce(F('gap1_count'), 0) + Coalesce(F('gap2_count'), 0) + Coalesce(F('C1D1_count'), 0)),
+            #     visit_count=(Coalesce(F('gap1_count'), 0) + Coalesce(F('gap2_count'), 0) + Coalesce(F('C1D1_count'), 0))
+            # ).values('uploader_id__first_name', 'uploader_id', 'total_gap', 'visit_count'
+            #          ).order_by('custom_order', 'uploader_id__first_name')
+
             # ICF data input interval
             gap_condition_1 = Feedback.objects.filter(ICF_date__isnull=False, ICF_date__gte=from_month_date, ICF_date__lte=to_month_date)
             # cycle data input interval
@@ -1162,33 +1263,27 @@ class CrcListView(ListView):
             gap_condition_3 = Feedback.objects.filter(Q(cycle='1', day='1') & Q(cycle__isnull=False) &
                 Q(dosing_date__gte=from_month_date) & Q(dosing_date__lte=to_month_date))
 
-            if team == '':
-                gap_charts = Feedback.objects.filter(assignment__is_deleted=0, uploader_id__in=onco_A)\
+            team_filter = Q(team__name=team_name) if self.request.GET.get('team') else Q()
+            contact_ids = Contact.objects.filter(Q(onco_A=1) & team_filter).values_list('id', flat=True)
+
+            gap_charts = Feedback.objects.filter(assignment__is_deleted=0,
+                                                 uploader__contact__in=contact_ids) \
                     .values('uploader').distinct().order_by('uploader') \
                     .filter(~Q(uploader=193)) \
-                    .annotate(custom_order=Case(When(uploader__contact__team__name='GSI', then=Value(1)), When(uploader__contact__team__name='CLUE', then=Value(2)), When(uploader__contact__team__name='etc', then=Value(4)),
-                                                output_field=IntegerField())).order_by('custom_order', 'uploader_id__first_name') \
+                    .annotate(custom_order=Case(When(uploader__contact__team__name='GSI', then=Value(1)),
+                                                When(uploader__contact__team__name='CLUE', then=Value(2)),
+                                                When(uploader__contact__team__name='etc', then=Value(4)),
+                                                output_field=IntegerField())).order_by('custom_order',
+                                                                                       'uploader_id__first_name') \
                     .annotate(C1D1_count=Count('id', filter=Q(id__in=gap_condition_3.values('id'))),
-                              total_gap=(Coalesce(Sum(ExpressionWrapper(Cast(F('create_date'), DateField()) - F('ICF_date'),
-                                         output_field=IntegerField()) / 86400000000, filter=Q(id__in=gap_condition_1.values('id'))), 0) +
-                                         Coalesce(Sum(ExpressionWrapper(Cast(F('create_date'), DateField()) - F('dosing_date'),
-                                         output_field=IntegerField()) / 86400000000, filter=Q(id__in=gap_condition_2.values('id'))), 0)) /
-                                        (Count('id', filter=Q(id__in=gap_condition_1.values('id'))) +
-                                         Count('id', filter=Q(id__in=gap_condition_2.values('id'))) + F('C1D1_count')),
-                              visit_count=(Count('id', filter=Q(id__in=gap_condition_1.values('id'))) +
-                                           Count('id', filter=Q(id__in=gap_condition_2.values('id'))) + F('C1D1_count'))
-                              ).values('uploader_id__first_name', 'uploader_id', 'total_gap', 'visit_count')
-            else:
-                gap_charts = Feedback.objects.filter(assignment__is_deleted=0, uploader_id__in=onco_A, uploader__contact__team__name=team) \
-                    .values('uploader').distinct().order_by('uploader') \
-                    .filter(~Q(uploader=193)) \
-                    .annotate(custom_order=Case(When(uploader__contact__team__name='GSI', then=Value(1)), When(uploader__contact__team__name='CLUE', then=Value(2)), When(uploader__contact__team__name='etc', then=Value(4)),
-                                                output_field=IntegerField())).order_by('custom_order', 'uploader_id__first_name') \
-                    .annotate(C1D1_count=Count('id', filter=Q(id__in=gap_condition_3.values('id'))),
-                              total_gap=(Coalesce(Sum(ExpressionWrapper(Cast(F('create_date'), DateField()) - F('ICF_date'),
-                                         output_field=IntegerField()) / 86400000000, filter=Q(id__in=gap_condition_1.values('id'))), 0) +
-                                         Coalesce(Sum(ExpressionWrapper(Cast(F('create_date'), DateField()) - F('dosing_date'),
-                                         output_field=IntegerField()) / 86400000000, filter=Q(id__in=gap_condition_2.values('id'))), 0)) /
+                              total_gap=(Coalesce(
+                                  Sum(ExpressionWrapper(Cast(F('create_date'), DateField()) - F('ICF_date'),
+                                                        output_field=IntegerField()) / 86400000000,
+                                      filter=Q(id__in=gap_condition_1.values('id'))), 0) +
+                                         Coalesce(Sum(
+                                             ExpressionWrapper(Cast(F('create_date'), DateField()) - F('dosing_date'),
+                                                               output_field=IntegerField()) / 86400000000,
+                                             filter=Q(id__in=gap_condition_2.values('id'))), 0)) /
                                         (Count('id', filter=Q(id__in=gap_condition_1.values('id'))) +
                                          Count('id', filter=Q(id__in=gap_condition_2.values('id'))) + F('C1D1_count')),
                               visit_count=(Count('id', filter=Q(id__in=gap_condition_1.values('id'))) +
@@ -1207,6 +1302,7 @@ class CrcListView(ListView):
             context['gap_count_list'] = gap_count_list
             context['visit_count_list'] = visit_count_list
 
+        # 첫 번째 폼
         if self.request.GET.get('from_date'):
             period_from_date = self.request.GET.get('from_date')
             period_to_date = self.request.GET.get('to_date')
@@ -1284,6 +1380,7 @@ class CrcListView(ListView):
         onco_A_investigator = InvestigatorContact.objects.filter(onco_A=1).values_list('user_id', flat=True)
         context['onco'] = onco_A_crc.union(onco_A_investigator)
         context['teams'] = Team.objects.all()
+        context['team_name'] = team_name
         context['groupHeads'] = Contact.objects.filter(onco_A=1).filter(Q(user__groups__name='nurse') | Q(user__groups__name='medical records'))\
                                                .values('team')\
                                                .annotate(first_name=Min('name'))\
@@ -1610,7 +1707,7 @@ def CRC_statistics(request):
                 .annotate(**monthly_kwargs) \
                 .values_list('uploader_id__first_name', *monthly_kwargs.keys(), 'uploader__contact__team__name', 'uploader__contact__onco_A') \
                 .order_by('uploader_id__first_name')
-    monthly_t_enroll = Supporting.objects.filter(Q(is_deleted=0) & ~Q(technician='')) \
+    monthly_t_enroll = Supporting.objects.filter(Q(is_deleted=0, lab_date__year=today.year) & ~Q(technician='')) \
                 .values('technician') \
                 .order_by('technician') \
                 .annotate(**technician_monthly_kwargs) \
@@ -1813,7 +1910,7 @@ def CRC_statistics(request):
     uploader_ids = map(lambda x: x[-2], performance_list)
     performance_setup_list = [[i, *setting_new.get(i, (0, 0, 0))] for i in uploader_ids]
 
-    performance_technician = Supporting.objects.filter(Q(is_deleted=0) & ~Q(technician='')) \
+    performance_technician = Supporting.objects.filter(Q(is_deleted=0, lab_date__range=(from_date, to_date + timedelta(days=1))) & ~Q(technician='')) \
         .values('technician') \
         .annotate(PK_Sampling=Count('id', filter=Q(lab_date__gte=from_date, lab_date__lte=to_date + timedelta(days=1)))) \
         .values_list('technician', 'PK_Sampling')
@@ -1848,7 +1945,7 @@ def CRC_statistics(request):
             .annotate(**monthly_kwargs) \
             .values_list('uploader_id__first_name', *monthly_kwargs.keys(), 'uploader__contact__team__name', 'uploader__contact__onco_A') \
             .order_by('uploader_id__first_name')
-        monthly_t_enroll = Supporting.objects.filter(Q(is_deleted=0) & ~Q(technician='')) \
+        monthly_t_enroll = Supporting.objects.filter(Q(is_deleted=0, lab_date__year=enroll_year) & ~Q(technician='')) \
             .values('technician') \
             .order_by('technician') \
             .annotate(**technician_monthly_kwargs) \
@@ -2020,7 +2117,7 @@ def CRC_statistics(request):
         uploader_ids = map(lambda x: x[-2], performance_list)
         performance_setup_list = [[i, *setting_new.get(i, (0, 0, 0))] for i in uploader_ids]
 
-        performance_technician = Supporting.objects.filter(Q(is_deleted=0) & ~Q(technician='')) \
+        performance_technician = Supporting.objects.filter(Q(is_deleted=0, lab_date__range=(performance_from_date, performance_to_date + timedelta(days=1))) & ~Q(technician='')) \
                                                    .values('technician') \
                                                    .annotate(PK_Sampling=Count('id', filter=Q(lab_date__gte=performance_from_date, lab_date__lte=performance_to_date + timedelta(days=1)))) \
                                                    .values_list('technician', 'PK_Sampling')
@@ -2082,55 +2179,96 @@ def PI_statistics(request):
     date_month = today.month
     investigators = InvestigatorContact.objects.filter(onco_A=True).values_list('name', flat=True)
 
-    # 유형 수 (ex. IIT, PMS -> 2개 / IIT -> 1개)
-    type_counts = Research.objects.filter(is_deleted=0)\
-            .values('id') \
-            .annotate(type_count=Count('type', distinct=True)).filter(type_count__gte=2) \
-            .values('id')
+    # ETC 판단용: 2개 이상 type 가진 연구들
+    type_counts = Research.objects.filter(is_deleted=0) \
+        .values('id') \
+        .annotate(type_count=Count('type', distinct=True)) \
+        .filter(type_count__gte=2) \
+        .values_list('id', flat=True)
 
     # PI별/CRC별 진행 환자 수 (그래프, 표)
     ongo_condition1 = Feedback.objects.filter(cycle='1', day='1').values('assignment_id')
     EOT_assign = Feedback.objects.filter(Q(cycle='EOT') & Q(assignment_id__in=ongo_condition1)).values('assignment_id')
 
-    ongoing_condition = Feedback.objects.filter(
-        (Q(cycle='1', day='1', dosing_date__gte=from_date) & Q(cycle='EOT', dosing_date__lt=to_date)) |
-        (Q(cycle='1', day='1', dosing_date__year=date_year) & Q(cycle='1', day='1', dosing_date__month=date_month)) |
-        # (Q(cycle='EOT', dosing_date__year=date_year) & Q(cycle='EOT', dosing_date__month=date_month)) |
-        (Q(cycle='1', day='1', dosing_date__lt=from_date) & ~Q(assignment_id__in=EOT_assign))
-    ).values('assignment_id').distinct()
+    # Feedback 기준 진행 환자 assignment id
+    ongoing_assignment_ids = Feedback.objects.filter(
+         (Q(cycle='1', day='1', dosing_date__gte=from_date) & Q(cycle='EOT', dosing_date__lt=to_date)) |
+         (Q(cycle='1', day='1', dosing_date__year=date_year) & Q(cycle='1', day='1', dosing_date__month=date_month)) |
+         (Q(cycle='1', day='1', dosing_date__lt=from_date) & ~Q(assignment_id__in=EOT_assign))
+    ).values_list('assignment_id', flat=True).distinct()
 
-    N_of_ongoings_by_PI_CRC_annotations = {}
-    coordinators = Contact.objects.filter(Q(onco_A=1) & (Q(user_id__groups__name='nurse') | Q(user_id__groups__name='medical records'))).values('name', 'team__name').order_by('name')
-    for coordinator in coordinators:
-        N_of_ongoings_by_PI_CRC_annotations['IIT_' + coordinator['name']] = Count('assignment',
-                filter=(Q(assignment__curr_crc__name=str(coordinator['name']), assignment__in=ongoing_condition, assignment__is_deleted=0,
-                          assignment__curr_crc__in=Contact.objects.filter(onco_A=1).values('id'), assignment__research__PI=F('assignment__research__PI')) &
-                        (Q(type__value='IIT') & ~Q(id__in=type_counts))), distinct=True)
-        N_of_ongoings_by_PI_CRC_annotations['SIT_' + coordinator['name']] = Count('assignment',
-                filter=(Q(assignment__curr_crc__name=str(coordinator['name']), assignment__in=ongoing_condition, assignment__is_deleted=0,
-                          assignment__curr_crc__in=Contact.objects.filter(onco_A=1).values('id'), assignment__research__PI=F('assignment__research__PI')) &
-                       (Q(type__value='SIT') & ~Q(id__in=type_counts))), distinct=True)
-        N_of_ongoings_by_PI_CRC_annotations['ETC_' + coordinator['name']] = Count('assignment',
-                filter=(Q(assignment__curr_crc__name=str(coordinator['name']), assignment__in=ongoing_condition, assignment__is_deleted=0,
-                          assignment__curr_crc__in=Contact.objects.filter(onco_A=1).values('id'), assignment__research__PI=F('assignment__research__PI')) &
-                       (Q(id__in=type_counts) | (~Q(type__value='IIT') & ~Q(type__value='SIT') & ~Q(id__in=type_counts)))), distinct=True)
+    # 대상 CRC 목록
+    coordinators = Contact.objects.filter(
+        onco_A=True,
+        user_id__groups__name__in=['nurse', 'medical records']
+    ).values('id', 'name', 'team__name').distinct()
 
-    N_of_ongoings_by_PI_CRC = Research.objects.filter(is_deleted=0, assignment__research__PI__in=investigators)\
-                                              .values('assignment__research__PI').distinct() \
-                                              .annotate(**N_of_ongoings_by_PI_CRC_annotations) \
-                                              .values('assignment__research__PI', *N_of_ongoings_by_PI_CRC_annotations.keys()).order_by('assignment__research__PI')
+    # 연구 타입별 ID 추출
+    iit_ids = set(Research.objects.filter(is_deleted=0, type__value='IIT').values_list('id', flat=True))
+    sit_ids = set(Research.objects.filter(is_deleted=0, type__value='SIT').values_list('id', flat=True))
+    etc_ids = set(type_counts)
 
-    N_of_ongoings_by_PI_CRC_dict = collections.defaultdict(list)
-    for coordinator, count in itertools.product(coordinators, N_of_ongoings_by_PI_CRC):
-        N_of_ongoings_by_PI_CRC_dict[str(coordinator['name']), str(coordinator['team__name'])].append(str(count['IIT_'+ coordinator['name']])) # IIT: 0~6 (index)
-    for coordinator, count in itertools.product(coordinators, N_of_ongoings_by_PI_CRC):
-        N_of_ongoings_by_PI_CRC_dict[str(coordinator['name']), str(coordinator['team__name'])].append(str(count['SIT_'+ coordinator['name']])) # SIT: 7~13
-    for coordinator, count in itertools.product(coordinators, N_of_ongoings_by_PI_CRC):
-        N_of_ongoings_by_PI_CRC_dict[str(coordinator['name']), str(coordinator['team__name'])].append(str(count['ETC_' + coordinator['name']])) # ETC: 14~20
+    # 데이터 저장용
+    N_of_ongoings_by_PI_CRC_dict = collections.defaultdict(lambda: collections.defaultdict(lambda: {'IIT': 0, 'SIT': 0, 'ETC': 0}))
+    pi_set = set()
 
-    N_of_ongoings_by_PI_CRC_list = [];
-    for PI in N_of_ongoings_by_PI_CRC:
-        N_of_ongoings_by_PI_CRC_list.append(str(PI['assignment__research__PI']))
+    # 데이터 구성
+    for c in coordinators:
+        crc_id = c['id']
+        crc_name = c['name']
+        team_name = c['team__name']
+        key = (crc_name, team_name)
+
+        assignments = Assignment.objects.filter(curr_crc=crc_id, is_deleted=False, id__in=ongoing_assignment_ids, research__PI__in=investigators)
+
+        for a in assignments:
+            research = a.research
+            if not research or research.is_deleted:
+                continue
+
+            pi = research.PI or "(미입력)"
+            pi_set.add(pi)
+
+            if research.id in etc_ids:
+                N_of_ongoings_by_PI_CRC_dict[key][pi]['ETC'] += 1
+            elif research.id in iit_ids:
+                N_of_ongoings_by_PI_CRC_dict[key][pi]['IIT'] += 1
+            elif research.id in sit_ids:
+                N_of_ongoings_by_PI_CRC_dict[key][pi]['SIT'] += 1
+
+    # PI 정렬
+    N_of_ongoings_by_PI_CRC_list = sorted(pi_set)
+
+    # 누락된 PI 보정
+    for key in N_of_ongoings_by_PI_CRC_dict:
+        for pi in N_of_ongoings_by_PI_CRC_list:
+            if pi not in N_of_ongoings_by_PI_CRC_dict[key]:
+                N_of_ongoings_by_PI_CRC_dict[key][pi] = {'IIT': 0, 'SIT': 0, 'ETC': 0}
+
+    # 그래프용 series (CRC 기준 시리즈 생성)
+    series_js = []
+    for (crc_name, team_name), pi_data in N_of_ongoings_by_PI_CRC_dict.items():
+        for type_label in ['IIT', 'SIT', 'ETC']:
+            data_array = [str(pi_data[pi][type_label]) for pi in N_of_ongoings_by_PI_CRC_list]
+            series_js.append(
+                f"{{name: \"{crc_name} ({type_label})\", group: \"{type_label}\", data: {data_array}}}"
+            )
+    series_js_string = "[" + ",".join(series_js) + "]"
+
+    # table용 데이터: dict[(crc, team)] → list of 3*N PI counts (IIT, SIT, ETC 순)
+    N_of_ongoings_by_PI_CRC_table_dict = {}
+
+    for key, pi_dict in N_of_ongoings_by_PI_CRC_dict.items():
+        row_by_type = {
+            'IIT': [],
+            'SIT': [],
+            'ETC': [],
+        }
+        for type_label in ['IIT', 'SIT', 'ETC']:
+            for pi in N_of_ongoings_by_PI_CRC_list:
+                row_by_type[type_label].append(pi_dict[pi][type_label])
+        N_of_ongoings_by_PI_CRC_table_dict[key] = row_by_type
+
 
     # PI별 담당 연구 개수
     PI_annotations = {}
@@ -2186,8 +2324,15 @@ def PI_statistics(request):
                   {
                       'today': today,
                       'PI_research_count_dict': PI_research_count_dict,
-                      'N_of_ongoings_by_PI_CRC_dict': N_of_ongoings_by_PI_CRC_dict.items(),
-                      'N_of_ongoings_by_PI_CRC_list': N_of_ongoings_by_PI_CRC_list,
+                      "series_js": series_js_string,
+                      "pi_list": json.dumps(N_of_ongoings_by_PI_CRC_list, ensure_ascii=False),  # PI 리스트
+                      "N_of_ongoings_by_PI_CRC_list": N_of_ongoings_by_PI_CRC_list,
+                      'N_of_ongoings_by_PI_CRC_table_dict': N_of_ongoings_by_PI_CRC_table_dict,
+                      "type_labels": [
+                            ("IIT", "IIT"),
+                            ("SIT", "SIT"),
+                            ("ETC", "* PMS/EAP/완화연구/혈액,조직연구/기타")
+                      ],
                       'PI': PI_list,
                       'monthly_enroll_by_PI_list': monthly_enroll_by_PI_list,
                       'from_date': from_date,

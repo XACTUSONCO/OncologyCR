@@ -82,7 +82,7 @@ $(function() {
         'rowsGroup': [0],
     } );
     // Study Name
-    var crc_ongoing_list_column1 = crc_ongoing_list.column(1).data();
+    var crc_ongoing_list_column1 = crc_ongoing_list.column(0).data();
     var uniqueValues = crc_ongoing_list_column1.toArray().filter(function (value, index, self) {
         return self.indexOf(value) === index;
     }).sort();
@@ -90,7 +90,7 @@ $(function() {
         $('#table-filter').append('<option value="' + val + '">' + val + '</option>');
     });
     $('#table-filter').on('change', function () {
-        crc_ongoing_list.column(1).search(this.value).draw();
+        crc_ongoing_list.column(0).search(this.value).draw();
     });
 });
 </script>

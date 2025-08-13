@@ -102,11 +102,11 @@ WSGI_APPLICATION = 'oncology_abc.wsgi.application'
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql',
-                'HOST': '10.15.12.241',
-		'PORT': '3306',  #데이터 베이스 포트번호
+                'HOST': '127.0.0.1',
+		'PORT': '3309',  #데이터 베이스 포트번호
 		'NAME': 'OncologyCR', # 데이터 베이스 이름
-		'USER': 'oncology_user', # 데이터 베이스 유저 이름
-		'PASSWORD': 'Password123!', # 데이터 베이스 유저의 비밀번호
+		'USER': 'root', # 데이터 베이스 유저 이름
+		'PASSWORD': 'yourpassword', # 데이터 베이스 유저의 비밀번호
 		'OPTIONS': {
                     'charset': 'utf8mb4',
                     'init_command' : "SET sql_mode='STRICT_TRANS_TABLES'",

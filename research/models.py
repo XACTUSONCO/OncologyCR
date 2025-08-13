@@ -524,7 +524,12 @@ class Research(models.Model):
         for c in m2m_field_list:
             c_lower_name = c.__name__.lower()
             #queryset = Contact.objects.filter(Q(onco_A=1) & ~Q(team__name='etc')).values('id', 'name').order_by('name')
-            queryset = Contact.objects.filter(Q(onco_A=1)).filter(Q(user_id__groups__name='nurse') | Q(user_id__groups__name='medical records') | Q(user_id__groups__name='SETUP')).values('id', 'name').order_by('name')
+            queryset = Contact.objects.filter(Q(onco_A=1))\
+                .filter(Q(user_id__groups__name='nurse') |
+                        Q(user_id__groups__name='medical records') |
+                        Q(user_id__groups__name='SETUP') |
+                        Q(user_id__groups__name='QC'))\
+                .values('id', 'name').order_by('name')
             choices = tuple((str(q['id']), str(q['name'])) for q in queryset)
             ret[c_lower_name] = []
             for pk, choice in enumerate(choices):
@@ -535,9 +540,12 @@ class Research(models.Model):
     def contact_userID_and_text():
         ret = {}
         c_lower_name = Contact.__name__.lower()
-        queryset = Contact.objects.filter(Q(onco_A=1)).filter(
-                Q(user_id__groups__name='nurse') | Q(user_id__groups__name='medical records') | Q(
-                    user_id__groups__name='SETUP')).values('user_id', 'name').order_by('name')
+        queryset = Contact.objects.filter(Q(onco_A=1))\
+            .filter(Q(user_id__groups__name='nurse') |
+                    Q(user_id__groups__name='medical records') |
+                    Q(user_id__groups__name='SETUP') |
+                    Q(user_id__groups__name='QC'))\
+            .values('user_id', 'name').order_by('name')
         choices = tuple((str(q['user_id']), str(q['name'])) for q in queryset)
         ret[c_lower_name] = []
         for pk, choice in enumerate(choices):

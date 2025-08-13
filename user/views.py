@@ -167,6 +167,11 @@ def register(request):
     group = group[0]
     group.user_set.add(user)
 
+    new_contact = Contact.objects.create(user_id=user.id,
+                                        name=fullname,
+                                        email=email)
+    new_contact.save()
+
     user.save()
     login(request, user)
     return HttpResponseRedirect('/user/term')

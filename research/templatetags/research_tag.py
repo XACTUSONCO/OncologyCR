@@ -154,6 +154,24 @@ def sum_of_ongoings_by_PI_CRC(value):
 
 @register.filter
 @register.simple_tag
+def get_item(d, key):
+    try:
+        return d.get(key)
+    except:
+        return None
+
+@register.filter
+@register.simple_tag
+def sum_of_ongoings_by_PI_CRC(value):
+    list = [];
+    for v in value:
+        list.append(v[1])
+        list = [[int(i) for i in x] for x in list]
+        sum_of_ongoings_by_PI_CRC = [sum(i) for i in zip(*list)]
+    return sum_of_ongoings_by_PI_CRC
+
+@register.filter
+@register.simple_tag
 def get_my_team(request_user):
     try:
         my_team = Contact.objects.get(onco_A=1, user_id=request_user)

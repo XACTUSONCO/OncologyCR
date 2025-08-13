@@ -289,7 +289,22 @@
 					 window.location.href = '/leave/detail/' + eventID + '/';
 				}
 			},
-			
+			{% if job_title == 'doctor' or job_title == 'transfer' or job_title == 'secretary' or fixed_annual == None %}
+        		dateClick: function (info) {
+                    		var from_date_int = info.date;
+                    		var current_calendar_year = info.date.getFullYear();
+                    		var current_calendar_month = String(info.date.getMonth() + 1).padStart(2, '0');
+		    		var current_calendar = String(info.date.getDate()).padStart(2, '0');
+                    		var from_date = current_calendar_year + '-' + current_calendar_month + '-' + current_calendar;
+                    		var today_date = new Date().setDate(new Date().getDate() + 6);
+                    		if (today_date > from_date_int) {
+                        		alert('해당 날짜에 추가할 수 없습니다.');
+                    		}
+                    		else {
+                        		window.location.href = '/leave/add_event/?from_date=' + from_date
+                    		}
+                	},
+        		{% else %}			
 			dateClick: function (info) {
 				const selectedDate = info.date;
 				const today = new Date();
@@ -360,7 +375,7 @@
 					window.location.href = '/leave/add_event/?from_date=' + from_date
 				}
 			},
-			
+			{% endif %}	
 		});
 		calendar.render();
 	});

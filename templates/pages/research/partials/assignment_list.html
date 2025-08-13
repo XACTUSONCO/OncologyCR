@@ -33,7 +33,9 @@
       <td class="text-center">{{ assignment.get_sex_display }}</td>
       <td class="text-center">{{ assignment.age }}</td>
       <td class="text-center">{{ assignment.get_dx_display }}</td>
-      <td class="text-center" style="white-space: pre-line;">{{ assignment.previous_tx }}</td>
+      <td class="text-center" style="white-space: pre-line; word-break: break-word; max-width: 600px;">
+          {{ assignment.previous_tx }}
+      </td>
       <td class="text-center">{{ assignment.PI }}</td>
       <td class="text-center">{{ assignment.curr_crc.name }}</td>
       {% with last_assignment=assignment.feedback_set.all.last %}
@@ -59,12 +61,12 @@
         {% endifequal %}
       </td>
       {% endwith %}
-      <td class="text-center">
+      <td class="text-center" style="white-space: normal; word-break: break-word; min-width: 100px; max-width: 100px;">	      
       {% if not upload_RECIST %}
       {% else %}
         {% for file in upload_RECIST %}
           {% if file.assignment.id == assignment.id %}
-            <a href="{{ file.file.url }}" target="_blank" download>{{ file.filename }}</a>
+            <a href="{{ file.file.url }}" class="downloadRECIST" target="_blank" download>{{ file.filename }}</a>
           {% endif %}
         {% endfor %}
       {% endif %}

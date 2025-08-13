@@ -58,7 +58,15 @@
 											<a href="{% url 'dataroom:DataDet' research_id=image.research__id %}">
                     							<button class="{{ image.cancer }}_{{ image.id }}_det">Detail</button></a>
 										{% elif image.slide_number == forloop.parentloop.counter %}
-										        <input class="{{ image.cancer }}_{{ image.id }}_top1" value="{{ image.screening_filter }}{% if image.research__is_pre_screening == 'Y' %}{% if request.GET.cancer == 'Stomach' or 'Phase1' %}({% curr_waiting_filter image.research__id image.m_target %}){% else %}({{ image.pre_screening_filter }}){% endif %}{% endif %}">
+										        <input class="{{ image.cancer }}_{{ image.id }}_top1" 
+											       value="{{ image.screening_filter }}{% if image.m_name == 'DS8201-724 (M1)' or image.m_name == 'FORTITUDE-103 (Phase 2)' %}/{{ image.pre_screening_filter }}{% endif %}
+											{% if image.research__is_pre_screening == 'Y' %}
+											    {% if request.GET.cancer == 'Stomach' or 'Phase1' %}
+											        ({% curr_waiting_filter image.research__id image.m_target %})i
+											    {% else %}
+											        ({{ image.pre_screening_filter }})
+											    {% endif %}
+											{% endif %}">
 										        <input class="{{ image.cancer }}_{{ image.id }}_top2" value="{{ image.enroll_weekly_filter }}">
 											<input class="{{ image.cancer }}_{{ image.id }}_top3" value="{{ image.ongoing_filter }}">
 											<input class="{{ image.cancer }}_{{ image.id }}_top4" value="{{ image.enroll_filter }}">
