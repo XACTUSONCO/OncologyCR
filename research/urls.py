@@ -27,6 +27,7 @@ urlpatterns = [
     path('CRC_statistic/monthly_enroll/', views.monthly_enroll, name='monthly_enroll'),
     path('CRC_statistic/monthly_visit/', views.monthly_visit, name='monthly_visit'),
     path('PI_statistic/', views.PI_statistics),
+    path('ongoing-patients/', views.ongoing_patients, name='ongoing_patients'),
     path('ETC_statistic/', views.ETC_statistics),
     path('not_entered_statistic/', views.not_entered_statistic),
     path('statistic/ongoing/download/', views.download_ongoing),

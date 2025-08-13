@@ -308,3 +308,9 @@ def fixed_annual(career):
 @register.simple_tag
 def after_december_available(career):
     return relativedelta.relativedelta(date.today(), career).months
+
+@register.filter
+@register.simple_tag
+def at(lst, i):
+    try: return lst[int(i)]
+    except: return None

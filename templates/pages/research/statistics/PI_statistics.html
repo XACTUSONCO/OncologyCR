@@ -1,6 +1,7 @@
 {% extends "bases/base_generic.html" %}
 {% load total_sum from research_tag %}
 {% load get_item from research_tag %}
+{% load at from research_tag %}
 {% load static %}
 
 	{% block content %}
@@ -142,35 +143,99 @@
 							</div>
 
 							<div class="tab-pane fade" id="status03_04">
-								{% for type_label, type_name in type_labels %}
-								<div class="pointtable-box mb-5">
-									<h4 class="tables-title">{{ type_name }}</h4>
-									<div class="table-responsive colorTableStyle">
-										<table>
-											<thead>
-												<tr>
-													<th></th>
-													{% for pi in N_of_ongoings_by_PI_CRC_list %}
-														<th>{{ pi }}</th>
-													{% endfor %}
-												</tr>
-											</thead>
+								<div class="info-box mb-5">
+									<div class="text-end">
+											<p class="text-danger mb-0">※ 숫자 클릭 시 해당 환자 목록이 표시됩니다.</p>
+										</div>
+									<ul class="nav nav-tabs">
+										{% for type_label, type_name in type_labels %}
+										<li class="nav-item">
+											<a class="nav-link {% if forloop.first %}active{% endif %}"
+											   data-bs-toggle="tab"
+											   href="#pane-{{ type_name|slugify }}">
+												{{ type_name }}
+											</a>
+										</li>
+										{% endfor %}
+									</ul>
 
-											<tbody>
-												{% for key, value in N_of_ongoings_by_PI_CRC_table_dict.items %}
-												<tr class="item">
-													<td class="bg-warning name">{{ key.0 }}</td>
-													{% for count in value|get_item:type_label %}
-														<td>{{ count }}</td>
-													{% endfor %}
-												</tr>
-												{% endfor %}
-											</tbody>
-										</table>
+									<div class="tab-content mt-1">
+										{% for type_label, type_name in type_labels %}
+										<div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="pane-{{ type_name|slugify }}">
+											<div class="row mt-4">
+												<div class="col-12">
+													<div class="pointtable-box mb-5">
+														<div class="table-responsive colorTableStyle">
+															<table>
+																<thead>
+																	<tr>
+																		<th></th>
+																		{% for pi in N_of_ongoings_by_PI_CRC_list %}
+																		<th>{{ pi }}</th>
+																		{% endfor %}
+																	</tr>
+																</thead>
+																<tbody>
+																  {% for key, value in N_of_ongoings_by_PI_CRC_table_dict.items %}
+																  <tr class="item">
+																	<td class="bg-warning name">{{ key.0 }}</td> {# key.0 = CRC 이름 #}
+
+																	{# PI 순서대로 돌면서 "같은 순서의 값"을 뽑아온다 #}
+																	{% for pi in N_of_ongoings_by_PI_CRC_list %}
+																	  {% with idx=forloop.counter0 %}
+																		{% with count=value|get_item:type_label|at:idx %}
+																		  <td class="count-cell"
+																			  data-crc="{{ key.0 }}"
+																			  data-pi="{{ pi }}"
+																			  data-type="{{ type_label }}">
+																			{{ count }}
+																		  </td>
+																		{% endwith %}
+																	  {% endwith %}
+																	{% endfor %}
+
+																  </tr>
+																  {% endfor %}
+																</tbody>
+																<!-- 합계 -->
+																<tfoot>
+																	<tr class="total-row bg-info fw-bold">
+																		<td>합계</td>
+																		{% for total in totals_by_type|get_item:type_label %}
+																		{% with idx=forloop.counter0 %}
+																		{% with pi=N_of_ongoings_by_PI_CRC_list|at:idx %}
+																		<td class="count-cell total-cell"
+																			title="클릭하면 전체 CRC 환자 목록이 표시됩니다"
+																			data-pi="{{ pi }}"
+																			data-type="{{ type_label }}"
+																			data-crc="__ALL__">{{ total }}</td>
+																		{% endwith %}
+																		{% endwith %}
+																		{% endfor %}
+																	</tr>
+																</tfoot>
+															</table>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										{% endfor %}
 									</div>
 								</div>
-								{% endfor %}
 							</div>
+
+							<!-- 진행 환자 목록 Modal -->
+							<div class="modal fade" id="patientsModal" tabindex="-1">
+								<div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title">환자 목록</h5>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<div class="modal-body" id="patientsModalBody"></div>
+								</div></div>
+							</div>
+
 						</div>
 					</div>
 				</div>
@@ -462,6 +527,98 @@
           dateFormat: "yy-mm-dd"
         });
     });
+
+	document.addEventListener('DOMContentLoaded', function() {
+	  // 클릭 핸들러
+	  document.body.addEventListener('click', async function(e) {
+		const td = e.target.closest('.count-cell');
+		if (!td) return;
+
+		// 숫자 0은 호출 안 함 (테스트 용으로 막고 싶으면 아래 if 주석 처리)
+		const n = parseInt((td.textContent || '').trim(), 10);
+		if (!Number.isFinite(n) || n === 0) return;
+
+		// 필요한 파라미터
+		const pi   = td.dataset.pi;
+		const type = td.dataset.type;
+		const crc  = td.dataset.crc;
+
+		// 필수 데이터가 없으면 중단
+		if (!pi || !type || !crc) {
+		  console.warn('missing data attrs', {pi, type, crc});
+		  return;
+		}
+
+		// URL은 하드코딩 대신 reverse 결과를 쓰면 안전
+		const url = "{% url 'ongoing_patients' %}" + `?pi=${encodeURIComponent(pi)}&type=${encodeURIComponent(type)}&crc=${encodeURIComponent(crc)}`;
+
+		try {
+		  const res = await fetch(url, { credentials: 'same-origin' });
+		  // 로그인 필요로 302→HTML이 오면 JSON 파싱 실패하니 content-type 체크
+		  const ctype = res.headers.get('content-type') || '';
+		  if (!ctype.includes('application/json')) {
+			throw new Error('JSON 아님 (로그인 리다이렉트/에러 가능)');
+		  }
+		  const data = await res.json();
+
+		  // 리스트 렌더
+		  const body = document.getElementById('patientsModalBody');
+
+			const rows = (data.patients || []).map(p => `
+			  <tr class="text-center table-link" data-link="/assignment/${p.id}/">
+				<td>${p.register_number ?? ''}</td>
+				<td>${p.no ?? ''}</td>
+				<td>${p.name ?? ''}</td>
+				<td>${p.sex ?? ''}</td>
+				<td>${p.age ?? ''}</td>
+				<td>${p.PI ?? ''}</td>
+				<td>${p.curr_crc__name ?? ''}</td>
+			  </tr>
+			`).join('');
+
+			body.innerHTML = `
+			  <div class="table-scroll table-responsive">
+				<table class="table table-sm table-striped table-hover align-middle">
+				  <thead>
+					<tr class="text-center">
+					  <th>Subject No.</th>
+					  <th>Patient No.</th>
+					  <th>Name</th>
+					  <th>Sex</th>
+					  <th>Age</th>
+					  <th>Doctor</th>
+					  <th>CRC</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					${rows || `<tr><td colspan="7" class="text-center text-muted">결과 없음</td></tr>`}
+				  </tbody>
+				</table>
+			  </div>
+			`;
+
+		  // 모달 열기 (BS5)
+		  const modalEl = document.getElementById('patientsModal');
+		  const Modal = window.bootstrap?.Modal;
+		  if (!Modal) {
+			console.error('Bootstrap Modal 로더 없음: bootstrap.bundle.min.js 로드 확인');
+			return;
+		  }
+		  new Modal(modalEl).show();
+
+		} catch (err) {
+		  console.error(err);
+		  alert('목록을 불러오지 못했습니다. 콘솔/네트워크 탭 확인해주세요.');
+		}
+	  });
+	});
+
+	document.addEventListener('click', function (e) {
+	  const row = e.target.closest('.table-link'); // table-link 클래스 찾기
+	  if (row && row.dataset.link) {
+		window.location.href = row.dataset.link; // 해당 URL로 이동
+	  }
+	});
 </script>
 
 <!-- stat 페이지용 js -->
@@ -614,6 +771,28 @@
     .flip.active .arrow::after {
       transform: rotate(45deg);
     }
+
+	.table-link {
+	  cursor: pointer;
+	}
+	.table-link:hover {
+	  background-color: #f5f5f5;
+	}
+
+	#patientsModal .table-scroll {
+	  max-height: 70vh;
+	  overflow-y: auto;       /* 세로 스크롤 이놈만 담당 */
+	  overflow-x: auto;       /* 가로도 필요하면 */
+	}
+
+	/* 헤더 고정 */
+	#patientsModal thead th {
+	  position: sticky;
+	  top: 0;
+	  background-color: #fff9c4; /* 테마 배경색 */
+	  font-weight: bold;
+	  z-index: 2;
+	}
 </style>
 {% endblock %}
 

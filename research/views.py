@@ -2201,7 +2201,7 @@ def PI_statistics(request):
     coordinators = Contact.objects.filter(
         onco_A=True,
         user_id__groups__name__in=['nurse', 'medical records']
-    ).values('id', 'name', 'team__name').distinct()
+    ).values('id', 'name', 'team__name').distinct().order_by('name')
 
     # 연구 타입별 ID 추출
     iit_ids = set(Research.objects.filter(is_deleted=0, type__value='IIT').values_list('id', flat=True))
@@ -2269,6 +2269,15 @@ def PI_statistics(request):
                 row_by_type[type_label].append(pi_dict[pi][type_label])
         N_of_ongoings_by_PI_CRC_table_dict[key] = row_by_type
 
+    # (25/08/13 추가) 타입별 PI 합계
+    totals_by_type = {'IIT': [0] * len(N_of_ongoings_by_PI_CRC_list),
+                      'SIT': [0] * len(N_of_ongoings_by_PI_CRC_list),
+                      'ETC': [0] * len(N_of_ongoings_by_PI_CRC_list)}
+
+    for row in N_of_ongoings_by_PI_CRC_table_dict.values():
+        for t in ['IIT', 'SIT', 'ETC']:
+            for i, v in enumerate(row[t]):
+                totals_by_type[t][i] += v
 
     # PI별 담당 연구 개수
     PI_annotations = {}
@@ -2328,6 +2337,7 @@ def PI_statistics(request):
                       "pi_list": json.dumps(N_of_ongoings_by_PI_CRC_list, ensure_ascii=False),  # PI 리스트
                       "N_of_ongoings_by_PI_CRC_list": N_of_ongoings_by_PI_CRC_list,
                       'N_of_ongoings_by_PI_CRC_table_dict': N_of_ongoings_by_PI_CRC_table_dict,
+                      'totals_by_type': totals_by_type,
                       "type_labels": [
                             ("IIT", "IIT"),
                             ("SIT", "SIT"),
@@ -2339,6 +2349,67 @@ def PI_statistics(request):
                       'to_date': to_date,
                       'date_year': today.strftime('%Y'),
                   })
+
+@login_required
+def ongoing_patients(request):
+    pi = request.GET.get('pi') or ''
+    type_label = request.GET.get('type') or ''
+    crc = request.GET.get('crc') or ''
+
+    # investigators
+    investigators = InvestigatorContact.objects.filter(onco_A=True).values_list('name', flat=True)
+
+    # ETC= 2개 이상 type
+    type_counts = Research.objects.filter(is_deleted=0)\
+        .values('id').annotate(type_count=Count('type', distinct=True))\
+        .filter(type_count__gte=2).values_list('id', flat=True)
+    etc_ids = set(type_counts)
+    iit_ids = set(Research.objects.filter(is_deleted=0, type__value='IIT').values_list('id', flat=True))
+    sit_ids = set(Research.objects.filter(is_deleted=0, type__value='SIT').values_list('id', flat=True))
+
+    # ongoing ids (너 로직 그대로)
+    today = datetime.today()
+    from_date = datetime(today.year, today.month, 1)
+    to_date = datetime(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
+    ongo_condition1 = Feedback.objects.filter(cycle='1', day='1').values('assignment_id')
+    EOT_assign = Feedback.objects.filter(Q(cycle='EOT') & Q(assignment_id__in=ongo_condition1)).values('assignment_id')
+    ongoing_ids = Feedback.objects.filter(
+        (Q(cycle='1', day='1', dosing_date__gte=from_date) & Q(cycle='EOT', dosing_date__lt=to_date)) |
+        (Q(cycle='1', day='1', dosing_date__year=today.year) & Q(cycle='1', day='1', dosing_date__month=today.month)) |
+        (Q(cycle='1', day='1', dosing_date__lt=from_date) & ~Q(assignment_id__in=EOT_assign))
+    ).values_list('assignment_id', flat=True).distinct()
+
+    qs = Assignment.objects.filter(
+        is_deleted=False,
+        id__in=ongoing_ids,
+        research__PI__in=investigators,
+        research__PI=pi,
+    ).select_related('research', 'curr_crc')
+
+    if crc != '__ALL__':
+        qs = qs.filter(curr_crc__name=crc)
+
+    if type_label == 'IIT':
+        qs = qs.filter(research_id__in=iit_ids)
+    elif type_label == 'SIT':
+        qs = qs.filter(research_id__in=sit_ids)
+    elif type_label == 'ETC':
+        qs = qs.filter(research_id__in=etc_ids)
+    else:
+        return JsonResponse({'patients': []})
+
+    data = list(qs.values(
+        'id',
+        'register_number',
+        'no',
+        'name',
+        'sex',
+        'age',
+        'PI',
+        'curr_crc__name',
+    ).order_by('name'))
+    return JsonResponse({'patients': data})
+
 
 @login_required()
 def ETC_statistics(request):
