@@ -411,7 +411,7 @@ def cancer_image_set_up_images(request):
     if request.method == 'GET':
         return render(request, 'pages/administration/cancer_image_set_up_images.html',
                       {'images': Image.objects.prefetch_related('research'),
-                       'researchs': Research.objects.values('id', 'research_name').order_by('research_name'),
+                       'researchs': Research.objects.filter(is_deleted=False).values('id', 'research_name').order_by('research_name'),
                        'cancers': CANCERS,
                        'targets': ONCO_CR_COUNT.objects.order_by('research__research_name').prefetch_related('research')})
     elif request.method == 'POST':
