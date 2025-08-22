@@ -1128,7 +1128,6 @@ class CrcListView(ListView):
         context['gap_count_list'] = gap_count_list
         context['visit_count_list'] = visit_count_list
         #context['no_input_count_list'] = no_input_count_list
-        context['team'] = self.request.GET.get('team')
 
         # 월별 ('screening/ongoing/enroll 수', 'Input Delay Days')
         if self.request.GET.get('from_month_date'):
@@ -1165,7 +1164,7 @@ class CrcListView(ListView):
 
             observe_and_PMS = Research.objects.filter(Q(type__value='EAP') | Q(type__value='PMS') | Q(type__value='Palliative') | Q(type__value='Blood') | Q(type__value='ETC')).values('id')
 
-            team_filter = Q(team__name=team_name) if self.request.GET.get('team') else Q()
+            team_filter = Q(team__name=self.request.GET.get('team') ) if self.request.GET.get('team') else Q()
             contact_ids = Contact.objects.filter(Q(onco_A=1) & team_filter).values_list('id', flat=True)
 
             charts = Assignment.objects.filter(research__is_deleted=0, is_deleted=0, curr_crc__in=contact_ids)\
@@ -1263,7 +1262,7 @@ class CrcListView(ListView):
             gap_condition_3 = Feedback.objects.filter(Q(cycle='1', day='1') & Q(cycle__isnull=False) &
                 Q(dosing_date__gte=from_month_date) & Q(dosing_date__lte=to_month_date))
 
-            team_filter = Q(team__name=team_name) if self.request.GET.get('team') else Q()
+            team_filter = Q(team__name=self.request.GET.get('team')) if self.request.GET.get('team') else Q()
             contact_ids = Contact.objects.filter(Q(onco_A=1) & team_filter).values_list('id', flat=True)
 
             gap_charts = Feedback.objects.filter(assignment__is_deleted=0,
@@ -1379,8 +1378,12 @@ class CrcListView(ListView):
         onco_A_crc = Contact.objects.filter(onco_A=1).values_list('user_id', flat=True)
         onco_A_investigator = InvestigatorContact.objects.filter(onco_A=1).values_list('user_id', flat=True)
         context['onco'] = onco_A_crc.union(onco_A_investigator)
+
         context['teams'] = Team.objects.all()
-        context['team_name'] = team_name
+        context['team_name'] = team_name # 본인팀
+        team_param = self.request.GET.get("team", None)
+        context["selected_team"] = team_param if team_param is not None else team_name
+
         context['groupHeads'] = Contact.objects.filter(onco_A=1).filter(Q(user__groups__name='nurse') | Q(user__groups__name='medical records'))\
                                                .values('team')\
                                                .annotate(first_name=Min('name'))\

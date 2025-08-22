@@ -258,10 +258,12 @@
 												<div class="form-cons">
 													<div class="dash px-2"><span> Team </span></div>
 													<select name="team" id="team">
-													  <option value="" {% if team == "" %} selected {% endif %}>전체</option>
-													  {% for team in teams %}
-													  <option value="{{ team.name }}" {% if request.GET.team == team.name %} selected {% elif team_name == team.name %} selected {% endif %}>{{ team.name }}</option>
-													  {% endfor %}
+														<!-- 전체 -->
+														<option value="" {% if selected_team == "" %} selected {% endif %} >전체</option>
+														<!-- 팀 목록 -->
+														{% for t in teams %}
+															<option value="{{ t.name }}" {% if selected_team == t.name %} selected {% endif %}>{{ t.name }}</option>
+														{% endfor %}
 													</select>
 
 													<div class="dash px-2"><span> Year/Month </span></div>
