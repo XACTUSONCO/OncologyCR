@@ -8,6 +8,31 @@ i - Table information summary
 p - Pagination control*/
 	var table = $('#staffTable01').DataTable({
         dom: 'Bfrltp',
+        initComplete: function () {
+            var api = this.api();
+
+            function addSelectFilter(columnIndex, placeholder) {
+                api.columns(columnIndex).every(function () {
+                    var column = this;
+                    var select = $('<select><option value="">' + placeholder + '</option></select>')
+                        .appendTo($(column.header()).empty())
+                        .on('change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val ? '^' + val + '$' : '', true, false).draw();
+                        });
+
+                    column.data().unique().sort().each(function (d) {
+                        if (d) {
+                            select.append('<option value="' + d + '">' + d + '</option>');
+                        }
+                    });
+                });
+            }
+
+            // 원하는 컬럼 인덱스에 호출만 해주면 됨
+            addSelectFilter(0, "Team");      // 0번 컬럼 (Team)
+            addSelectFilter(7, "사무실");  // 7번 컬럼 (사무실)
+        },
         buttons: [
             'excel'
         ],

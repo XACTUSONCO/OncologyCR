@@ -27,27 +27,6 @@
 				<!-- start contents-area -->
 				<div class="row" id="printArea">
 					<div class="col-12 staffarea_01">
-
-						<!-- 다중선택되는 select박스로 검색하기 -->
-						<div class="row row-cols-auto select-action">
-							<div class="col">
-								<select id="table-filter" class="form-select">
-									<option value="">Team All</option>
-									{% for team in teams %}
-									<option value="{{ team.name }}">{{ team.name }}</option>
-									{% endfor %}
-								</select>
-							</div>
-							<div class="col">
-								<select id="table-filter2" class="form-select">
-									<option value="">사무실 전체</option>
-									{% for location in locations %}
-									<option value="{{ location.name }}">{{ location.name }}</option>
-									{% endfor %}
-								</select>
-							</div>
-						</div>
-
 						<div class="table-responsive default-table">
 							<table class="table table-bordered" id="staffTable01" >
 								<thead>
@@ -65,59 +44,8 @@
 								</thead>
 								<tbody>
 								{% for contact in contact %}
-									{% if contact.team.name == 'etc' %} <!-- etc 경우, 임상병리사/의무기록사/연구행정 구분-->
-										{% if contact.user.groups.all.0.name == 'technician' %}
-											<tr>
-												<td>임상병리사</td>
-												<td>{{ contact.name }}</td>
-												<td>{{ contact.eng_name }}</td>
-												<td>{{ contact.phone }}</td>
-												<td>{{ contact.work_phone }}</td>
-												<td>{{ contact.email }}</td>
-												<td>{{ contact.career_period }}</td>
-												<td>{{ contact.location.name }}</td>
-												<td class="text-center">
-													<button type='button' class='btn btn-outline-success btn-sm text-nowrap' data-bs-toggle="modal" data-bs-target="#edit_contact_{{ contact.id }}">
-														<i class="bi bi-pencil"></i> <span class="sr-only-">수정</span>
-													</button>
-												</td>
-											</tr>
-										{% elif contact.user.groups.all.0.name == 'medical records' %}
-											<tr>
-												<td>의무기록사</td>
-												<td>{{ contact.name }}</td>
-												<td>{{ contact.eng_name }}</td>
-												<td>{{ contact.phone }}</td>
-												<td>{{ contact.work_phone }}</td>
-												<td>{{ contact.email }}</td>
-												<td>{{ contact.career_period }}</td>
-												<td>{{ contact.location.name }}</td>
-												<td class="text-center">
-													<button type='button' class='btn btn-outline-success btn-sm text-nowrap' data-bs-toggle="modal" data-bs-target="#edit_contact_{{ contact.id }}">
-														<i class="bi bi-pencil"></i> <span class="sr-only-">수정</span>
-													</button>
-												</td>
-											</tr>
-										{% else %}
-											<tr>
-												<td>연구행정</td>
-												<td>{{ contact.name }}</td>
-												<td>{{ contact.eng_name }}</td>
-												<td>{{ contact.phone }}</td>
-												<td>{{ contact.work_phone }}</td>
-												<td>{{ contact.email }}</td>
-												<td>{{ contact.career_period }}</td>
-												<td>{{ contact.location.name }}</td>
-												<td class="text-center">
-													<button type='button' class='btn btn-outline-success btn-sm text-nowrap' data-bs-toggle="modal" data-bs-target="#edit_contact_{{ contact.id }}">
-														<i class="bi bi-pencil"></i> <span class="sr-only-">수정</span>
-													</button>
-												</td>
-											</tr>
-										{% endif %}
-								    {% else %}
 									<tr>
-										<td>{{ contact.team.name }}</td>
+										<td>{{ contact.display_team }}</td>
 										<td>{{ contact.name }}</td>
 										<td>{{ contact.eng_name }}</td>
 										<td>{{ contact.phone }}</td>
@@ -131,7 +59,6 @@
 											</button>
 										</td>
 									</tr>
-									{% endif %}
 								{% endfor %}
 								</tbody>
 							</table>

@@ -311,7 +311,7 @@ def view_profile(request):
 
 @login_required()
 def user_list(request):
-    contact = Contact.objects.filter(onco_A=True)\
+    contacts = Contact.objects.filter(onco_A=True)\
         .select_related('team', 'location')\
         .annotate(group_order=Case(
                     When(user__groups__name="nurse", then=1),
@@ -322,7 +322,22 @@ def user_list(request):
         )) \
         .order_by('team', 'group_order', 'career')
 
-    return render(request, 'pages/user/user_list.html', {'contact': contact,
+    # 표시용 필드 추가
+    for c in contacts:
+        if not c.team or c.team.name == "etc":
+            if c.name == "타기관":
+                c.display_team = ""  # 빈 값 → 테이블 필터에서 제외됨
+            else:
+                group_name = c.user.groups.first().name if c.user and c.user.groups.exists() else ""
+                mapping = {
+                    "medical records": "의무기록사",
+                    "technician": "임상병리사",
+                }
+                c.display_team = mapping.get(group_name, "연구행정")
+        else:
+            c.display_team = c.team.name
+
+    return render(request, 'pages/user/user_list.html', {'contact': contacts,
                                                          'teams': Team.objects.all(),
                                                          'locations': Location.objects.all()})
 
