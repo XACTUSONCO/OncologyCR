@@ -154,8 +154,8 @@
 													  <tr>
 														<td>{{ fixed_monthly }}</td>
 														<td>{{ fixed_annual }}</td>
-													        <td>{% if last_year_leave %}{{ last_year_leave.0.carry_over }}{% else %}{% endif %}</td>
-														<td>{% if last_year_leave %}{{ fixed_monthly|add:fixed_annual|add_floats:last_year_leave.0.carry_over }}{% else %}{{ fixed_monthly|add:fixed_annual }}{% endif %}</td>
+													    <td>{{ carry_over_value }}</td>
+														<td>{{ fixed_monthly|add:fixed_annual|add_floats:carry_over_value }}</td>
 													  </tr>
 													</tbody>
 												</table>
@@ -172,7 +172,7 @@
 													<option value="반차 - 오전 (0.5)">반차 - 오전 (0.5)</option>
 													<option value="반차 - 오후 (0.5)">반차 - 오후 (0.5)</option>
 													<option value="이월 - 1일 (1.0)">이월 - 1일 (1.0)</option>
-													<option value="이월 - 0.5일 (0.5)">이월 - 반차 (0.5)</option>
+													<option value="이월 - 0.5일 (0.5)">이월 - 0.5일 (0.5)</option>
 													<option value="공가 및 특별휴가">공가 및 특별휴가</option>
 												</select>
 											</div>
@@ -189,21 +189,21 @@
 													  </tr>
 												  </thead>
 												  <tbody>
-                                                    {% for user_leave in user_leave %}
+                                                    {% for used in used_leave_days %}
                                                       <tr>
                                                           <td>{{ forloop.counter }}</td>
-                                                          <td>{{ user_leave.from_date|date:"Y-m-d" }}</td>
-                                                          <td>{% if user_leave.kind == 'Monthly' %}
-								  월차 (1.0)
-															  {% elif user_leave.kind == 'morning_Half' %}
+                                                          <td>{{ used.from_date|date:"Y-m-d" }}</td>
+                                                          <td>{% if used.kind == 'Monthly' %}
+								  								월차 (1.0)
+															  {% elif used.kind == 'morning_Half' %}
 															    반차 - 오전 (0.5)
-															  {% elif user_leave.kind == 'afternoon_Half' %}
+															  {% elif used.kind == 'afternoon_Half' %}
 															    반차 - 오후 (0.5)
-															  {% elif user_leave.kind == 'carry_over' %}
+															  {% elif used.kind == 'carry_over' %}
 															    이월 - 1일 (1.0)
-															  {% elif user_leave.kind == 'carry_over_Half' %}
-															    이월 - 반차 (0.5)  
-															  {% elif user_leave.kind == 'official' %}
+															  {% elif used.kind == 'carry_over_Half' %}
+															    이월 - 0.5일 (0.5)
+															  {% elif used.kind == 'official' %}
 															    공가 및 특별휴가
 															  {% else %}
 															    연차 (1.0)
@@ -228,15 +228,11 @@
 													  <tr>
 														  <td colspan="3">
                                                               {% if cal_career %}
-                                                                {% if cal_career.0 == 0 and cal_career.1 == 0 %}
+															  	{% if cal_career.0 == 0 and cal_career.1 == 0 %}
                                                                     0
                                                                 {% else %}
-								    {% if last_year_leave %}
-                                                                  	{{ fixed_annual_monthly_available.0|add_floats:last_year_leave.0.carry_over|subtract:usage_count.0|subtract_floats:carry_over_usage_count.0 }} (일)
-															      {% else %}
-															        {{ fixed_annual_monthly_available.0|subtract:usage_count.0|subtract_floats:carry_over_usage_count.0 }} (일)
-															      {% endif %}
-								{% endif %}
+															        {{ fixed_annual_monthly_available.0|add_floats:effective_carry_over|subtract:usage_count.0 }} (일)
+															    {% endif %}
                                                               {% endif %}
                                                           </td>
 													  </tr>
@@ -291,91 +287,81 @@
 			},
 			{% if job_title == 'doctor' or job_title == 'transfer' or job_title == 'secretary' or fixed_annual == None %}
         		dateClick: function (info) {
-                    		var from_date_int = info.date;
-                    		var current_calendar_year = info.date.getFullYear();
-                    		var current_calendar_month = String(info.date.getMonth() + 1).padStart(2, '0');
+                    var from_date_int = info.date;
+                    var current_calendar_year = info.date.getFullYear();
+                    var current_calendar_month = String(info.date.getMonth() + 1).padStart(2, '0');
 		    		var current_calendar = String(info.date.getDate()).padStart(2, '0');
-                    		var from_date = current_calendar_year + '-' + current_calendar_month + '-' + current_calendar;
-                    		var today_date = new Date().setDate(new Date().getDate() + 6);
-                    		if (today_date > from_date_int) {
-                        		alert('해당 날짜에 추가할 수 없습니다.');
-                    		}
-                    		else {
-                        		window.location.href = '/leave/add_event/?from_date=' + from_date
-                    		}
-                	},
-        		{% else %}			
-			dateClick: function (info) {
-				const selectedDate = info.date;
-				const today = new Date();
+                    var from_date = current_calendar_year + '-' + current_calendar_month + '-' + current_calendar;
+                    var today_date = new Date().setDate(new Date().getDate() + 6);
+                    if (today_date > from_date_int) {
+                        alert('해당 날짜에 추가할 수 없습니다.');
+                    }
+                    else {
+                        window.location.href = '/leave/add_event/?from_date=' + from_date
+                    }
+                },
+        	{% else %}
+				dateClick: function (info) {
+					const selectedDate = info.date;
+					const today = new Date();
 			
-				// 당일 신청 불가
-				const isSameDay = (d1, d2) =>
-					d1.getFullYear() === d2.getFullYear() &&
-					d1.getMonth() === d2.getMonth() &&
-					d1.getDate() === d2.getDate();
+					// 당일 신청 불가
+					const isSameDay = (d1, d2) =>
+						d1.getFullYear() === d2.getFullYear() &&
+						d1.getMonth() === d2.getMonth() &&
+						d1.getDate() === d2.getDate();
+
+					// 클릭한 날짜 YYYY-MM-DD 형식으로 가공
+					const current_calendar_year = selectedDate.getFullYear();
+					const current_calendar_month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+					const current_calendar_day = String(selectedDate.getDate()).padStart(2, '0');
+					const from_date = `${current_calendar_year}-${current_calendar_month}-${current_calendar_day}`;
 			
-				// 클릭한 날짜 YYYY-MM-DD 형식으로 가공
-				const current_calendar_year = selectedDate.getFullYear();
-				const current_calendar_month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-				const current_calendar_day = String(selectedDate.getDate()).padStart(2, '0');
-				const from_date = `${current_calendar_year}-${current_calendar_month}-${current_calendar_day}`;
-			
-				{% if limit %}
-					const limit = {{ limit|safe }};
-				{% else %}
-					const limit = undefined;
-				{% endif %}
-			
-				if (isSameDay(selectedDate, today)) {
-					alert('당일 휴가 신청은 불가합니다.');
-					return;
-				}
-			
-				// "매월 1일에 3개월치 가능" 제약 확인
-				const ruleBase = new Date(today.getFullYear(), today.getMonth(), 1); // 이번 달 1일
-				const ruleEnd = new Date(ruleBase.getFullYear(), ruleBase.getMonth() + 3, 0); // 3개월 후 말일
-			
-				if (selectedDate < ruleBase || selectedDate > ruleEnd) {
-					alert(`현재는 ${ruleBase.getFullYear()}년 ${ruleBase.getMonth() + 1}월부터 ${ruleEnd.getFullYear()}년 ${ruleEnd.getMonth() + 1}월까지의 날짜만 신청 가능합니다.`);
-					return;
-				}
+					if (isSameDay(selectedDate, today)) {
+						alert('당일 휴가 신청은 불가합니다.');
+						return;
+					}
+
+					// "매월 1일에 3개월치 가능" 제약 확인
+					const ruleBase = new Date(today.getFullYear(), today.getMonth(), 1); // 이번 달 1일
+					const ruleEnd = new Date(ruleBase.getFullYear(), ruleBase.getMonth() + 3, 0); // 3개월 후 말일
+
+					if (selectedDate < ruleBase || selectedDate > ruleEnd) {
+						alert(`현재는 ${ruleBase.getFullYear()}년 ${ruleBase.getMonth() + 1}월부터 ${ruleEnd.getFullYear()}년 ${ruleEnd.getMonth() + 1}월까지의 날짜만 신청 가능합니다.`);
+						return;
+					}
 	
-	
-				if ({{cal_career.0}} == 0 && {{cal_career.1}} == 0) {
-					alert('1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 사용이 불가합니다.');
-				}
-				else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && {{this_month_count.0}} >= 4.0 && current_calendar_month == {{this_month}}) {
-					alert('한달 내에 사용할 수 있는 휴가는 최대 4일입니다.\n{{this_month}}월 추가 등록은 불가합니다.');
-				}
-				else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && new Date('{{career_str}}') < new Date('{{december_str}}') && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
-					alert('사용 가능한 휴가 일수를 모두 사용하였습니다.\n1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 {{user.first_name}}님의 사용 가능한 휴가 일수는 총 {{fixed_annual_monthly_available.0}}일 (연차: {{fixed_annual}}일 포함) 입니다.');
-				}
-				else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && new Date('{{career_str}}') >= new Date('{{december_str}}') && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
-					alert('사용 가능한 휴가 일수를 모두 사용하였습니다.\n1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 {{user.first_name}}님의 사용 가능한 휴가 일수는 총 {{fixed_annual_monthly_available.0}}일 (연차: {{fixed_annual}}일 포함) 입니다.');
-				}
-				else if ({{cal_career.0}} != 0 && {{this_month_count.0}} >= 4.0 && current_calendar_month == {{this_month}}) {
-					alert('한달 내에 사용할 수 있는 휴가는 최대 4일입니다.\n{{this_month}}월 추가 등록은 불가합니다.');
-				}
-				else if ((({{cal_career.0}} != 0 && {{cal_career.1}} == 0) | ({{cal_career.0}} != 0 && {{cal_career.1}} != 0)) && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
-					alert('사용 가능한 휴가 일수를 모두 사용하였습니다.');
-				}
-				else if ({{days_remaining.0}} == 0.5) {
-					alert('사용 가능한 휴가 일수는 0.5일로, 오전/오후 반차만 사용 가능합니다.');
-					window.location = '/leave/add_event/?from_date=' + from_date
-				} 
-				else if ({{this_month_count.0}} == 3.5) {
-					alert('한달 내에 사용할 수 있는 휴가는 최대 4일로, 사용 가능한 휴가 일수는 0.5일입니다. 오전/오후 반차만 사용 가능합니다.');
-					window.location = '/leave/add_event/?from_date=' + from_date
-				}
-				else if (limit !== undefined && limit.includes(from_date)) {
-					alert('최대 등록 가능 인원을 초과하여 등록이 불가합니다. 책임 교수님과 이윤정 선생님께 메일 부탁드립니다.\n*임상병리사/의무기록사/연구행정 및 반차 신청은 이윤정 선생님께 메일');
-				}
-				else {
-					window.location.href = '/leave/add_event/?from_date=' + from_date
-				}
-			},
-			{% endif %}	
+					if ({{cal_career.0}} == 0 && {{cal_career.1}} == 0) {
+						alert('1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 사용이 불가합니다.');
+					}
+					else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && {{this_month_count.0}} >= 4.0 && current_calendar_month == {{this_month}}) {
+						alert('한달 내에 사용할 수 있는 휴가는 최대 4일입니다.\n{{this_month}}월 추가 등록은 불가합니다.');
+					}
+					else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && new Date('{{career_str}}') < new Date('{{december_str}}') && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+						alert('사용 가능한 휴가 일수를 모두 사용하였습니다.\n1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 {{user.first_name}}님의 사용 가능한 휴가 일수는 총 {{fixed_annual_monthly_available.0}}일 (연차: {{fixed_annual}}일 포함) 입니다.');
+					}
+					else if ({{cal_career.0}} == 0 && {{cal_career.1}} != 0 && new Date('{{career_str}}') >= new Date('{{december_str}}') && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+						alert('사용 가능한 휴가 일수를 모두 사용하였습니다.\n1개월 만근에 휴가 1일이 발생함을 원칙으로 하여 {{user.first_name}}님의 사용 가능한 휴가 일수는 총 {{fixed_annual_monthly_available.0}}일 (연차: {{fixed_annual}}일 포함) 입니다.');
+					}
+					else if ({{cal_career.0}} != 0 && {{this_month_count.0}} >= 4.0 && current_calendar_month == {{this_month}}) {
+						alert('한달 내에 사용할 수 있는 휴가는 최대 4일입니다.\n{{this_month}}월 추가 등록은 불가합니다.');
+					}
+					else if ((({{cal_career.0}} != 0 && {{cal_career.1}} == 0) | ({{cal_career.0}} != 0 && {{cal_career.1}} != 0)) && {{usage_count.0}} >= {{fixed_annual_monthly_available.0}} && current_calendar_year == {{this_year}}) {
+						alert('사용 가능한 휴가 일수를 모두 사용하였습니다.');
+					}
+					else if ({{days_remaining.0}} == 0.5) {
+						alert('사용 가능한 휴가 일수는 0.5일로, 오전/오후 반차만 사용 가능합니다.');
+						window.location = '/leave/add_event/?from_date=' + from_date
+					}
+					else if ({{this_month_count.0}} == 3.5) {
+						alert('한달 내에 사용할 수 있는 휴가는 최대 4일로, 사용 가능한 휴가 일수는 0.5일입니다. 오전/오후 반차만 사용 가능합니다.');
+						window.location = '/leave/add_event/?from_date=' + from_date
+					}
+					else {
+						window.location.href = '/leave/add_event/?from_date=' + from_date
+					}
+				},
+			{% endif %}
 		});
 		calendar.render();
 	});

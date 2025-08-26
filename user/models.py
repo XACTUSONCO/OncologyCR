@@ -4,8 +4,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User, Group
 import collections, types
-from datetime import datetime
+from datetime import datetime, date
 from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 LOCATION_CHOICES = [
     ('제중관 B1층', '제중관 B1층'),
@@ -75,15 +76,89 @@ class Contact(models.Model):
 
     @property
     def career_period(self):
+        """
+            근무기간 'Y년 M개월' 형식으로 반환
+        """
         if self.career is None:
             return None
-        end_date = self.career_end
-        if self.career_end is None:
-            end_date = datetime.now(timezone.utc).date()
-        duration = (end_date - self.career).days
-        years, months = divmod(duration, 365)
-        months //= 30
-        return f'{years}년 {months}개월'
+        end_date = self.career_end or date.today()
+        rd = relativedelta(end_date, self.career)
+        return f"{rd.years}년 {rd.months}개월"
+
+    def get_career_duration(self, reference_date=None):
+        """
+        (년, 개월) 튜플 반환 – 내부 계산용
+        """
+        if self.career is None:
+            return None
+
+        reference_date = reference_date or date.today()
+        end_date = self.career_end or reference_date
+        rd = relativedelta(end_date, self.career)
+
+        years, months = rd.years, rd.months
+
+        if self.user and self.user.id == 199:
+            years += 1
+
+        return years, months
+
+    def get_fixed_annual(self, reference_date=None):
+        duration = self.get_career_duration(reference_date)
+        if duration is None:
+            return 0
+        years, months = duration
+        if years == 0 and months == 0:
+            return 0
+        elif years == 0 and months <= 2:
+            return 1
+        elif years == 0 and months <= 5:
+            return 2
+        elif years == 0 and months <= 8:
+            return 3
+        elif years == 0 and months <= 12:
+            return 4
+
+        elif years == 1:
+            return 8
+        elif years == 2:
+            return 10
+        elif years == 3:
+            return 12
+        elif years >= 4:
+            return 13
+
+    def get_fixed_monthly(self, reference_date=None):
+        """
+        월차 개수 계산:
+            - 1개월 미만: 0
+            - 1년 미만 & 작년 12월 1일 이전 입사자: reference_date.month 개 부여
+            - 1년 미만 & 작년 12월 1일 이후 입사자: 입사 후 꽉 찬 개월 수 계산
+            - 1년 이상: 12
+        """
+        if self.career is None:
+            return 0
+
+        reference_date = reference_date or date.today()
+        december = date(reference_date.year - 1, 12, 1)
+
+        years, months = self.get_career_duration(reference_date)
+
+        if years == 0 and months == 0:
+            return 0
+
+        # 1년 미만 + 12월 이전 입사자
+        elif years == 0 and self.career < december:
+            return reference_date.month
+
+        # 1년 미만 + 12월 이후 입사자
+        elif years == 0 and self.career >= december:
+            rd = relativedelta(reference_date, self.career)
+            return rd.years * 12 + rd.months
+
+        # 1년 이상
+        else:
+            return 12
 
     @staticmethod
     def contact_form_validation(request):
@@ -140,10 +215,10 @@ class Contact(models.Model):
                 self.INV_CHOICES = {value: text for value, text in choices}
             return self.INV_CHOICES
 
-    #@receiver(post_save, sender=User)
-    #def create_user_contact(sender, instance, created, **kwargs):
-    #    if created:
-    #        Contact.objects.create(user=instance)
+    # @receiver(post_save, sender=User)
+    # def create_user_contact(sender, instance, created, **kwargs):
+    #     if created:
+    #         Contact.objects.create(user=instance)
 
     #@receiver(post_save, sender=User)
     #def save_user_contact(sender, instance, **kwargs):

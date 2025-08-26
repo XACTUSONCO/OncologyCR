@@ -114,9 +114,13 @@ class LeaveForm(ModelForm):
         if leave_count >= limit:
             raise ValidationError({'from_date': f"{team.name} 팀은 해당 날짜에 이미 50% 인원이 휴가 신청하여 제한됩니다."})
 
-        print("=== CLEAN STARTED ===")
-        print("user:", user)
-        print("from_date:", from_date)
-        print("kind:", kind)
+        # 경력 계산
+        career = contact.career
+        years, months = contact.get_career_duration()
+
+        # 고정 연차 및 월차
+        fixed_annual = contact.get_fixed_annual()
+        fixed_monthly = contact.get_fixed_monthly()
+        total_fixed = fixed_annual + fixed_monthly
         
         return cleaned_data
