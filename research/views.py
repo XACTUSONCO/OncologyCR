@@ -20,7 +20,7 @@ from feedback.utils import compare_assignment_fields
 from feedback.models import Assignment, Feedback, STATUS_HISTORY, UploadRECIST
 
 from django.db.models import Value, Q, Count, F, Sum, Max, Min, ExpressionWrapper, DateField, DurationField, \
-    IntegerField, FloatField, Case, When, Func, CharField, Subquery, OuterRef, Exists
+    IntegerField, FloatField, Case, When, Func, CharField, Subquery, OuterRef, Exists, Prefetch
 from django.db.models.functions import TruncMonth, Cast, ExtractMonth, Coalesce, ExtractDay, TruncDate
 from django.views.generic import ListView, View
 from user.models import AuditEntry, Contact, User, InvestigatorContact, Team
@@ -454,9 +454,12 @@ def delete_research(request, research_id):
 
 @login_required()
 def detail_research(request, research_id):
-    research = get_object_or_404(Research, pk=research_id)
-    query, query_dict = generate_search_query(request)
+    research = get_object_or_404(
+        Research.objects.prefetch_related('crc', 'history_set__user', 'history_set__research'),
+        pk=research_id
+    )
 
+    query, query_dict = generate_search_query(request)
     #research_management = Research_Management.objects.filter(is_deleted=0)
     #research_management_field_key_value = Research_Management.create_field_value_and_text_dict
     this_monday = date.today() - timedelta(days=date.today().weekday())
@@ -464,15 +467,44 @@ def detail_research(request, research_id):
     delivery_list = Delivery.objects.filter(is_deleted=0, visit_date__gte=this_monday, visit_date__lte=this_sunday)
     delivery_assignments = Assignment.objects.filter(is_deleted='0', research_id=94).order_by('create_date')
 
+    assignments = research.assignment_set.filter(
+        Q(is_deleted=False) & ~Q(status__in=['pre-screening', 'pre-screening-fail'])
+    ).select_related(
+        'research',
+        'curr_crc'
+    ).prefetch_related(
+        'research__onco_cr_count_set',
+        Prefetch(
+            'feedback_set',
+            queryset=Feedback.objects.order_by('-id').prefetch_related('fu'),
+            to_attr='prefetched_feedback'
+        )
+    )
+
+    research_pre_screening_lists = list(
+        research.assignment_set.filter(
+            Q(is_deleted=False, status__in=['pre-screening', 'pre-screening-fail'])
+        ).select_related(
+            'research'
+        ).prefetch_related(
+            'research__onco_cr_count_set',
+            Prefetch(
+                'feedback_set',
+                queryset=Feedback.objects.order_by('-id'),  # 최신순
+                to_attr='feedbacks_list'
+            )
+        )
+    )
+
     if request.method == 'GET':
         return render(
             request, 'pages/research/detail.html',
             {
              'research': research,
-             'assignments': research.assignment_set.filter(Q(is_deleted=False) & ~Q(status='pre-screening') & ~Q(status='pre-screening-fail')),
-             'research_pre_screening_lists': research.assignment_set.filter(Q(is_deleted=False, status='pre-screening') | Q(is_deleted=False, status='pre-screening-fail')),
+             'assignments': assignments,
+             'research_pre_screening_lists': research_pre_screening_lists,
              'research_waiting_list': research.research_waitinglist_set.filter(is_deleted=False).order_by('create_date'),
-
+                
              'waitinglist_field_choice': research_WaitingList.field_value_and_text(),
              'history_key_value': History.INV_CHOICES,
              'query': query_dict,
@@ -903,11 +935,9 @@ class CrcListView(ListView):
                   screening_total_filter=Count('research__assignment', distinct=True,
                                                filter=(Q(research__assignment__feedback__ICF_date__isnull=False) &
                                                        Q(research__assignment__is_deleted=0) &
-                                                       ~Q(research__assignment__status='pre-screening') &
-                                                       ~Q(research__assignment__status='pre-screening-fail'))),
+                                                       ~Q(research__assignment__status__in=['pre-screening', 'pre-screening-fail']))),
                   pre_screening_filter=Count('research__assignment', distinct=True,
-                                             filter=((Q(research__assignment__status='pre-screening') |
-                                                      Q(research__assignment__status='pre-screening-fail')) &
+                                             filter=(Q(research__assignment__status='pre-screening') &
                                                      Q(research__assignment__is_deleted=0) &
                                                      Q(research__assignment__feedback__ICF_date__isnull=False))),
                   pre_screening_fail_filter=Count('research__assignment', distinct=True,
@@ -917,43 +947,62 @@ class CrcListView(ListView):
                   scr_fail_total_filter=Count('research__assignment', distinct=True,
                                               filter=(Q(research__assignment__feedback__scr_fail__isnull=False) &
                                                       Q(research__assignment__is_deleted=0) &
-                                                      ~Q(research__assignment__status='pre-screening') &
-                                                      ~Q(research__assignment__status='pre-screening-fail'))),
+                                                      ~Q(research__assignment__status__in=['pre-screening', 'pre-screening-fail']))),
                   enroll_total_filter=Count('research__assignment', distinct=True,
                                             filter=(Q(research__assignment__feedback__cycle='1',
                                                       research__assignment__feedback__day='1',
                                                       research__assignment__is_deleted=0))),
                   screening_filter=Count('research__assignment', distinct=True,
                                          filter=(Q(research__assignment__feedback__ICF_date__isnull=False) &
-                                                 Q(research__assignment__phase=F('r_target'), research__assignment__curr_crc=F('research__crc')) &
-                                                 ~Q(research__assignment__status='pre-screening') &
-                                                 ~Q(research__assignment__status='pre-screening-fail') &
-                                                 Q(research__assignment__is_deleted=0) & Q(research__assignment__curr_crc=F('research__crc')))),
+                                                 Q(research__assignment__phase=F('r_target'),
+                                                   research__assignment__curr_crc=F('research__crc'),
+                                                   research__assignment__is_deleted=0) &
+                                                 ~Q(research__assignment__status__in=['pre-screening', 'pre-screening-fail']))),
                   screening_month_filter=Count('research__assignment', distinct=True,
-                                               filter=(Q(research__assignment__phase=F('r_target'), research__assignment__curr_crc=F('research__crc'), research__assignment__is_deleted=0) &
-                                                       ~Q(research__assignment__status='pre-screening') & ~Q(research__assignment__status='pre-screening-fail') &
-                                                       ((Q(research__assignment__feedback__ICF_date__gte=from_date) & Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__lt=to_date)) |
-                                                        (Q(research__assignment__feedback__ICF_date__year=date_year) & Q(research__assignment__feedback__ICF_date__month=date_month))))),
+                                        filter=(Q(research__assignment__feedback__ICF_date__isnull=False) &
+                                                Q(research__assignment__phase=F('r_target'),
+                                                  research__assignment__curr_crc=F('research__crc'),
+                                                  research__assignment__is_deleted=0) &
+                                               ~Q(research__assignment__status__in=['pre-screening', 'pre-screening-fail']) &
+                                                Q(research__assignment__feedback__ICF_date__range=[from_date, to_date]))),
+
                   scr_fail_month_filter=Count('research__assignment', distinct=True,
-                                              filter=(Q(research__assignment__feedback__scr_fail__gte=from_date) & Q(research__assignment__feedback__scr_fail__lte=to_date) &
-                                                      Q(research__assignment__phase=F('r_target'), research__assignment__curr_crc=F('research__crc'), research__assignment__is_deleted=0) &
-                                                     ~Q(research__assignment__status='pre-screening') & ~Q(research__assignment__status='pre-screening-fail'))),
+                                              filter=(Q(research__assignment__feedback__scr_fail__range=[from_date, to_date]) &
+                                                      Q(research__assignment__phase=F('r_target'),
+                                                        research__assignment__curr_crc=F('research__crc'),
+                                                        research__assignment__is_deleted=0) &
+                                                     ~Q(research__assignment__status__in=['pre-screening', 'pre-screening-fail']))),
                   scr_fail_filter=Count('research__assignment', distinct=True,
                                         filter=(Q(research__assignment__feedback__scr_fail__isnull=False) &
-                                                Q(research__assignment__phase=F('r_target'), research__assignment__curr_crc=F('research__crc'), research__assignment__is_deleted=0) &
-                                                ~Q(research__assignment__status='pre-screening') & ~Q(research__assignment__status='pre-screening-fail'))),
+                                                Q(research__assignment__phase=F('r_target'),
+                                                  research__assignment__curr_crc=F('research__crc'),
+                                                  research__assignment__is_deleted=0) &
+                                                ~Q(research__assignment__status__in=['pre-screening', 'pre-screening-fail']))),
+
                   ongoing_month_filter=Count('research__assignment', distinct=True,
-                                             filter=(Q(research__assignment__phase=F('r_target'), research__assignment__curr_crc=F('research__crc'), research__assignment__is_deleted=0) &
-                                                     ((Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__gte=from_date) & Q(research__assignment__feedback__cycle='EOT', research__assignment__feedback__dosing_date__lt=to_date)) |
-                                                     (Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__year=date_year) & Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__month=date_month) & ~Q(research__assignment__id__in=EOS_assign))))), ##### 2024.03.07
+                                             filter=(Q(research__assignment__phase=F('r_target'),
+                                                       research__assignment__curr_crc=F('research__crc'),
+                                                       research__assignment__is_deleted=0) &
+                                                     ((Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__gte=from_date) &
+                                                       Q(research__assignment__feedback__cycle='EOT', research__assignment__feedback__dosing_date__lt=to_date)) |
+                                                     (Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__range=[from_date, to_date]) &
+                                                      ~Q(research__assignment__id__in=EOS_assign))))), ##### 2024.03.07
                   ongoing_filter=Count('research__assignment', distinct=True,
-                                       filter=(Q(research__assignment__phase=F('r_target'), research__assignment__curr_crc=F('research__crc'), research__assignment__is_deleted=0) &
-                                               ((Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__gte=from_date) & Q(research__assignment__feedback__cycle='EOT', research__assignment__feedback__dosing_date__lt=to_date)) |
-                                                (Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__year=date_year) & Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__month=date_month) & ~Q(research__assignment__id__in=EOS_assign)) | ##### 2024.03.07
-                                                (Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__lt=from_date) & ~Q(research__assignment__id__in=EOT_assign) & ~Q(research__assignment__id__in=EOS_assign))))), ##### 2024.03.07
+                                       filter=(Q(research__assignment__phase=F('r_target'),
+                                                 research__assignment__curr_crc=F('research__crc'),
+                                                 research__assignment__is_deleted=0) &
+                                               ((Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__gte=from_date) &
+                                                 Q(research__assignment__feedback__cycle='EOT', research__assignment__feedback__dosing_date__lt=to_date)) |
+                                                (Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__range=[from_date, to_date]) &
+                                                 ~Q(research__assignment__id__in=EOS_assign)) | ##### 2024.03.07
+                                                (Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__lt=from_date) &
+                                                 ~Q(research__assignment__id__in=EOT_assign) & ~Q(research__assignment__id__in=EOS_assign))))), ##### 2024.03.07
                   enroll_filter=Count('research__assignment', distinct=True,
-                                      filter=(Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1') &
-                                              Q(research__assignment__phase=F('r_target'), research__assignment__curr_crc=F('research__crc'), research__assignment__is_deleted=0))),
+                                      filter=(Q(research__assignment__feedback__cycle='1',
+                                                research__assignment__feedback__day='1') &
+                                              Q(research__assignment__phase=F('r_target'),
+                                                research__assignment__curr_crc=F('research__crc'),
+                                                research__assignment__is_deleted=0))),
                   FU_filter=Count('research__assignment', distinct=True,
                                   filter=Q(research__assignment__status_history__create_date__in=MAX_assign_status,
                                            research__assignment__status_history__summary__contains='FU',
@@ -1303,66 +1352,61 @@ class CrcListView(ListView):
 
         # 첫 번째 폼
         if self.request.GET.get('from_date'):
+            EOT_assign = Feedback.objects.filter(assignment__is_deleted=0, cycle='EOT').values('assignment_id')
+            MAX_assign_status = STATUS_HISTORY.objects.filter(assignment__is_deleted=0) \
+                .values('assignment_id') \
+                .annotate(Max('create_date')).values('create_date__max')
+
             period_from_date = self.request.GET.get('from_date')
             period_to_date = self.request.GET.get('to_date')
-            EOT_assign = Feedback.objects.filter(assignment__is_deleted=0, cycle='EOT').values('assignment_id')
-            C1D1_assign = Feedback.objects.filter(assignment__is_deleted=0, cycle='1', day='1').values('assignment_id')  # C1D1 존재
-            scr_fail = Assignment.objects.filter(~Q(status='screening_fail', is_deleted=0))  # not screening fail
-            MAX_assign_status = STATUS_HISTORY.objects.filter(assignment__is_deleted=0)\
-                                                      .values('assignment_id')\
-                                                      .annotate(Max('create_date')).values('create_date__max')
 
-            context['period_onco'] = ONCO_CR_COUNT.objects.filter(research__is_deleted=False) \
-                .annotate(custom_order=Case(When(research__is_recruiting='Recruiting', then=Value(1)), When(research__is_recruiting='Holding', then=Value(2)),
-                                            When(research__is_recruiting='Not yet recruiting', then=Value(3)), When(research__is_recruiting='Completed', then=Value(4)), output_field=IntegerField()),
-                          ATEAM=Case(When(research__onco_A='1', then=Value(1)), When(research__onco_A='0', then=Value(2)), output_field=IntegerField()),
+            context['period_onco'] = ONCO_CR_COUNT.objects.filter(Q(research__is_deleted=False) & ~Q(research__status__in=['종료보고완료', '결과보고완료', '장기보관완료'])) \
+                .annotate(custom_order=Case(When(research__is_recruiting='Recruiting', then=Value(1)),
+                                            When(research__is_recruiting='Holding', then=Value(2)),
+                                            When(research__is_recruiting='Not yet recruiting', then=Value(3)),
+                                            When(research__is_recruiting='Completed', then=Value(4)),
+                                            output_field=IntegerField()),
+                          ATEAM=Case(When(research__onco_A='1', then=Value(1)),
+                                     When(research__onco_A='0', then=Value(2)),
+                                     output_field=IntegerField()),
                           pre_screening_period_filter=Count('research__assignment', distinct=True,
                                     filter=(Q(research__assignment__status='pre-screening', research__assignment__is_deleted=0) &
                                             Q(research__assignment__feedback__ICF_date__isnull=False) &
-                                            Q(research__assignment__feedback__ICF_date__gte=period_from_date) &
-                                            Q(research__assignment__feedback__ICF_date__lte=period_to_date))),
+                                            Q(research__assignment__feedback__ICF_date__range=[period_from_date, period_to_date]))),
                           pre_screening_fail_period_filter=Count('research__assignment', distinct=True,
                                     filter=(Q(research__assignment__status='pre-screening-fail', research__assignment__is_deleted=0) &
                                             Q(research__assignment__feedback__scr_fail__isnull=False) &
-                                            Q(research__assignment__feedback__scr_fail__gte=period_from_date) &
-                                            Q(research__assignment__feedback__scr_fail__lte=period_to_date))),
-                          scr_fail_period_filter=Count('research__assignment', distinct=True,
-                                    filter=(Q(research__assignment__feedback__scr_fail__gte=period_from_date) &
-                                            Q(research__assignment__feedback__scr_fail__lte=period_to_date) &
+                                            Q(research__assignment__feedback__scr_fail__range=[period_from_date, period_to_date]))),
+                          screening_period_filter=Count('research__assignment', distinct=True,
+                                    filter=(Q(research__assignment__feedback__ICF_date__range=[period_from_date, period_to_date]) &
                                             Q(research__assignment__phase=F('r_target'), research__assignment__is_deleted=0) &
-                                            ~Q(research__assignment__status='pre-screening') & ~Q(research__assignment__status='pre-screening-fail'))),
+                                            ~Q(research__assignment__status__in=['pre-screening', 'pre-screening-fail']))),
+                          scr_fail_period_filter=Count('research__assignment', distinct=True,
+                                    filter=(Q(research__assignment__feedback__scr_fail__range=[period_from_date, period_to_date]) &
+                                            Q(research__assignment__phase=F('r_target'), research__assignment__is_deleted=0) &
+                                            ~Q(research__assignment__status__in=['pre-screening', 'pre-screening-fail']))),
                           enroll_period_filter=Count('research__assignment', distinct=True,
                                     filter=(Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1',
-                                              research__assignment__feedback__dosing_date__gte=period_from_date, research__assignment__feedback__dosing_date__lte=period_to_date) &
+                                              research__assignment__feedback__dosing_date__range=[period_from_date, period_to_date]) &
                                             Q(research__assignment__phase=F('r_target'), research__assignment__is_deleted=0))),
                           ongoing_period_filter=Count('research__assignment', distinct=True,
                                     filter=(((Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1',
                                                research__assignment__feedback__dosing_date__gte=period_from_date) &
                                               Q(research__assignment__feedback__cycle='EOT', research__assignment__feedback__dosing_date__lt=period_to_date)) |
                                              (Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1',
-                                               research__assignment__feedback__dosing_date__gte=period_from_date) &
-                                              Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__lte=period_to_date) & ~Q(research__assignment__id__in=EOS_assign)) |  ##### 2024.03.07
-                                             (Q(research__assignment__feedback__cycle='EOT', research__assignment__feedback__dosing_date__gt=period_from_date) &
-                                              Q(research__assignment__feedback__cycle='EOT', research__assignment__feedback__dosing_date__lte=period_to_date)) |
+                                               research__assignment__feedback__dosing_date__range=[period_from_date, period_to_date]) &
+                                              ~Q(research__assignment__id__in=EOS_assign)) |  ##### 2024.03.07
                                              (Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1',
                                                research__assignment__feedback__dosing_date__lte=period_from_date) &
                                              ~Q(research__assignment__id__in=EOT_assign) & ~Q(research__assignment__id__in=EOS_assign))) &  ##### 2024.03.07
                                               Q(research__assignment__phase=F('r_target'), research__assignment__is_deleted=0))),
-                          screening_period_filter=Count('research__assignment', distinct=True,
-                                    filter=(((Q(research__assignment__feedback__ICF_date__gte=period_from_date) & Q(research__assignment__feedback__cycle='1', research__assignment__feedback__day='1', research__assignment__feedback__dosing_date__lt=period_to_date)) |
-                                             (Q(research__assignment__feedback__ICF_date__gte=period_from_date) & Q(research__assignment__feedback__ICF_date__lte=period_to_date)) |
-                                             (Q(research__assignment__feedback__ICF_date__lte=period_from_date) & ~Q(research__assignment__id__in=C1D1_assign) & Q(research__assignment__id__in=scr_fail))) &
-                                             (Q(research__assignment__phase=F('r_target'), research__assignment__is_deleted=0) &
-                                              ~Q(research__assignment__status='pre-screening') & ~Q(research__assignment__status='pre-screening-fail')))),
                           FU_period_filter=Count('research__assignment', distinct=True,
                                     filter=Q(research__assignment__status_history__create_date__in=MAX_assign_status,
-                                             research__assignment__status_history__create_date__gte=period_from_date,
-                                             research__assignment__status_history__create_date__lte=period_to_date,
+                                             research__assignment__status_history__create_date__range=[period_from_date, period_to_date],
                                              research__assignment__status_history__summary__contains='FU',
-                                             research__assignment__phase=F('r_target'), research__assignment__is_deleted=0))
-                          ) \
+                                             research__assignment__phase=F('r_target'), research__assignment__is_deleted=0))) \
                 .order_by('ATEAM', 'custom_order', 'research__research_name') \
-                .prefetch_related('research', 'research__crc')
+                .prefetch_related('research', 'research__crc', 'research__cancer')
 
         today = date.today()
         context['today'] = today.strftime('%Y-%m-%d')

@@ -395,10 +395,10 @@
 								<div class="col">
 									<select id="table-filter2" class="form-select">
 										<option value="" selected="">Target</option>
-											{% if research.onco_cr_count_set.all|length == 1 %}
-													<option value="-">-</option>
+											{% if onco_cr_counts|length == 1 %}
+												<option value="-">-</option>
 											{% else %}
-												{% for onco_cr_count in research.onco_cr_count_set.all %}
+												{% for onco_cr_count in onco_cr_counts %}
 													<option value="{{ onco_cr_count.r_target }}">{{ onco_cr_count.r_target }}</option>
 												{% endfor %}
 											{% endif %}
@@ -447,10 +447,10 @@
 								<div class="col">
 									<select id="table-filter4" class="form-select">
 										<option value="" selected="">Target</option>
-											{% if research.onco_cr_count_set.all|length == 1 %}
-													<option value="-">-</option>
+											{% if onco_cr_counts|length == 1 %}
+												<option value="-">-</option>
 											{% else %}
-												{% for onco_cr_count in research.onco_cr_count_set.all %}
+												{% for onco_cr_count in onco_cr_counts %}
 													<option value="{{ onco_cr_count.r_target }}">{{ onco_cr_count.r_target }}</option>
 												{% endfor %}
 											{% endif %}
@@ -520,13 +520,13 @@
 								</tr>
 							</thead>
 							<tbody>
-							  {% ifequal research.history|length 0 %}
+							  {% if research.history|length == 0 %}
 							    <tr>
 								  <td colspan="4"><div class="text-center">히스토리가 없습니다.</div></td>
 								</tr>
-							  {% endifequal %}
+							  {% endif %}
 
-							  {% for h in research.history %}
+							  {% for h in research.history_set.all %}
 							    <tr>
 									<td>{{ h.user.username }}</td>
 									<td>{{ history_key_value|get_value_from_dict:h.history_type }}</td>

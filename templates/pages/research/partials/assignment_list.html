@@ -25,7 +25,11 @@
   {% for assignment in assignments %}
     <tr class="table-link" data-link="/assignment/{{ assignment.id }}/">
       <td class="text-center">{{ assignment.get_status_display }}</td>
-      <td class="text-center">{% if assignment.research.onco_cr_count_set.all|length == 1 %}-{% else %}{{ assignment.phase }}{% endif %}</td>
+      <td class="text-center">
+          {% with onco_list=assignment.research.onco_cr_count_set.all %}
+            {% if onco_list|length == 1 %}-{% else %}{{ assignment.phase }}{% endif %}
+          {% endwith %}
+      </td>
       <td class="text-center">{{ assignment.no }}</td>
       <td class="text-center">{{ assignment.register_number }}</td>
       <td class="text-center">{{ assignment.ECOG|default_if_none:"" }}</td>
@@ -38,27 +42,26 @@
       </td>
       <td class="text-center">{{ assignment.PI }}</td>
       <td class="text-center">{{ assignment.curr_crc.name }}</td>
-      {% with last_assignment=assignment.feedback_set.all.last %}
+      {% with last_assignment=assignment.prefetched_feedback.0 %}
       <td class="text-center">
-            {% if last_assignment.cycle|is_numberic %}
-                C{{ last_assignment.cycle }}D{{ last_assignment.day }}
-            {% else%}
-                {{ last_assignment.cycle|default_if_none:"" }}<br/>
-                {% if 'EOT' in last_assignment.cycle and last_assignment.fu.count != 0 %}
-                    {% with count=last_assignment.fu.count %}
-                        ({% for fu in last_assignment.fu.all %}{{ fu }}{% if forloop.counter < count %},<br/>{% endif %} {% endfor %})
-                    {% endwith %}
-                {% elif last_assignment.eos %}
-                    (EOS: {{ last_assignment.eos }})
+            {% if last_assignment %}
+                {% if last_assignment.cycle|is_numberic %}
+                    C{{ last_assignment.cycle }}D{{ last_assignment.day }}
+                {% else %}
+                    {{ last_assignment.cycle|default_if_none:"" }}<br/>
+                    {% if 'EOT' in last_assignment.cycle and last_assignment.fu.all %}
+                        ({% for fu in last_assignment.fu.all %}{{ fu }}{% if not forloop.last %},<br/>{% endif %}{% endfor %})
+                    {% elif last_assignment.eos %}
+                        (EOS: {{ last_assignment.eos }})
+                    {% endif %}
                 {% endif %}
             {% endif %}
       </td>
       <td class="text-center">
-        {% ifequal assignment.feedback_set.count 0 %}
-        {% else %}
+          {% if last_assignment %}
             {{ last_assignment.photo_date|date:"m/d/Y" }}
             ({{ last_assignment.response }})
-        {% endifequal %}
+          {% endif %}
       </td>
       {% endwith %}
       <td class="text-center" style="white-space: normal; word-break: break-word; min-width: 100px; max-width: 100px;">	      

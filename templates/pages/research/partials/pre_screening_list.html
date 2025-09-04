@@ -28,14 +28,14 @@
       <td class="text-center">{{ pre_screening.get_dx_display|default_if_none:"" }}</td>
       <td class="text-center" style="white-space: pre-line;">{{ pre_screening.previous_tx|default_if_none:"" }}</td>
       <td class="text-center">
-        {% ifequal pre_screening.feedback_set.count 0 %}
-          (empty)
+          {% if pre_screening.feedbacks_list %}
+            {% with last_feedback=pre_screening.feedbacks_list.0 %}
+                {{ last_feedback.photo_date|date:"m/d/Y" }}
+                ({{ last_feedback.response }})
+            {% endwith %}
         {% else %}
-          {% with last_pre_screening=pre_screening.feedback_set.all.last %}
-            {{ last_pre_screening.photo_date|date:"m/d/Y" }}
-            ({{ last_pre_screening.response }})
-          {% endwith %}
-        {% endifequal %}
+            (empty)
+        {% endif %}
       </td>
       <td class="text-center">
         <button type="button" class="btn btn-outline-success btn-sm text-nowrap goNewAssignment"
