@@ -60,7 +60,9 @@ class LeaveForm(ModelForm):
         min_date = today + timedelta(days=1)
         max_month = (today.month + 2 - 1) % 12 + 1
         max_year = today.year + ((today.month + 2 - 1) // 12)
-        last_day = date(max_year, max_month + 1, 1) - timedelta(days=1)
+        last_day_num = calendar.monthrange(max_year, max_month)[1]
+        last_day = date(max_year, max_month, last_day_num)
+        #last_day = date(max_year, max_month + 1, 1) - timedelta(days=1)
 
         if from_date == today:
             raise ValidationError({'from_date': '당일 휴가 신청은 불가합니다.'})
