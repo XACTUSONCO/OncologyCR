@@ -2,7 +2,7 @@ from django.forms import ModelForm, DateInput, Select
 from .models import Patient, Leave
 from datetime import date, timedelta
 from django.core.exceptions import ValidationError
-from user.models import Contact
+from user.models import Contact, User
 import math, calendar
 from django.db.models import Value, Sum, FloatField, Case, When, Q
 from django.db.models.functions import Coalesce
@@ -32,17 +32,55 @@ class LeaveForm(ModelForm):
         model = Leave
         widgets = {
             'from_date': DateInput(attrs={'type': 'datetime', 'class': 'datepicker', 'autocomplete': 'off'}, format='%Y-%m-%d'),
-            'user': Select(attrs={"disabled": 'disabled'}),
+            'user': Select(),
         }
         fields = ['name', 'kind', 'from_date', 'memo', 'user']
 
     def __init__(self, request, *args, **kwargs):
         self.request = request  # 저장해두기
-        super(LeaveForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         self.fields['from_date'].input_formats = ('%Y-%m-%d',)
         self.initial['from_date'] = request.GET.get('from_date')
-        self.fields['user'].empty_label = request.user.username
+
+        # 기본 name (로그인 사용자의 first_name)
         self.initial['name'] = request.user.first_name
+        self.fields['name'].widget.attrs.update({'readonly': 'readonly'})
+
+        # user 기본 empty label
+        self.fields['user'].empty_label = "-------"
+
+        # 팀장 여부 확인
+        try:
+            contact = Contact.objects.select_related('team').get(user=request.user)
+            is_senior = contact.is_senior
+            team_id = contact.team_id
+        except:
+            is_senior = False
+            team_id = None
+
+        if is_senior:
+            # 팀장: 본인 팀 + ETC 팀만 선택 가능하게 구성
+            qs = User.objects.filter(
+                Q(contact__team_id=team_id) | Q(contact__team_id=3),
+                contact__onco_A=True
+            ).order_by('contact__team__name', 'first_name')
+
+            self.fields['user'].queryset = qs
+
+            # 드롭다운 표시: [팀명] FirstName (username)
+            self.fields['user'].label_from_instance = lambda obj: (
+                f"[{obj.contact.team.name}] {obj.first_name} ({obj.username})"
+            )
+
+            self.fields['user'].disabled = False
+            self.initial['user'] = request.user
+
+        else:
+            # 일반 직원: 본인만, 선택 불가
+            self.fields['user'].disabled = True
+            self.initial['user'] = request.user
+
         self.fields['from_date'].required = True
         self.fields['kind'].required = True
 

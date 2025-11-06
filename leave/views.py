@@ -189,9 +189,9 @@ def update(request, leave_id=None):
 
     form = LeaveForm(request, request.POST or None, instance=instance)
     if request.POST and form.is_valid():
-        form = form.save(commit=False)
-        form.user = request.user
-        form.save()
+        leave_obj = form.save(commit=False)
+        leave_obj.created_by = request.user
+        leave_obj.save()
         return HttpResponseRedirect(reverse('leave:leave_calendar'))
     return render(request, 'pages/leave/leave_add.html', {'leave': instance,
                                                           'form': form})
