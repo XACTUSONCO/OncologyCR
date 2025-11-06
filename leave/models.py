@@ -37,10 +37,11 @@ class Leave(models.Model):
     kind = models.CharField(choices=KIND_CHOICES, max_length=20, blank=True, null=True)
     from_date = models.DateField(blank=True, null=True)
     memo = models.TextField(blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)  # 휴가 사용자
     is_deleted = models.BooleanField(default=False)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='leave_created_by') # 누가 등록했는지
 
     @staticmethod
     def field_value_and_text():
