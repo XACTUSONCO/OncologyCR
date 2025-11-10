@@ -2,7 +2,7 @@
 {% load get_o2m_values from research_tag %}
 
 
-<label for="type" class="col-lg-1 col-form-label">IIT/SIT
+<label for="type" class="col-lg-1 col-form-label">IIT/SIT<span class="text-danger h4">*</span>
     {% autoescape off %}
       {% if 'type' in errors %}
         <div class="text-danger small" style="line-height: 1rem;">{{ errors.type }}</div>
