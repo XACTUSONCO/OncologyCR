@@ -3,7 +3,7 @@
 {% load chunks from research_tag %}
 <!-- Study Name -->
 <div class="form-group row {% if 'is_recruiting' in errors %} card-inverse-danger {% endif %}">
-  <label for="research_name" class="col-lg-2 col-form-label">Study Name
+  <label for="research_name" class="col-lg-2 col-form-label">Study Name<span class="text-danger h4">*</span>
     {% autoescape off %}
       {% if 'research_name' in errors %}
         <div class="text-danger small" style="line-height: 1rem;">{{ errors.research_name }}</div>
@@ -16,7 +16,7 @@
              {% if not editable %} disabled {% endif %}>
   </div>
 
-  <label for="team" class="col-lg-1 col-form-label">Team
+  <label for="team" class="col-lg-1 col-form-label">Team<span class="text-danger h4">*</span>
     {% autoescape off %}
       {% if 'team' in errors %}
         <div class="text-danger small" style="line-height: 1rem;">{{ errors.team }}</div>
@@ -41,7 +41,7 @@
 </div>
 
 <div class="form-group row {% if 'is_pre_screening' in errors %} card-inverse-danger {% endif %}">
-  <label for="is_pre_screening" class="col-lg-2 col-form-label">Pre-Screening
+  <label for="is_pre_screening" class="col-lg-2 col-form-label">Pre-Screening<span class="text-danger h4">*</span>
     {% autoescape off %}
       {% if 'is_pre_screening' in errors %}
         <div class="text-danger small" style="line-height: 1rem;">{{ errors.is_pre_screening }}</div>
@@ -69,7 +69,7 @@
     </div>
   </div>
 
-  <label for="is_recruiting" class="col-lg-1 col-form-label">Recruitment
+  <label for="is_recruiting" class="col-lg-1 col-form-label">Recruitment<span class="text-danger h4">*</span>
     {% autoescape off %}
       {% if 'is_recruiting' in errors %}
         <div class="text-danger small" style="line-height: 1rem;">{{ errors.is_recruiting }}</div>
@@ -216,7 +216,7 @@
 
 <!-- IP -->
 <div class="form-group row {% if 'medicine_name' in errors or 'PI' in errors %} card-inverse-danger {% endif %}">
-  <label for="medicine_name" class="col-lg-2 col-form-label">IP
+  <label for="medicine_name" class="col-lg-2 col-form-label">IP<span class="text-danger h4">*</span>
     {% autoescape off %}
       {% if 'medicine_name' in errors %}
         <div class="text-danger small" style="line-height: 1rem;">{{ errors.medicine_name }}</div>
@@ -227,7 +227,7 @@
       <textarea class="form-control" name="medicine_name" rows="3"
              {% if not editable %} disabled {% endif %}>{% if research.medicine_name %}{{ research.medicine_name }}{% elif pre_initiation.tx %}{{ pre_initiation.tx }}{% endif %}</textarea>
   </div>
-  <label for="PI" class="col-lg-1 col-form-label">PI
+  <label for="PI" class="col-lg-1 col-form-label">PI<span class="text-danger h4">*</span>
     {% autoescape off %}
       {% if 'PI' in errors %}
         <div class="text-danger small" style="line-height: 1rem;">{{ errors.PI }}</div>
@@ -301,7 +301,7 @@
 </div>
 
 <div class="form-group row {% if 'contact' in errors %} card-inverse-danger {% endif %}">
-  <label for="contact" class="col-lg-2 col-form-label">Contact Number
+  <label for="contact" class="col-lg-2 col-form-label">Contact Number<span class="text-danger h4">*</span>
     {% autoescape off %}
       {% if 'contact' in errors %}
         <div class="text-danger small" style="line-height: 1rem;">{{ errors.contact }}</div>
