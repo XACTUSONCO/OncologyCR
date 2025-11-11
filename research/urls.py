@@ -70,4 +70,11 @@ urlpatterns = [
     path('end_study/<int:id>/edit/', views.edit_end_research, name='edit_end_research'),
     path('end_study/<int:id>/delete/', views.delete_end_research, name='delete_end_research'),
     path('end_study/search/', views.search_end_study, name='search_end_study'),
+
+
+    # SAE
+    path('SAE/<int:research_id>/', views.SAE_list, name='SAE_list'),
+    path('SAE/add/', views.add_SAE, name='add_SAE'),
+    path('SAE/<int:SAE_id>/edit/', views.edit_SAE, name='edit_SAE'),
+    path('SAE/<int:SAE_id>/delete/', views.delete_SAE, name='delete_SAE'),
 ]

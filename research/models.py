@@ -70,6 +70,13 @@ CANCER_CHOICES = [
     ('Solid(Urological)', 'Solid(Urological)'),
     ('Phase1', 'Phase1')]
 
+CAUSALITY_CHOICES = [
+    ('IP Not Related', 'IP Not Related'),
+    ('IP Related', 'IP Related'),
+    ('Unknown', 'Unknown')
+]
+CAUSALITY_CHOICES_INV = {val: val for val, _ in CAUSALITY_CHOICES}
+
 class ResearchFieldModel(models.Model):
     class Meta:
         abstract = True
@@ -1991,3 +1998,102 @@ class DownloadLog(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=100)
     downloader = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+class SAE(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.SET_NULL, null=True, blank=True, related_name='saes')
+    term = models.CharField(max_length=500, blank=True, null=True)
+    initial = models.CharField(max_length=50, blank=True, null=True)
+    causality = models.CharField(max_length=50, choices=CAUSALITY_CHOICES, blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    initial_report_date = models.DateField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+    crc_snapshot = models.CharField(max_length=100, blank=True, null=True)  # 생성 당시 CRC 이름 저장용
+    is_deleted = models.BooleanField(default=False)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    @staticmethod
+    def field_value_and_text():
+        ret = {
+            'causality': CAUSALITY_CHOICES,
+        }
+        return ret
+
+    @staticmethod
+    def SAE_form_validation(request):
+        errors = collections.defaultdict(list)
+
+        # Get field values
+        assignment_str = request.POST.get('assignment', '')
+        if assignment_str != '':
+            assignment = Assignment.objects.get(id=int(assignment_str))
+        if assignment_str == '':
+            assignment = None
+
+        term = request.POST.get('term', '')
+        initial = request.POST.get('initial', '')
+        causality = request.POST.get('causality')
+        causality = CAUSALITY_CHOICES_INV.get(causality, None)
+        start_date_str = request.POST.get('start_date', '')
+        end_date_str = request.POST.get('end_date', '')
+        initial_report_date_str = request.POST.get('initial_report_date', '')
+        comment = request.POST.get('comment', '')
+
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        except:
+            start_date = None
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        except:
+            end_date = None
+        try:
+            initial_report_date = datetime.strptime(initial_report_date_str, '%Y-%m-%d')
+        except:
+            initial_report_date = None
+
+        if not assignment:
+            errors['assignment'].append('- 환자를 선택하세요.')
+        if not term:
+            errors['term'].append('- SAE Term을 입력하세요.')
+        if not start_date_str:
+            errors['start_date'].append('- 시작일을 입력하세요.')
+
+        temp_sae = types.SimpleNamespace()
+        temp_sae.term = term
+        temp_sae.initial = initial
+        temp_sae.causality = causality
+        temp_sae.start_date = start_date
+        temp_sae.end_date = end_date
+        temp_sae.initial_report_date = initial_report_date
+        temp_sae.comment = comment
+        temp_sae.assignment = assignment
+
+        return temp_sae, errors
+
+    def __str__(self):
+        return f'({self.research})  {self.research.assignment.name}'
+
+
+class OLD_SAE(models.Model):
+    research = models.CharField(max_length=500, blank=True, null=True)
+    term = models.CharField(max_length=500, blank=True, null=True)
+    initial = models.CharField(max_length=50, blank=True, null=True)
+    causality = models.CharField(max_length=50, choices=CAUSALITY_CHOICES, blank=True, null=True)
+    PI = models.CharField(max_length=30, blank=True, null=True)
+    CRC = models.CharField(max_length=30, blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    initial_report_date = models.DateField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+    is_deleted = models.BooleanField(default=False)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    @staticmethod
+    def field_value_and_text():
+        ret = {
+            'causality': CAUSALITY_CHOICES,
+        }
+        return ret

@@ -1,0 +1,331 @@
+{% extends "bases/base_generic.html" %}
+{% load static %}
+{% load get_value_from_dict from research_tag %}
+{% load split from research_tag %}
+{% load change_korean from research_tag %}
+
+    {% block content %}
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="bg-overlay bg-white"></div>
+
+				<!-- start page title -->
+				<div class="row">
+					<div class="col-12">
+						<div class="page-title-box d-flex align-items-center justify-content-between">
+							<h2>SAE</h2>
+							<button id="print" type="button" class="btn btn-outline-secondary print_btn"><i class="bi bi-printer"></i> <span class="invisible-">화면 프린트</span></button>
+
+							<div class="page-nav">
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/"> <i class="bi bi-house"></i> </a></li>
+									<li class="breadcrumb-item"><a href="/research/search/">Studies</a></li>
+									<li class="breadcrumb-item"><a href="/research/{{ research.id }}/">{{ research.research_name }}</a></li>
+									<li class="breadcrumb-item"><a href="/research/SAE/{{ research.id }}/">SAE</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end page title -->
+
+                <!-- start contents-area -->
+				<div class="row" id="printArea">
+					<div class="col-12">
+
+						<div class="subtable-cons clinicalTable_01">
+							<div class="mb-4">
+								<div class="row">
+									<div class="col-md-6">
+										<div class="fulldetalil-search">
+											<form action="/research/SAE/{{ research.id }}/" method="GET">
+												<div class="form-group">
+													<div class="form-cons">
+														<div class="form-check-area">
+															<div class="item ps-0">
+																<div class="form-check form-check-success">
+																	<label class="form-check-label">
+																		<input type="radio" class="form-check-input" name="optionRadios" value="total"
+																			   {% if option_radio != 'period' %} checked {% endif %}/>
+																		<i class="input-helper"></i><span class="form-check-sign">전체</span>
+																	</label>
+																</div>
+															</div>
+															<div class="item">
+																<div class="form-check form-check-success">
+																	<label class="form-check-label">
+																		<input type="radio" class="form-check-input" name="optionRadios" value="period"
+																			   {% if option_radio == 'period' %} checked {% endif %}/>
+																		<i class="input-helper"></i><span class="form-check-sign">초기 보고일</span>
+																	</label>
+																</div>
+															</div>
+														</div>
+
+														<div class="input-group">
+															<input type="text" id="fromDate" name="period_from_date" class="form-control period_datepicker" z-index="-1"
+																   autocomplete="off" value={{period_from_date|default_if_none:''}}>
+															<label for="fromDate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+														</div>
+														<div class="dash px-2"><span> ~ </span></div>
+														<div class="input-group">
+															<input type="text" id="toDate" name="period_to_date" class="form-control period_datepicker"
+																   autocomplete="off" value={{period_to_date|default_if_none:''}}>
+															<label for="toDate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+														</div>
+														<button type="submit" class="btn btn-success btn-sm edit-btn px-3 py-2 ms-1 search-btn">
+															<i class="bi bi-search"></i> <span class="sr-only-">조회</span>
+														</button>
+													</div>
+												</div>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row row-cols-auto select-action">
+								<div class="col ms-auto">
+									<button type="button" class="btn btn-success edit-btn px-4" data-bs-toggle="modal" data-bs-target="#AddSAE">
+										<i class="bi bi-plus-square"></i> <span>Add</span>
+									</button>
+								</div>
+							</div>
+
+							<div class="table-responsive default-table">
+								<table class="table table-bordered" id="SAE-list">
+									<thead>
+										<tr>
+											<th>연구명</th>
+											<th>SAE Term</th>
+											<th>Patient No.</th>
+											<th>Subject No.</th>
+											<th>환자 이니셜</th>
+											<th>인과관계</th>
+											<th>시작일</th>
+											<th>종료일</th>
+											<th>초기 보고일</th>
+											<th>담당의</th>
+											<th>CRC</th>
+											<th>Comment</th>
+											<th>관리</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										{% for sae in all_sae %}
+										<tr>
+											<td>{{ sae.assignment.research.research_name }}</td>
+											<td>{{ sae.term }}</td>
+											<td>{{ sae.assignment.register_number }}</td>
+											<td>{{ sae.assignment.no }}</td>
+											<td>{{ sae.initial }}</td>
+											<td>{{ sae.causality|default_if_none:'' }}</td>
+											<td>{{ sae.start_date|date:'Y-m-d' }}</td>
+											<td>{{ sae.end_date|date:'Y-m-d' }}</td>
+											<td>{{ sae.initial_report_date|date:'Y-m-d'}}</td>
+											<td>{{ sae.assignment.PI }}</td>
+											<td>{{ sae.crc_snapshot }}</td>
+											<td style="white-space: pre-line;">{{ sae.comment }}</td>
+											<td>
+												<button type="button" class="btn btn-outline-danger SAE-remove-button" SAE-id="{{ sae.id }}">
+												  <i class="bi bi-trash3"></i> <span class="visually-hidden">Remove</span>
+												</button>
+												<button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#edit_SAE_{{ sae.id }}">
+												  <i class="bi bi-pencil"></i> <span class="visually-hidden">Edit</span>
+												</button>
+											</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- SAE 등록 -->
+						<div id="AddSAE" class="modal fade" role="dialog" tabindex="-1">
+							<div class="modal-dialog modal-dialog-centered modal-lg">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">SAE 추가</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<form class="forms-sample" id="SAE-add-form" method="post" enctype="multipart/form-data">
+										<div class="modal-body">
+											{% csrf_token %}
+											{% include 'pages/research/SAE/add_edit_form.html' %}
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+												<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+											</button>
+											<button type="button" class="btn btn-success edit-btn px-4" id="add-SAE-button" research-id="{{ research.id }}">
+												<i class="bi bi-pencil"></i> <span>Add</span>
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+
+						<!-- SAE 수정 -->
+						{% for sae in all_sae %}
+						<div id="edit_SAE_{{ sae.id }}" class="modal fade" role="dialog">
+							<div class="modal-dialog modal-dialog-centered modal-lg">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">SAE 수정</h4>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+									</div>
+									<form method="post" id="SAE-edit-form-{{ sae.id }}" class="forms-sample" enctype="multipart/form-data">
+										<div class="modal-body">
+											{% csrf_token %}
+											{% include 'pages/research/SAE/add_edit_form.html' %}
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+												<i class="bi bi-arrow-left-square"></i> <span>Cancel</span>
+											</button>
+											<button type="button" class="btn btn-success edit-btn px-4 SAE-edit-button" research-id="{{ sae.assignment.research.id }}" SAE-id="{{ sae.id }}">
+												<i class="bi bi-pencil"></i> <span>Save changes</span>
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+{% block script %}
+<!-- studies 페이지용 js -->
+<script src="{% static 'js/CRUD/SAE_detail.js' %}"></script>
+<script>
+	$(function() {
+    	var table = $('#SAE-list').DataTable({
+        	dom: "Bfrltp",
+        	order: [[ 5,  "desc" ]],
+        	buttons: [{
+            	extend: 'excel',
+            	title: '{{ research.research_name }} - SAE',
+            	exportOptions: {
+					columns: ':not(:last-child)' // 마지막 열을 제외한 모든 열을 선택
+				}
+        	}],
+        	pageLength: 10,
+			//lengthMenu: [10, 20, 50, 100, 200, 500]
+    	});
+
+    	$('.period_datepicker').datepicker({
+    		beforeShow: function(el, dp) {
+                $('#ui-datepicker-div').toggleClass('hide-calendar', $(el).is('[data-calendar="false"]'));
+        	},
+        	showMonthAfterYear:true,
+			changeMonth: true,
+			changeYear: true,
+			todayHighlight : true,
+			format: 'yyyy-mm-dd',
+			showAnim: 'slideDown',
+			yearRange: '-5:+0',
+			orientation: 'bottom'
+    	});
+
+		$('.datepicker').datepicker({
+			format: 'yyyy-mm-dd',
+			weekStart: 1,
+			todayHighlight: true,
+		});
+
+		$(".chosen").chosen();
+
+		let chkValue = $('input[type=radio][name=optionRadios]:checked').val();
+		if(chkValue == 'total'){
+			$( '#fromDate' ).attr('disabled', 'disabled').val('');
+			$( '#toDate' ).attr('disabled', 'disabled').val('');
+		}
+
+		$('input[type=radio][name=optionRadios]').on('click',function () {
+			chkValue = $('input[type=radio][name=optionRadios]:checked').val();
+			if(chkValue == 'total'){
+				$( '#fromDate' ).attr('disabled', 'disabled').val('');
+				$( '#toDate' ).attr('disabled', 'disabled').val('');
+			}
+			else {
+				$( '#fromDate' ).removeAttr('disabled');
+				$( '#toDate' ).removeAttr('disabled');
+			}
+		});
+	});
+
+	document.addEventListener("DOMContentLoaded", function() {
+		const form = document.querySelector("form");
+		const optionRadios = document.getElementsByName("optionRadios");
+		const fromDate = document.getElementById("fromDate");
+		const toDate = document.getElementById("toDate");
+
+		form.addEventListener("submit", function(event) {
+			if (optionRadios[1].checked) {
+				// Check if fromDate and toDate are empty
+				if (!fromDate.value || !toDate.value) {
+					event.preventDefault(); // Prevent form submission
+					alert("시작일과 종료일을 입력해주세요."); // Show alert
+					return;
+				}
+			}
+
+			if (optionRadios[0].checked) {
+				// Remove name attributes to exclude these inputs from the URL parameters
+				optionRadios.forEach(radio => radio.removeAttribute("name"));
+				fromDate.removeAttribute("name");
+				toDate.removeAttribute("name");
+
+				// Clean up the action URL to remove the question mark if no parameters are present
+				form.action = form.action.split('?')[0];
+			}
+		});
+	});
+</script>
+<style>
+	table.dataTable tbody td:nth-child(11) {
+        text-align: left !important; /* Comment 열을 왼쪽 정렬 */
+    }
+
+    #SAE-list {
+        width: 100% !important;
+        table-layout: auto; /* 자동 레이아웃으로 설정 */
+    }
+
+    #SAE-list th {
+        white-space: nowrap; /* 헤더 내용은 한 줄로 */
+    }
+
+    #SAE-list td:not(:last-child) {
+		white-space: pre-wrap; /* 마지막 컬럼 제외한 내용 여러 줄로 표시 */
+	}
+
+    /* 연구약칭 */
+    #SAE-list th:nth-child(1),
+    #SAE-list td:nth-child(1) {
+        width: 15% !important; /* 원하는 너비로 조정 */
+        white-space: pre-wrap; /* 줄바꿈 유지 */
+    }
+
+    /* SAE Term */
+    #SAE-list th:nth-child(2),
+    #SAE-list td:nth-child(2) {
+        width: 15% !important; /* 원하는 너비로 조정 */
+        white-space: pre-wrap; /* 줄바꿈 유지 */
+    }
+
+    /* Comment */
+    #SAE-list th:nth-child(11),
+    #SAE-list td:nth-child(11) {
+        width: 25% !important; /* 원하는 너비로 조정 */
+        white-space: pre-wrap; /* 줄바꿈 유지 */
+    }
+</style>
+{% endblock %}
