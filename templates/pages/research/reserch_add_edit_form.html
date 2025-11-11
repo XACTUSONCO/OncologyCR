@@ -331,12 +331,12 @@
   {# {% include 'pages/research/research_add_edit_form/_io_naive.html' %} #}
 </div>
 
-<!-- <div class="form-group row {% if 'chemotherapy' in errors %} card-inverse-danger {% endif %}"> -->
+<div class="form-group row {% if 'line' in errors %} card-inverse-danger {% endif %}">
   <!-- Line -->
-  {# {% include 'pages/research/research_add_edit_form/_line.html' %} #}
+  {% include 'pages/research/research_add_edit_form/_line.html' %}
   <!-- Alternation -->
   {# {% include 'pages/research/research_add_edit_form/_alternation.html' %} #}
-<!-- </div> -->
+</div>
 
 <!-- <div class="form-group row {% if 'lesion' in errors %} card-inverse-danger {% endif %}"> -->
   <!-- Lesion -->
