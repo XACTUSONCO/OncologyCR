@@ -1,8 +1,20 @@
 {% extends "bases/base_generic.html" %}
 {% load get_value from research_tag %}
+{% load get_item from research_tag %}
 {% load static %}
 
 	{% block content %}
+		{% if tab == "status01_04" %}
+			<script type='text/javascript'>
+				document.addEventListener('DOMContentLoaded', function () {
+				var someTabTriggerEl = document.querySelector('#tab01_04');
+				var tab = new bootstrap.Tab(someTabTriggerEl);
+
+				tab.show(); // 프로필 탭을 활성화
+			});
+			</script>
+		{% endif %}
+
 		<div class="page-content">
 			<div class="container-fluid">
 				<div class="bg-overlay bg-white"></div>
@@ -35,6 +47,7 @@
 								<li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#status01_01">Status 불일치 명단</a></li>
 								<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#status01_02">연구별 FU/EOS 수</a></li>
 								<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#status01_03">Total Visit Count - Normal Distribution</a></li>
+								<li class="nav-item"><a class="nav-link" id="tab01_04" data-bs-toggle="tab" href="#status01_04">GSI팀 월별 등록 현황</a></li>
 							</ul>
 						</div>
 					</div>
@@ -157,6 +170,107 @@
 										</div>
 									</div>
 									{% endfor %}
+								</div>
+							</div>
+							<div class="tab-pane fade" id="status01_04">
+								<h3 class="sr-only">GSI팀 월별 등록 현황</h3>
+								<div class="sattable-cons">
+									<div class="d-flex justify-content-end mb-2">
+										<a href="{% url 'gsi_monthly_enroll_excel' %}?year={{ selected_year }}"
+										   class="btn btn-success">
+											Excel 다운로드
+										</a>
+									</div>
+
+
+									<div class="table-responsive default-table">
+										<form method="get" class="mb-3">
+											<label>연도: </label>
+											<select name="year" onchange="this.form.submit()" class="form-select d-inline w-auto">
+												{% for y in years %}
+													<option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+												{% endfor %}
+											</select>
+										</form>
+
+										<div class="table-responsive default-table">
+											<table class="table table-bordered" style="width:100%;" id="monthly_table">
+												<thead>
+													<tr class="text-center">
+														<th rowspan="2">Line</th>
+														<th rowspan="2">Study Name</th>
+														{% for m in months %}
+															<th colspan="2">{{ m }}월</th>
+														{% endfor %}
+														<th colspan="2">Total</th>
+													</tr>
+													<tr class="text-center">
+														{% for m in months %}
+															<th>Screening</th>
+															<th>Enroll</th>
+														{% endfor %}
+														<th>Screening</th>
+														<th>Enroll</th>
+													</tr>
+												</thead>
+
+												<tbody>
+													{% for r in rows %}
+
+														{% if r.type == "data" %}
+														<tr class="text-center" style="background: {{ r.line_color }};">
+															{% if r.show_line %}
+																<td rowspan="{{ r.line_rowspan }}" class="fw-bold align-middle text-center">{{ r.line }}</td>
+															{% endif %}
+															<td>{{ r.name }}</td>
+
+															{% for m in months %}
+																{% with md=r.months|get_item:m %}
+																	<td>{{ md.screening }}</td>
+																	<td>{{ md.enroll }}</td>
+																{% endwith %}
+															{% endfor %}
+
+															<td class="fw-bold">{{ r.row_total_screen }}</td>
+															<td class="fw-bold">{{ r.row_total_enroll }}</td>
+														</tr>
+														{% endif %}
+
+														{% if r.type == "line_sum" %}
+														<tr class="fw-bold text-center" style="background:#d9d9d9;">
+															<td></td>
+															<td>[{{ r.line }}] 합계</td>
+															{% for m in months %}
+																{% with md=r.months|get_item:m %}
+																	<td>{{ md.screening }}</td>
+																	<td>{{ md.enroll }}</td>
+																{% endwith %}
+															{% endfor %}
+															<td>{{ r.line_total_screen }}</td>
+															<td>{{ r.line_total_enroll }}</td>
+														</tr>
+														{% endif %}
+
+													{% endfor %}
+
+													<tr class="fw-bold text-center" style="background:#ffe8a6;">
+														<td></td>
+														<td>전체 합계</td>
+
+														{% for m in months %}
+															{% with md=overall_month_sum|get_item:m %}
+																<td>{{ md.screening }}</td>
+																<td>{{ md.enroll }}</td>
+															{% endwith %}
+														{% endfor %}
+
+														<td>{{ overall_total_screen }}</td>
+														<td>{{ overall_total_enroll }}</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>

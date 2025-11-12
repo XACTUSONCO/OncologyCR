@@ -238,6 +238,9 @@ class Line(ResearchFieldModel):
     NEOADJUVANT = 'neoadjuvant'
     ADJUVANT = 'adjuvant'
     NA = 'na'
+    PERIOP = 'periop'
+    SOLID = 'solid'
+    ETC = 'etc'
     CHOICES = (
         (NA, "해당없음"),
         (NEOADJUVANT, 'Neoadjuvant'),
@@ -245,7 +248,10 @@ class Line(ResearchFieldModel):
         (LINE1, 'Line 1'),
         (LINE2, 'Line 2'),
         (LINE3, 'Line 3'),
-        (LINE4_OR_MORE, 'Line 4 or more')
+        (LINE4_OR_MORE, 'Line 4 or more'),
+        (PERIOP, 'Periop'),
+        (SOLID, 'Solid'),
+        (ETC, '기타'),
     )
 
 
@@ -483,7 +489,7 @@ class Research(models.Model):
     @staticmethod
     def create_field_value_and_text():
         m2m_field_list = [Cancer, Phase, Chemotherapy, Line, Alternation,
-                          Phase, Lesion, PDL1, IO_Naive, Brain_METS, Biopsy, Type, Route_of_Administration]
+                          Lesion, PDL1, IO_Naive, Brain_METS, Biopsy, Type, Route_of_Administration]
         ret = {}
         for c in m2m_field_list:
             #c_name = c.__name__
@@ -500,7 +506,7 @@ class Research(models.Model):
     @staticmethod
     def create_field_value_and_text_dict():
         m2m_field_list = [Cancer, Phase, Chemotherapy, Line, Alternation,
-                          Phase, Lesion, PDL1, IO_Naive, Brain_METS, Biopsy, Type, Route_of_Administration]
+                          Lesion, PDL1, IO_Naive, Brain_METS, Biopsy, Type, Route_of_Administration]
         ret = {}
         for c in m2m_field_list:
             c_lower_name = c.__name__.lower()        # 'phase'
@@ -584,7 +590,7 @@ class Research(models.Model):
             'Phase',
             #'Type of Therapy',
             #'Route of Administration',
-            #'Line',
+            'Line',
             #'Alternation',
             #'Measurable Lesion 필요여부',
             #'PDL1 양성 필요여부',
@@ -720,8 +726,8 @@ class Research(models.Model):
         #pdl1 = PDL1.objects.filter(value=pdl1_type).first()
 
         # Line
-        #line_types = request.POST.getlist('line')
-        #line = Line.objects.filter(value__in=line_types)
+        line_types = request.POST.getlist('line')
+        line = Line.objects.filter(value__in=line_types)
 
         # Chemotherapy
         #chemotherapy_types = request.POST.getlist('chemotherapy')
@@ -854,7 +860,7 @@ class Research(models.Model):
         #temp_research.lesion = lesion
         #temp_research.alternation = alternation
         #temp_research.pdl1 = pdl1
-        #temp_research.line = line
+        temp_research.line = line
         #temp_research.chemotherapy = chemotherapy
         #temp_research.io_naive = io_naive
         #temp_research.brain_mets = brain_mets
@@ -919,7 +925,7 @@ class Research(models.Model):
             ', '.join(ret['type']),
             ', '.join(ret['phase']),
             #', '.join(ret['chemotherapy']),
-            #', '.join(ret['line']),
+            ', '.join(ret['line']),
             #', '.join(ret['alternation']),
             #self.lesion,
             #self.pdl1,
