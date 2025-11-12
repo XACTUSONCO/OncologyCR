@@ -3,6 +3,10 @@ from datetime import datetime, date, timedelta
 from urllib.parse import urlencode, parse_qs, quote
 import json
 import io, calendar
+from collections import OrderedDict
+
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, PatternFill, Font
 
 import xlsxwriter
 from django.core import serializers
@@ -13,11 +17,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
 from .models import Research, UploadFile, UploadEngFile, UploadInclusion, UploadExclusion, UploadReference, History, WaitingList, Cancer, research_WaitingList, Phase, Pre_Initiation, Pre_Initiation_IIT, Pre_Initiation_SIT, ONCO_CR_COUNT, \
-                    End_research, UploadImage, End_UploadImage, Research_Archive, End_Research_Archive, Study_Category, Study_SubCategory, Study_Memo, DownloadLog
+                    End_research, UploadImage, End_UploadImage, Research_Archive, End_Research_Archive, Study_Category, Study_SubCategory, Study_Memo, DownloadLog, Line
 from miscellaneous.models import Research_Management, Delivery, Supporting
 from .utils import compare_research_fields, generate_search_query, generate_end_study_search_query
 from feedback.utils import compare_assignment_fields
 from feedback.models import Assignment, Feedback, STATUS_HISTORY, UploadRECIST
+from dataroom.models import Image
 
 from django.db.models import Value, Q, Count, F, Sum, Max, Min, ExpressionWrapper, DateField, DurationField, \
     IntegerField, FloatField, Case, When, Func, CharField, Subquery, OuterRef, Exists, Prefetch
@@ -107,7 +112,7 @@ def add_research(request):
     field_dict.pop('cancer')
     field_dict.pop('phase')
     #field_dict.pop('alternation')
-    #field_dict.pop('line')
+    field_dict.pop('line')
     #field_dict.pop('chemotherapy')
     field_dict.pop('type')
     field_dict.pop('route_of_administration')
@@ -118,7 +123,7 @@ def add_research(request):
     new_research.cancer.set(temp_research.cancer)
     new_research.phase.set(temp_research.phase)
     #new_research.alternation.set(temp_research.alternation)
-    #new_research.line.set(temp_research.line)
+    new_research.line.set(temp_research.line)
     #new_research.chemotherapy.set(temp_research.chemotherapy)
     new_research.type.set(temp_research.type)
     new_research.route_of_administration.set(temp_research.route_of_administration)
@@ -323,7 +328,7 @@ def edit_research(request, research_id):
     research.cancer.set(temp_research.cancer)
     research.phase.set(temp_research.phase)
     #research.alternation.set(temp_research.alternation)
-    #research.line.set(temp_research.line)
+    research.line.set(temp_research.line)
     #research.chemotherapy.set(temp_research.chemotherapy)
     research.type.set(temp_research.type)
     research.route_of_administration.set(temp_research.route_of_administration)
@@ -2459,6 +2464,182 @@ def ongoing_patients(request):
     return JsonResponse({'patients': data})
 
 
+
+def gsi_monthly_enroll_context(selected_year=None):
+    """
+    GSI팀 월별 등록 현황 (템플릿 + 엑셀 공용 데이터 생성)
+    """
+    if not selected_year:
+        selected_year = date.today().year
+
+    LINE_ORDER = ["periop", "line1", "line2", "line3", "solid", "N/A"]
+    LINE_COLOR = {
+        "periop": "#fff7e6",
+        "adjuvant": "#fff7e6",
+        "neoadjuvant": "#fff7e6",
+        "line1": "#e6f7ff",
+        "line2": "#e6ffe6",
+        "line3": "#f9e6ff",
+        "line4_or_more": "#fff0f6",
+        "solid": "#e8e8e8",
+        "na": "#f4f4f4",
+        "etc": "#f4f4f4",
+    }
+    months = list(range(1, 13))
+
+    # 1) Dataroom(Images) 기준 id 수집
+    stomach_ids = Image.objects.filter(cancer="Stomach").values_list("research_id", flat=True)
+    sarcoma_ids = Image.objects.filter(cancer="Sarcoma").values_list("research_id", flat=True)
+    urological_ids = Image.objects.filter(
+        cancer="Urological",
+        research__team="GSI"  # Urological은 GSI 팀만
+    ).values_list("research_id", flat=True)
+
+    image_based_ids = set(stomach_ids) | set(sarcoma_ids) | set(urological_ids)
+
+    # 2) GSI 팀 중 '해당 연도에 Screening/Enroll이 있었던' 연구 id 수집
+    gsi_yearly_ids = set(
+        Feedback.objects.filter(
+            assignment__is_deleted=0,
+            assignment__research__is_deleted=0,
+            assignment__research__team__iexact="GSI"
+        ).filter(
+            Q(ICF_date__isnull=False, ICF_date__year=selected_year) |
+            Q(cycle="1", day="1", dosing_date__isnull=False, dosing_date__year=selected_year)
+        ).values_list("assignment__research_id", flat=True).distinct()
+    )
+
+    # 최종 대상 연구 ids: (기존 3종) ∪ (GSI+연도내 활동 연구)
+    research_ids = list(image_based_ids | gsi_yearly_ids)
+
+    # 연구 기본 정보 (Line, 연구명)
+    research_qs = Research.objects.filter(id__in=research_ids).prefetch_related("line")
+    research_map = {}
+    for r in research_qs:
+        line_obj = r.line.first()
+        if line_obj:
+            line_value = getattr(line_obj, "value", None) or getattr(line_obj, "name", "N/A")
+        else:
+            line_value = "N/A"
+        line_value = line_value.strip().lower()
+        research_map[r.id] = {
+            "name": r.research_name,
+            "line": line_value,
+            "line_display": dict(Line.CHOICES).get(line_value, line_value),
+        }
+
+    # Feedback 데이터
+    feedback_qs = Feedback.objects.filter(assignment__research_id__in=research_ids, assignment__is_deleted=0)
+
+    screening_qs = feedback_qs.filter(ICF_date__isnull=False, ICF_date__year=selected_year)
+    enroll_qs = feedback_qs.filter(cycle="1", day="1", dosing_date__isnull=False, dosing_date__year=selected_year)
+
+    screening_rows = (
+        screening_qs.annotate(m=ExtractMonth("ICF_date"), rid=F("assignment__research_id"))
+        .values("rid", "m")
+        .annotate(c=Count("id"))
+    )
+
+    enroll_rows = (
+        enroll_qs.annotate(m=ExtractMonth("dosing_date"), rid=F("assignment__research_id"))
+        .values("rid", "m")
+        .annotate(c=Count("id"))
+    )
+
+    # 연구별 월별 데이터 초기화
+    per_research = {
+        rid: {
+            "name": research_map[rid]["name"],
+            "line": research_map[rid]["line"],
+            "line_display": research_map[rid]["line_display"],
+            "months": {m: {"screening": 0, "enroll": 0} for m in months},
+        }
+        for rid in research_ids
+    }
+
+    for row in screening_rows:
+        per_research[row["rid"]]["months"][row["m"]]["screening"] = row["c"]
+    for row in enroll_rows:
+        per_research[row["rid"]]["months"][row["m"]]["enroll"] = row["c"]
+
+    # 정렬
+    def line_key(line):
+        return LINE_ORDER.index(line) if line in LINE_ORDER else 999
+
+    sorted_items = sorted(
+        per_research.items(),
+        key=lambda it: (line_key(it[1]["line"]), it[1]["name"] or "")
+    )
+
+    # 라인별 그룹화
+    line_groups = OrderedDict()
+    for rid, data in sorted_items:
+        line_groups.setdefault(data["line"], []).append((rid, data))
+
+    # 테이블 렌더링용 구조 (템플릿과 동일)
+    rows = []
+    overall_month_sum = {m: {"screening": 0, "enroll": 0} for m in months}
+    overall_total_screen = 0
+    overall_total_enroll = 0
+
+    for line, items in line_groups.items():
+        line_month_sum = {m: {"screening": 0, "enroll": 0} for m in months}
+        line_total_screen = 0
+        line_total_enroll = 0
+
+        for idx, (rid, data) in enumerate(items):
+            row_total_screen = sum(data["months"][m]["screening"] for m in months)
+            row_total_enroll = sum(data["months"][m]["enroll"] for m in months)
+
+            for m in months:
+                line_month_sum[m]["screening"] += data["months"][m]["screening"]
+                line_month_sum[m]["enroll"] += data["months"][m]["enroll"]
+
+            line_total_screen += row_total_screen
+            line_total_enroll += row_total_enroll
+
+            rows.append({
+                "type": "data",
+                "show_line": (idx == 0),
+                "line": line,
+                "line_display": data["line_display"],
+                "line_rowspan": len(items),
+                "line_color": LINE_COLOR.get(line, "#f4f4f4"),
+                "rid": rid,
+                "name": data["name"],
+                "months": data["months"],
+                "row_total_screen": row_total_screen,
+                "row_total_enroll": row_total_enroll,
+            })
+
+        # 각 line 합계행
+        rows.append({
+            "type": "line_sum",
+            "line": data["line_display"],
+            "line_color": "#d9d9d9",
+            "months": line_month_sum,
+            "line_total_screen": line_total_screen,
+            "line_total_enroll": line_total_enroll,
+        })
+
+        # 전체 합계 누적
+        for m in months:
+            overall_month_sum[m]["screening"] += line_month_sum[m]["screening"]
+            overall_month_sum[m]["enroll"] += line_month_sum[m]["enroll"]
+
+        overall_total_screen += line_total_screen
+        overall_total_enroll += line_total_enroll
+
+    return {
+        "rows": rows,
+        "months": months,
+        "overall_month_sum": overall_month_sum,
+        "overall_total_screen": overall_total_screen,
+        "overall_total_enroll": overall_total_enroll,
+        "selected_year": selected_year,
+    }
+
+
 @login_required()
 def ETC_statistics(request):
     today = datetime.today()
@@ -2525,19 +2706,162 @@ def ETC_statistics(request):
     for item in withdrawal_list:
         withdrawal.setdefault(item['PI'], []).append(item)
 
-    return render(request, 'pages/research/statistics/ETC_statistics.html',
-                  {
-                      'today': today,
-                      'count': count,
-                      'from_date': from_date,
-                      'to_date': to_date,
-                      'date_year': today.strftime('%Y'),
-                      'total_visit_count_normalization': total_visit_count_normalization,
-                      'status_discord_list': status_discord_list,
-                      'status_discord_2_list': status_discord_2_list,
-                      'withdrawal': withdrawal,
-                      'teams': Team.objects.all()
-                  })
+    selected_year = request.GET.get("year")
+    if selected_year:
+        selected_year = int(selected_year)
+        tab = 'status01_04'
+        context = gsi_monthly_enroll_context(selected_year)
+    else:
+        selected_year = date.today().year
+        tab = ''
+        context = gsi_monthly_enroll_context(selected_year)
+
+    context.update({
+        'today': today,
+        'count': count,
+        'from_date': from_date,
+        'to_date': to_date,
+        'date_year': today.strftime('%Y'),
+        'total_visit_count_normalization': total_visit_count_normalization,
+        'status_discord_list': status_discord_list,
+        'status_discord_2_list': status_discord_2_list,
+        'withdrawal': withdrawal,
+        'teams': Team.objects.all(),
+        'tab': tab,
+        'years': [today.year - i for i in range(5)],
+    })
+
+    return render(request, 'pages/research/statistics/ETC_statistics.html', context)
+
+def generate_gsi_excel(context):
+    """
+    GSI 월별 등록 현황 엑셀 생성 (템플릿 구조 그대로 병합/색상 포함)
+    """
+    rows = context["rows"]
+    months = context["months"]
+    overall_month_sum = context["overall_month_sum"]
+    overall_total_screen = context["overall_total_screen"]
+    overall_total_enroll = context["overall_total_enroll"]
+    selected_year = context["selected_year"]
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "GSI 월별 등록 현황"
+
+    header_font = Font(bold=True)
+    center_align = Alignment(horizontal="center", vertical="center")
+
+    # 헤더 (2줄 구조)
+    ws.merge_cells(start_row=1, start_column=1, end_row=2, end_column=1)
+    ws.merge_cells(start_row=1, start_column=2, end_row=2, end_column=2)
+    ws.cell(1, 1, "Line").font = header_font
+    ws.cell(1, 2, "Study Name").font = header_font
+
+    col = 3
+    for m in months:
+        ws.merge_cells(start_row=1, start_column=col, end_row=1, end_column=col + 1)
+        ws.cell(1, col, f"{m}월").font = header_font
+        ws.cell(2, col, "Screening").font = header_font
+        ws.cell(2, col + 1, "Enroll").font = header_font
+        col += 2
+    ws.merge_cells(start_row=1, start_column=col, end_row=1, end_column=col + 1)
+    ws.cell(1, col, "Total").font = header_font
+    ws.cell(2, col, "Screening").font = header_font
+    ws.cell(2, col + 1, "Enroll").font = header_font
+
+    current_row = 3
+
+    def rgb(color):
+        return f"FF{color.replace('#', '')}"
+
+    # 본문 (rows 반복)
+    for r in rows:
+        if r["type"] == "data":
+            # Line 셀 병합
+            if r["show_line"]:
+                ws.merge_cells(start_row=current_row, start_column=1,
+                               end_row=current_row + r["line_rowspan"] - 1, end_column=1)
+                ws.cell(current_row, 1, r["line"].capitalize())
+                ws.cell(current_row, 1).alignment = center_align
+                ws.cell(current_row, 1).fill = PatternFill(start_color=rgb(r["line_color"]), fill_type="solid")
+
+            # 연구명
+            ws.cell(current_row, 2, r["name"])
+            ws.cell(current_row, 1).fill = PatternFill(start_color=rgb(r["line_color"]).replace("#", ""), fill_type="solid")
+
+            col = 3
+            for m in months:
+                md = r["months"][m]
+                ws.cell(current_row, col, md["screening"])
+                ws.cell(current_row, col + 1, md["enroll"])
+                ws.cell(current_row, col).fill = PatternFill(start_color=r["line_color"].replace("#", ""), fill_type="solid")
+                ws.cell(current_row, col + 1).fill = PatternFill(start_color=r["line_color"].replace("#", ""), fill_type="solid")
+                col += 2
+
+            ws.cell(current_row, col, r["row_total_screen"])
+            ws.cell(current_row, col + 1, r["row_total_enroll"])
+            ws.cell(current_row, col).fill = PatternFill(start_color=r["line_color"].replace("#", ""), fill_type="solid")
+            ws.cell(current_row, col + 1).fill = PatternFill(start_color=r["line_color"].replace("#", ""), fill_type="solid")
+            current_row += 1
+
+        elif r["type"] == "line_sum":
+            # 라인 합계 행
+            ws.cell(current_row, 1, f"[{r['line']}] 합계")
+            ws.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=2)
+            ws.cell(current_row, 1).fill = PatternFill(start_color="D9D9D9", fill_type="solid")
+
+            col = 3
+            for m in months:
+                md = r["months"][m]
+                ws.cell(current_row, col, md["screening"])
+                ws.cell(current_row, col + 1, md["enroll"])
+                col += 2
+            ws.cell(current_row, col, r["line_total_screen"])
+            ws.cell(current_row, col + 1, r["line_total_enroll"])
+            for c in range(1, col + 2):
+                ws.cell(current_row, c).fill = PatternFill(start_color="D9D9D9", fill_type="solid")
+            current_row += 1
+
+    # 전체 합계
+    ws.cell(current_row, 1, "전체 합계")
+    ws.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=2)
+    col = 3
+    for m in months:
+        md = overall_month_sum[m]
+        ws.cell(current_row, col, md["screening"])
+        ws.cell(current_row, col + 1, md["enroll"])
+        col += 2
+    ws.cell(current_row, col, overall_total_screen)
+    ws.cell(current_row, col + 1, overall_total_enroll)
+    for c in range(1, col + 2):
+        ws.cell(current_row, c).fill = PatternFill(start_color="FFE8A6", fill_type="solid")
+
+    # 전체 스타일
+    for row in ws.iter_rows(min_row=1, max_row=current_row, min_col=1):
+        for cell in row:
+            cell.alignment = center_align
+            if cell.row in (1, 2):
+                cell.font = header_font
+
+    ws.freeze_panes = "C3"
+
+    # 응답으로 반환
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = (
+            "attachment; filename*=UTF-8''" + quote(f"GSI_월별등록현황_{selected_year}.xlsx")
+    )
+    wb.save(response)
+    return response
+
+@login_required
+def gsi_monthly_enroll_excel(request):
+    selected_year = int(request.GET.get("year", date.today().year))
+    context = gsi_monthly_enroll_context(selected_year)
+
+    return generate_gsi_excel(context)
+
 
 @login_required()
 def not_entered_statistic(request):

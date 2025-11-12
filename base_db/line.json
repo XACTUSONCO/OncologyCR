@@ -47,5 +47,26 @@
         "fields": {
             "value": "line4_or_more"
         }
+    },
+    {
+        "model": "research.Line",
+        "pk": 8,
+        "fields": {
+            "value": "periop"
+        }
+    },
+    {
+        "model": "research.Line",
+        "pk": 9,
+        "fields": {
+            "value": "solid"
+        }
+    },
+    {
+        "model": "research.Line",
+        "pk": 10,
+        "fields": {
+            "value": "etc"
+        }
     }
 ]
