@@ -2487,14 +2487,14 @@ def gsi_monthly_enroll_context(selected_year=None):
     }
     months = list(range(1, 13))
 
-    # ✅ 포함 대상: Stomach, Sarcoma(전체), Urological(GSI팀만)
+    # 포함 대상: Stomach, Sarcoma(전체), Urological(GSI팀만)
     stomach_ids = Image.objects.filter(cancer="Stomach").values_list("research_id", flat=True)
     sarcoma_ids = Image.objects.filter(cancer="Sarcoma").values_list("research_id", flat=True)
     urological_ids = Image.objects.filter(cancer="Urological", research__team="GSI").values_list("research_id", flat=True)
 
     research_ids = list(set(stomach_ids) | set(sarcoma_ids) | set(urological_ids))
 
-    # ✅ 연구 기본 정보 (Line, 연구명)
+    # 연구 기본 정보 (Line, 연구명)
     research_qs = Research.objects.filter(id__in=research_ids).prefetch_related("line")
     research_map = {}
     for r in research_qs:
@@ -2510,7 +2510,7 @@ def gsi_monthly_enroll_context(selected_year=None):
             "line_display": dict(Line.CHOICES).get(line_value, line_value),
         }
 
-    # ✅ Feedback 데이터
+    # Feedback 데이터
     feedback_qs = Feedback.objects.filter(assignment__research_id__in=research_ids, assignment__is_deleted=0)
 
     screening_qs = feedback_qs.filter(ICF_date__isnull=False, ICF_date__year=selected_year)
@@ -2528,7 +2528,7 @@ def gsi_monthly_enroll_context(selected_year=None):
         .annotate(c=Count("id"))
     )
 
-    # ✅ 연구별 월별 데이터 초기화
+    # 연구별 월별 데이터 초기화
     per_research = {
         rid: {
             "name": research_map[rid]["name"],
@@ -2544,7 +2544,7 @@ def gsi_monthly_enroll_context(selected_year=None):
     for row in enroll_rows:
         per_research[row["rid"]]["months"][row["m"]]["enroll"] = row["c"]
 
-    # ✅ 정렬
+    # 정렬
     def line_key(line):
         return LINE_ORDER.index(line) if line in LINE_ORDER else 999
 
@@ -2553,12 +2553,12 @@ def gsi_monthly_enroll_context(selected_year=None):
         key=lambda it: (line_key(it[1]["line"]), it[1]["name"] or "")
     )
 
-    # ✅ 라인별 그룹화
+    # 라인별 그룹화
     line_groups = OrderedDict()
     for rid, data in sorted_items:
         line_groups.setdefault(data["line"], []).append((rid, data))
 
-    # ✅ 테이블 렌더링용 구조 (템플릿과 동일)
+    # 테이블 렌더링용 구조 (템플릿과 동일)
     rows = []
     overall_month_sum = {m: {"screening": 0, "enroll": 0} for m in months}
     overall_total_screen = 0
@@ -2594,7 +2594,7 @@ def gsi_monthly_enroll_context(selected_year=None):
                 "row_total_enroll": row_total_enroll,
             })
 
-        # ✅ 각 line 합계행
+        # 각 line 합계행
         rows.append({
             "type": "line_sum",
             "line": data["line_display"],
@@ -2604,7 +2604,7 @@ def gsi_monthly_enroll_context(selected_year=None):
             "line_total_enroll": line_total_enroll,
         })
 
-        # ✅ 전체 합계 누적
+        # 전체 합계 누적
         for m in months:
             overall_month_sum[m]["screening"] += line_month_sum[m]["screening"]
             overall_month_sum[m]["enroll"] += line_month_sum[m]["enroll"]
@@ -2688,200 +2688,6 @@ def ETC_statistics(request):
     for item in withdrawal_list:
         withdrawal.setdefault(item['PI'], []).append(item)
 
-    # GSI팀 월별 등록 현황
-    # LINE_ORDER = ["periop", "line1", "line2", "line3", "solid", "N/A"]
-    #
-    # LINE_COLOR = {
-    #     "periop": "#fff7e6",  # 수술 전후
-    #     "adjuvant": "#fff7e6",
-    #     "neoadjuvant": "#fff7e6",
-    #     "line1": "#e6f7ff",  # 1차
-    #     "line2": "#e6ffe6",  # 2차
-    #     "line3": "#f9e6ff",  # 3차
-    #     "line4_or_more": "#fff0f6",  # 4차 이상
-    #     "solid": "#e8e8e8",  # 고형암
-    #     "na": "#f4f4f4",  # 기타
-    #     "etc": "#f4f4f4",
-    # }
-    #
-    # selected_year = request.GET.get("year")
-    # if selected_year:
-    #     selected_year = int(selected_year)
-    #     tab = 'status01_04'
-    # else:
-    #     selected_year = date.today().year
-    #     tab = ''
-    #
-    # months = list(range(1, 13))
-    #
-    # images = (
-    #     Image.objects.filter(cancer__in=["Stomach", "Sarcoma", "Urological"])
-    #     .select_related("research")
-    # )
-    #
-    # research_cancer_map = {}
-    # for img in images:
-    #     r = img.research
-    #     if not r or r.is_deleted:  # 삭제된 연구 제외
-    #         continue
-    #
-    #     team_name = (r.team or "").upper()  # CharField 이므로 바로 접근 가능
-    #
-    #     # ✅ Urological만 GSI팀 제한
-    #     if img.cancer == "Urological" and team_name != "GSI":
-    #         continue
-    #
-    #     # Stomach / Sarcoma는 전체 포함
-    #     research_cancer_map[r.id] = img.cancer
-    #
-    # research_ids = list(research_cancer_map.keys())
-    #
-    # research_qs = (
-    #     Research.objects.filter(id__in=research_ids, is_deleted=0)
-    #     .prefetch_related("line")  # team은 FK 아님
-    # )
-    #
-    # research_map = {}
-    # for r in research_qs:
-    #     cancer = research_cancer_map.get(r.id, "")
-    #     team_name = (r.team or "").upper()
-    #
-    #     if cancer == "Sarcoma":
-    #         line_value = "sarcoma"
-    #     elif cancer == "Urological" and team_name == "GSI":
-    #         line_value = "urological"
-    #     else:
-    #         line_obj = r.line.first()
-    #         if line_obj:
-    #             if hasattr(line_obj, "value") and line_obj.value:
-    #                 line_value = line_obj.value
-    #             elif hasattr(line_obj, "name") and line_obj.name:
-    #                 line_value = line_obj.name
-    #             else:
-    #                 line_value = str(line_obj)
-    #         else:
-    #             line_value = "N/A"
-    #
-    #     line_value = line_value.strip().lower()
-    #
-    #     research_map[r.id] = {
-    #         "name": r.research_name,
-    #         "line": line_value,
-    #     }
-    #
-    # feedback_qs = Feedback.objects.filter(
-    #     assignment__research_id__in=research_ids,
-    #     assignment__is_deleted=0
-    # )
-    #
-    # screening_qs = feedback_qs.filter(
-    #     ICF_date__isnull=False,
-    #     ICF_date__year=selected_year
-    # )
-    #
-    # enroll_qs = feedback_qs.filter(
-    #     cycle="1",
-    #     day="1",
-    #     dosing_date__isnull=False,
-    #     dosing_date__year=selected_year
-    # )
-    #
-    # screening_rows = (
-    #     screening_qs.annotate(
-    #         m=ExtractMonth("ICF_date"),
-    #         rid=F("assignment__research_id")
-    #     )
-    #     .values("rid", "m")
-    #     .annotate(c=Count("id"))
-    # )
-    #
-    # enroll_rows = (
-    #     enroll_qs.annotate(
-    #         m=ExtractMonth("dosing_date"),
-    #         rid=F("assignment__research_id")
-    #     )
-    #     .values("rid", "m")
-    #     .annotate(c=Count("id"))
-    # )
-    #
-    # per_research = {
-    #     rid: {
-    #         "name": research_map[rid]["name"],
-    #         "line": research_map[rid]["line"],
-    #         "months": {m: {"screening": 0, "enroll": 0} for m in months}
-    #     }
-    #     for rid in research_ids
-    # }
-    #
-    # for row in screening_rows:
-    #     per_research[row["rid"]]["months"][row["m"]]["screening"] = row["c"]
-    #
-    # for row in enroll_rows:
-    #     per_research[row["rid"]]["months"][row["m"]]["enroll"] = row["c"]
-    #
-    # def line_key(line):
-    #     return LINE_ORDER.index(line) if line in LINE_ORDER else 999
-    #
-    # sorted_items = sorted(
-    #     per_research.items(),
-    #     key=lambda it: (line_key(it[1]["line"]), it[1]["name"] or "")
-    # )
-    #
-    # line_groups = OrderedDict()
-    # for rid, data in sorted_items:
-    #     line_groups.setdefault(data["line"], []).append((rid, data))
-    #
-    # rows = []
-    # overall_month_sum = {m: {"screening": 0, "enroll": 0} for m in months}
-    # overall_total_screen = 0
-    # overall_total_enroll = 0
-    #
-    # for line, items in line_groups.items():
-    #     line_month_sum = {m: {"screening": 0, "enroll": 0} for m in months}
-    #     line_total_screen = 0
-    #     line_total_enroll = 0
-    #
-    #     for idx, (rid, data) in enumerate(items):
-    #         row_total_screen = sum(data["months"][m]["screening"] for m in months)
-    #         row_total_enroll = sum(data["months"][m]["enroll"] for m in months)
-    #
-    #         for m in months:
-    #             line_month_sum[m]["screening"] += data["months"][m]["screening"]
-    #             line_month_sum[m]["enroll"] += data["months"][m]["enroll"]
-    #
-    #         line_total_screen += row_total_screen
-    #         line_total_enroll += row_total_enroll
-    #
-    #         rows.append({
-    #             "type": "data",
-    #             "show_line": (idx == 0),
-    #             "line": line,
-    #             "line_rowspan": len(items),
-    #             "line_color": LINE_COLOR.get(line, "#f4f4f4"),
-    #             "rid": rid,
-    #             "name": data["name"],
-    #             "months": data["months"],
-    #             "row_total_screen": row_total_screen,
-    #             "row_total_enroll": row_total_enroll,
-    #         })
-    #
-    #     rows.append({
-    #         "type": "line_sum",
-    #         "line": line,
-    #         "line_color": "#d9d9d9",
-    #         "months": line_month_sum,
-    #         "line_total_screen": line_total_screen,
-    #         "line_total_enroll": line_total_enroll,
-    #     })
-    #
-    #     for m in months:
-    #         overall_month_sum[m]["screening"] += line_month_sum[m]["screening"]
-    #         overall_month_sum[m]["enroll"] += line_month_sum[m]["enroll"]
-    #
-    #     overall_total_screen += line_total_screen
-    #     overall_total_enroll += line_total_enroll
-
-
     selected_year = request.GET.get("year")
     if selected_year:
         selected_year = int(selected_year)
@@ -2926,7 +2732,7 @@ def generate_gsi_excel(context):
     header_font = Font(bold=True)
     center_align = Alignment(horizontal="center", vertical="center")
 
-    # ✅ 헤더 (2줄 구조)
+    # 헤더 (2줄 구조)
     ws.merge_cells(start_row=1, start_column=1, end_row=2, end_column=1)
     ws.merge_cells(start_row=1, start_column=2, end_row=2, end_column=2)
     ws.cell(1, 1, "Line").font = header_font
@@ -2949,7 +2755,7 @@ def generate_gsi_excel(context):
     def rgb(color):
         return f"FF{color.replace('#', '')}"
 
-    # ✅ 본문 (rows 반복)
+    # 본문 (rows 반복)
     for r in rows:
         if r["type"] == "data":
             # Line 셀 병합
@@ -2980,7 +2786,7 @@ def generate_gsi_excel(context):
             current_row += 1
 
         elif r["type"] == "line_sum":
-            # ✅ 라인 합계 행
+            # 라인 합계 행
             ws.cell(current_row, 1, f"[{r['line']}] 합계")
             ws.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=2)
             ws.cell(current_row, 1).fill = PatternFill(start_color="D9D9D9", fill_type="solid")
@@ -2997,7 +2803,7 @@ def generate_gsi_excel(context):
                 ws.cell(current_row, c).fill = PatternFill(start_color="D9D9D9", fill_type="solid")
             current_row += 1
 
-    # ✅ 전체 합계
+    # 전체 합계
     ws.cell(current_row, 1, "전체 합계")
     ws.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=2)
     col = 3
@@ -3011,7 +2817,7 @@ def generate_gsi_excel(context):
     for c in range(1, col + 2):
         ws.cell(current_row, c).fill = PatternFill(start_color="FFE8A6", fill_type="solid")
 
-    # ✅ 전체 스타일
+    # 전체 스타일
     for row in ws.iter_rows(min_row=1, max_row=current_row, min_col=1):
         for cell in row:
             cell.alignment = center_align
@@ -3020,7 +2826,7 @@ def generate_gsi_excel(context):
 
     ws.freeze_panes = "C3"
 
-    # ✅ 응답으로 반환
+    # 응답으로 반환
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
