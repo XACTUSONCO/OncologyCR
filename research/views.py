@@ -2710,6 +2710,7 @@ def ETC_statistics(request):
         'withdrawal': withdrawal,
         'teams': Team.objects.all(),
         'tab': tab,
+        'years': [today.year - i for i in range(5)],
     })
 
     return render(request, 'pages/research/statistics/ETC_statistics.html', context)
