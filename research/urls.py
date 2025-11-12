@@ -35,7 +35,6 @@ urlpatterns = [
     path('statistic/download/', views.download_statistics),
     path('gsi_monthly_enroll_excel/', views.gsi_monthly_enroll_excel, name='gsi_monthly_enroll_excel'),
 
-
     # Pre Initiation Research List
     path('pre_initiation/update_research/<int:id>/', views.update_research),    # Pre-Initiation -> new research
     path('pre_initiation/', views.pre_initiation),   # 개시 연구 index page
