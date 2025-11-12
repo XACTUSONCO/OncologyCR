@@ -2487,12 +2487,30 @@ def gsi_monthly_enroll_context(selected_year=None):
     }
     months = list(range(1, 13))
 
-    # 포함 대상: Stomach, Sarcoma(전체), Urological(GSI팀만)
+    # 1) Dataroom(Images) 기준 id 수집
     stomach_ids = Image.objects.filter(cancer="Stomach").values_list("research_id", flat=True)
     sarcoma_ids = Image.objects.filter(cancer="Sarcoma").values_list("research_id", flat=True)
-    urological_ids = Image.objects.filter(cancer="Urological", research__team="GSI").values_list("research_id", flat=True)
+    urological_ids = Image.objects.filter(
+        cancer="Urological",
+        research__team="GSI"  # Urological은 GSI 팀만
+    ).values_list("research_id", flat=True)
 
-    research_ids = list(set(stomach_ids) | set(sarcoma_ids) | set(urological_ids))
+    image_based_ids = set(stomach_ids) | set(sarcoma_ids) | set(urological_ids)
+
+    # 2) GSI 팀 중 '해당 연도에 Screening/Enroll이 있었던' 연구 id 수집
+    gsi_yearly_ids = set(
+        Feedback.objects.filter(
+            assignment__is_deleted=0,
+            assignment__research__is_deleted=0,
+            assignment__research__team__iexact="GSI"
+        ).filter(
+            Q(ICF_date__isnull=False, ICF_date__year=selected_year) |
+            Q(cycle="1", day="1", dosing_date__isnull=False, dosing_date__year=selected_year)
+        ).values_list("assignment__research_id", flat=True).distinct()
+    )
+
+    # 최종 대상 연구 ids: (기존 3종) ∪ (GSI+연도내 활동 연구)
+    research_ids = list(image_based_ids | gsi_yearly_ids)
 
     # 연구 기본 정보 (Line, 연구명)
     research_qs = Research.objects.filter(id__in=research_ids).prefetch_related("line")
