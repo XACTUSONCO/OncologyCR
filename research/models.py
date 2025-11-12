@@ -231,6 +231,9 @@ class Line(ResearchFieldModel):
     NEOADJUVANT = 'neoadjuvant'
     ADJUVANT = 'adjuvant'
     NA = 'na'
+    PERIOP = 'periop'
+    SOLID = 'solid'
+    ETC = 'etc'
     CHOICES = (
         (NA, "해당없음"),
         (NEOADJUVANT, 'Neoadjuvant'),
@@ -238,7 +241,10 @@ class Line(ResearchFieldModel):
         (LINE1, 'Line 1'),
         (LINE2, 'Line 2'),
         (LINE3, 'Line 3'),
-        (LINE4_OR_MORE, 'Line 4 or more')
+        (LINE4_OR_MORE, 'Line 4 or more'),
+        (PERIOP, 'Periop'),
+        (SOLID, 'Solid'),
+        (ETC, '기타'),
     )
 
 
@@ -577,7 +583,7 @@ class Research(models.Model):
             'Phase',
             #'Type of Therapy',
             #'Route of Administration',
-            #'Line',
+            'Line',
             #'Alternation',
             #'Measurable Lesion 필요여부',
             #'PDL1 양성 필요여부',
@@ -912,7 +918,7 @@ class Research(models.Model):
             ', '.join(ret['type']),
             ', '.join(ret['phase']),
             #', '.join(ret['chemotherapy']),
-            #', '.join(ret['line']),
+            ', '.join(ret['line']),
             #', '.join(ret['alternation']),
             #self.lesion,
             #self.pdl1,

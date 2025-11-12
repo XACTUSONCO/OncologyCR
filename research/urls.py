@@ -33,6 +33,8 @@ urlpatterns = [
     path('statistic/ongoing/download/', views.download_ongoing),
     path('statistic/performance/download/', views.download_performance),
     path('statistic/download/', views.download_statistics),
+    path('gsi_monthly_enroll_excel/', views.gsi_monthly_enroll_excel, name='gsi_monthly_enroll_excel'),
+
 
     # Pre Initiation Research List
     path('pre_initiation/update_research/<int:id>/', views.update_research),    # Pre-Initiation -> new research
