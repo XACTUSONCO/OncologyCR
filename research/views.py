@@ -17,7 +17,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
 from .models import Research, UploadFile, UploadEngFile, UploadInclusion, UploadExclusion, UploadReference, History, WaitingList, Cancer, research_WaitingList, Phase, Pre_Initiation, Pre_Initiation_IIT, Pre_Initiation_SIT, ONCO_CR_COUNT, \
-                    End_research, UploadImage, End_UploadImage, Research_Archive, End_Research_Archive, Study_Category, Study_SubCategory, Study_Memo, DownloadLog, Line
+                    End_research, UploadImage, End_UploadImage, Research_Archive, End_Research_Archive, Study_Category, Study_SubCategory, Study_Memo, DownloadLog, SAE, Line
+
 from miscellaneous.models import Research_Management, Delivery, Supporting
 from .utils import compare_research_fields, generate_search_query, generate_end_study_search_query
 from feedback.utils import compare_assignment_fields
@@ -36,6 +37,7 @@ import numpy as np
 from dateutil import relativedelta
 from django.core.exceptions import SuspiciousOperation
 from administration.models import Company
+from django.views.decorators.csrf import csrf_exempt
 
 TYPE_CHOICES = [
     ('IIT', 'IIT'),
@@ -737,7 +739,7 @@ def download_search(request):
     research_download = DownloadLog(downloader=request.user, content='연구 목록')
     research_download.save()
     
-    return response
+    return HttpResponse
 
 
 @login_required()
@@ -3998,7 +4000,7 @@ def update_research(request, id):
                       content=new_research.json())
     history.save()
 
-    return HttpResponseRedirect('/research/' + str(research.id) + '/')
+    return HttpResponseRedirect('/research/' + str(new_research.id) + '/')
 
 
 # 1. end_study ('Research' Class Model에서 끌고 온 데이터) 2. end_research (별도 추가)
@@ -4162,3 +4164,88 @@ def download_statistics(request):
     statistics_download.save()
 
     return HttpResponse()
+
+
+
+
+@login_required()
+def SAE_list(request, research_id):
+    research = get_object_or_404(Research, pk=research_id)
+    option_radio = request.GET.get('optionRadios')
+    assignments = Assignment.objects.filter(is_deleted=False, research=research) \
+        .order_by('no') \
+        .values('id', 'no', 'register_number', 'name', 'research__research_name', 'status')
+
+    if request.GET.get('optionRadios'):
+        period_from_date = request.GET.get('period_from_date')
+        period_to_date = request.GET.get('period_to_date')
+        return render(request, 'pages/research/SAE/SAE.html',
+                      {
+                          'research': research,
+                          'all_sae': SAE.objects.filter(is_deleted=0, assignment__research=research,
+                                                        initial_report_date__gte=period_from_date, initial_report_date__lte=period_to_date),
+                          'assignments': assignments,
+                          'SAE_field_choice': SAE.field_value_and_text(),
+                          'period_from_date': period_from_date,
+                          'period_to_date': period_to_date,
+                          'option_radio': option_radio
+                      })
+
+    return render(request, 'pages/research/SAE/SAE.html',
+                  {'research': research,
+                           'all_sae': SAE.objects.filter(is_deleted=0, assignment__research=research),
+                           'assignments': assignments,
+                           'SAE_field_choice': SAE.field_value_and_text(),
+                           'option_radio': option_radio
+                   })
+
+
+@csrf_exempt
+@login_required()
+@require_http_methods(['POST'])
+def add_SAE(request):
+    _sae, errors = SAE.SAE_form_validation(request)
+
+    if errors:
+        return JsonResponse({'code': 'error', 'error': errors})
+
+    field_dict = dict(vars(_sae))
+    new_sae = SAE(**field_dict)
+
+        # 생성 당시 CRC 값 복사 저장
+    if _sae.assignment and hasattr(_sae.assignment, 'curr_crc'):
+        new_sae.crc_snapshot = _sae.assignment.curr_crc
+
+    new_sae.save()
+
+    return JsonResponse({'code': 'success'})
+
+
+@login_required()
+def edit_SAE(request, SAE_id):
+    sae = get_object_or_404(SAE, pk=SAE_id)
+    edited_sae, errors = SAE.SAE_form_validation(request)
+
+    if errors:
+        return JsonResponse({'code': 'error', 'error': errors})
+
+    sae.term = edited_sae.term
+    sae.initial = edited_sae.initial
+    sae.causality = edited_sae.causality
+    sae.start_date = edited_sae.start_date
+    sae.end_date = edited_sae.end_date
+    sae.initial_report_date = edited_sae.initial_report_date
+    sae.comment = edited_sae.comment
+    sae.assignment = edited_sae.assignment
+    sae.save()
+
+    return JsonResponse({'code': 'success'})
+
+
+@login_required()
+def delete_SAE(request, SAE_id):
+    sae = SAE.objects.get(pk=SAE_id)
+    research_id = sae.assignment.research.id
+    sae.is_deleted = True
+    sae.save()
+    return HttpResponseRedirect(f'/research/SAE/{research_id}/')

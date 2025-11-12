@@ -1,0 +1,139 @@
+<div class="form-group row {% if 'assignment' in errors %} card-inverse-danger {% endif %}">
+  <label for="assignment" class="col-lg-2 col-form-label">
+    <span style="color: red; font-weight: bold;">* </span>환자
+    {% autoescape off %}
+      {% if 'assignment' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.assignment }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+      <select id="assignment" name="assignment" class="form-control">
+          <option value="">-------</option>
+          {% for assignment in assignments %}
+              <option value="{{assignment.id}}" {% if assignment.id == sae.assignment.id %} selected {% endif %}>
+                {{assignment.no}} ({{assignment.register_number}}) {{assignment.name}}</option>
+        {% endfor %}자
+      </select>
+  </div>
+</div>
+
+<div class="form-group row {% if 'causality' in errors %} card-inverse-danger {% endif %}">
+  <label for="causality" class="col-lg-2 col-form-label">인과관계
+    {% autoescape off %}
+      {% if 'causality' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.causality }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+    <div class="row row-cols-auto">
+      {% for value, text in SAE_field_choice.causality %}
+      <div class="col">
+        <div class="form-check form-check-success">
+          <label class="form-check-label">
+            <input type="radio" class="form-check-input" name="causality" value="{{ value }}"
+                   {% if value == sae.causality %} checked {% endif %}>
+            <i class="input-helper"></i><span class="form-check-sign">{{ value }}</span>
+          </label>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'term' in errors %} card-inverse-danger {% endif %}">
+  <label for="term" class="col-lg-2 col-form-label">
+    <span style="color: red; font-weight: bold;">* </span>SAE Term
+    {% autoescape off %}
+      {% if 'term' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.term }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+    <input type="text" class="form-control" name="term" value="{{ sae.term }}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'initial' in errors %} card-inverse-danger {% endif %}">
+  <label for="initial" class="col-lg-2 col-form-label">환자 이니셜
+    {% autoescape off %}
+      {% if 'initial' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.initial }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+    <input type="text" class="form-control" name="initial" value="{{ sae.initial }}">
+  </div>
+</div>
+
+<div class="form-group row {% if 'start_date' in errors %} card-inverse-danger {% endif %}">
+  <label for="start_date" class="col-lg-2 col-form-label">
+    <span style="color: red; font-weight: bold;">* </span>시작일
+    {% autoescape off %}
+      {% if 'start_date' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.start_date }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+    <div class="month-inputs input-group">
+      <input class="form-control datepicker" id="startdate" name="start_date" autocomplete="off"
+             value="{{ sae.start_date|date:"Y-m-d" }}"
+             >
+      <label for="startdate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'end_date' in errors %} card-inverse-danger {% endif %}">
+  <label for="end_date" class="col-lg-2 col-form-label">종료일
+    {% autoescape off %}
+      {% if 'end_date' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.end_date }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+    <div class="month-inputs input-group">
+      <input class="form-control datepicker" id="enddate" name="end_date" autocomplete="off"
+             value="{{ sae.end_date|date:"Y-m-d" }}"
+             >
+      <label for="enddate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'initial_report_date' in errors %} card-inverse-danger {% endif %}">
+  <label for="initial_report_date" class="col-lg-2 col-form-label">초기 보고일
+    {% autoescape off %}
+      {% if 'initial_report_date' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.initial_report_date }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+    <div class="month-inputs input-group">
+      <input class="form-control datepicker" name="initial_report_date" autocomplete="off"
+             value="{{ sae.initial_report_date|date:"Y-m-d" }}"
+             >
+      <label for="enddate" class="input-group-text"><i class="bi bi-calendar-check"></i></label>
+    </div>
+  </div>
+</div>
+
+<div class="form-group row {% if 'comment' in errors %} card-inverse-danger {% endif %}">
+  <label for="comment" class="col-lg-2 col-form-label">Comment
+    {% autoescape off %}
+      {% if 'comment' in errors %}
+        <div class="text-danger small" style="line-height: 1rem;">{{ errors.comment }}</div>
+      {% endif %}
+    {% endautoescape %}
+  </label>
+  <div class="col-lg-8 col-form-data">
+    <textarea class="form-control" name="comment" rows="4">{% if sae.comment %}{{ sae.comment }}{% endif %}</textarea>
+  </div>
+</div>
